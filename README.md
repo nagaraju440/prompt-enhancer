@@ -31,7 +31,8 @@ Plus the project's static `session-guardrail.txt`. The engine never rewrites you
 
 ```
 engine/            the hook itself (generic; project specifics via .claude/enhancer.project.json)
-  install.js         one-command install / uninstall into any project
+  install.js               one-command install / uninstall into any project
+  refined-prompt-logger.js Stop hook: logs what Claude understood you to mean
 fixture/           lujakob/nestjs-realworld-example-app @ c1c2cc4 + a realistic knowledge base
   .claude/knowledge/{workspace,schema,auth}.md · LESSONS.md · CURRENT_FOCUS.md · session-guardrail.txt
 arms/              arm0-none · arm1-rules · arm2-full   (one settings.json each)
@@ -104,5 +105,23 @@ echo '{"prompt":"fix the login bug"}' | node ~/prompt-enhancer/engine/prompt-enh
 `install.js --starter` drops a starter rules file and project JSON for you to edit (it never
 overwrites files you already have).
 
+### The log
+
+The installer wires **two** hooks, and together they write `.claude/enhancer-log.md`:
+
+| hook | records |
+|---|---|
+| `prompt-enhancer.js` (`UserPromptSubmit`) | your prompt, the detected intent and domain, which KB files were retrieved, which sections were injected |
+| `refined-prompt-logger.js` (`Stop`) | your prompt paired with the one-line restatement Claude opened with — the before/after pairs in [`EXAMPLES.md`](EXAMPLES.md) |
+
+It is **on by default**, because it is how you find out whether the thing is working and which
+pattern to tune when it isn't. It is local, rotated at 1 MB, and never leaves your machine — but it
+does hold your prompts verbatim, so:
+
+- `ENHANCER_LOG=0` turns all logging off, both hooks.
+- `install.js --no-logger` skips the `Stop` hook; you keep the injection side only.
+- In a git repo the installer writes `.claude/.gitignore` so a stray `git add .` can't commit it.
+
 **Switches:** `ENHANCER_OFF=1` disables the hook · `ENRICH_OFF=1` keeps grounding but drops the
-stance layer · every failure is fail-open, so a broken config can never block your prompt.
+stance layer · `ENHANCER_LOG=0` disables logging · every failure is fail-open, so a broken config
+can never block your prompt.

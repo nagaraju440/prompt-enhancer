@@ -158,7 +158,8 @@ simple prompt from being buried:
 
 ## Keep your own log
 
-The hook writes `.claude/enhancer-log.md` in your project — prompt, classification, which KB files
-were retrieved, which sections were injected. It is local, rotated at 1 MB, and never leaves your
-machine. It is also the fastest way to tune the thing: if the wrong intent keeps firing on your
+Both hooks the installer wires write `.claude/enhancer-log.md`: the `UserPromptSubmit` hook records
+the prompt, classification, retrieved KB files and injected sections; the `Stop` hook records the
+prompt paired with Claude's restatement — the pairs above. It is local, rotated at 1 MB, never
+leaves your machine, and `ENHANCER_LOG=0` turns it off. It is also the fastest way to tune the thing: if the wrong intent keeps firing on your
 prompts, the log tells you which pattern to adjust in `engine/lib/enhancer-config.js`.
