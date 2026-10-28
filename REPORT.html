@@ -259,7 +259,7 @@ The single source is the **load at :133**, not the read at :135 — and the same
 </ul>
 
 <h2>Reproduce it</h2>
-<p>Everything is in <code>Desktop/prompt-enhancer-benchmark/</code>: the generic engine, the vendored fixture with its knowledge base, the 24 traps, and <code>results/2026-09-20T07-48-42-011Z/runs/</code> with all 216 answers plus the exact text each hook injected. <code>summary.md</code>, <code>judge.md</code> and <code>RESULTS.md</code> are generated from those files.</p>
+<p>Everything is in <code>Desktop/prompt-enhancer/</code>: the generic engine, the vendored fixture with its knowledge base, the 24 traps, and <code>results/2026-09-20T07-48-42-011Z/runs/</code> with all 216 answers plus the exact text each hook injected. <code>summary.md</code>, <code>judge.md</code> and <code>RESULTS.md</code> are generated from those files.</p>
 <pre class="mono" style="background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.8rem">node run.js            # 216 answers via claude -p (needs the CLI logged in)
 node rescore.js        # re-grade saved answers after editing a trap
 node judge.js          # 288 blind pairwise verdicts
