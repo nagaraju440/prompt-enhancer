@@ -50,7 +50,7 @@ paused because the recipient ID looked wrong.
 Two steps. Requires Node ≥ 18, which you already have if you run Claude Code.
 
 ```bash
-git clone https://github.com/<you>/prompt-enhancer.git ~/prompt-enhancer
+git clone https://github.com/nagaraju440/prompt-enhancer.git ~/prompt-enhancer
 ```
 
 ```bash
