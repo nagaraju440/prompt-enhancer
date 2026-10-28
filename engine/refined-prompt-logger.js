@@ -87,9 +87,9 @@ function truncateField(s, max) {
 
 (function main() {
   try {
-    // ENHANCER_LOG=0 turns off all local logging (this hook and the injection
-    // diagnostics in prompt-enhancer.js). The log never leaves the machine, but
-    // it does contain your prompts, so it has to be switchable.
+    // ON by default — this pair (what you asked / what Claude understood) is the
+    // whole point of the log. ENHANCER_LOG=0 turns it off; the file never leaves
+    // the machine but it holds your prompts verbatim, so it must be switchable.
     if (process.env.ENHANCER_LOG === '0') return process.exit(0);
     const raw = readStdin();
     let hook;

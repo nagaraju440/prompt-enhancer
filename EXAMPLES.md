@@ -158,8 +158,10 @@ simple prompt from being buried:
 
 ## Keep your own log
 
-Both hooks the installer wires write `.claude/enhancer-log.md`: the `UserPromptSubmit` hook records
-the prompt, classification, retrieved KB files and injected sections; the `Stop` hook records the
-prompt paired with Claude's restatement — the pairs above. It is local, rotated at 1 MB, never
-leaves your machine, and `ENHANCER_LOG=0` turns it off. It is also the fastest way to tune the thing: if the wrong intent keeps firing on your
-prompts, the log tells you which pattern to adjust in `engine/lib/enhancer-config.js`.
+Once installed, you get pairs exactly like the ones above for your own prompts, in
+`.claude/enhancer-log.md`. Nothing else goes in that file — just what you asked and what Claude
+understood. It stays on your machine, is capped at 1 MB, and `ENHANCER_LOG=0` turns it off.
+
+Read it once a week. When a restatement doesn't match what you meant, that is the tool telling you
+where it is weak. `ENHANCER_LOG=debug` then adds *why* it chose that stance, which points you at the
+pattern to adjust in `engine/lib/enhancer-config.js`.

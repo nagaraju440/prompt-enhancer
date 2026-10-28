@@ -102,9 +102,11 @@ function truncateField(s) {
 // rotated. Best-effort: a logging failure must never affect the turn.
 function logTurn(prompt, retrieved, enrichment) {
   try {
-    // ENHANCER_LOG=0 turns logging off. It is local-only and rotated, but it
-    // holds your prompts verbatim, so it must be switchable without editing code.
-    if (process.env.ENHANCER_LOG === '0') return;
+    // OFF by default. The log a user actually reads is the prompt/understanding
+    // pair written by refined-prompt-logger.js; this classification dump is for
+    // tuning the matcher, and mixing the two makes the file hard to skim.
+    // ENHANCER_LOG=debug turns it on.
+    if (process.env.ENHANCER_LOG !== 'debug') return;
     try {
       if (fs.statSync(LOGFILE).size > (CFG.LOG_ROTATE_BYTES || 1000000)) {
         fs.renameSync(LOGFILE, LOGFILE + '.1'); // overwrites previous .1

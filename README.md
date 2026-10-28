@@ -1,53 +1,52 @@
 # prompt-enhancer
 
-A local `UserPromptSubmit` hook for Claude Code. It reads the prompt you typed and prepends a
-**stance** — a role, a quality bar, an output contract, and flags like *confirm before acting* —
-plus the **project knowledge** relevant to that prompt. It never rewrites a word of what you typed.
+You type short prompts. Claude guesses what you meant. Sometimes it guesses wrong, and you find out
+five minutes later.
 
-No network. No second model. No dependencies. Node's `fs` and `path` are the only imports, and it
-runs in about 150 ms.
+This is a hook for Claude Code that fixes the guessing. Before Claude sees your prompt, it adds the
+missing half: who to be, what a good answer looks like, what to check first, and when to stop and
+ask. It runs on your machine in about 150 ms. No network, no second AI, no dependencies.
+
+**It does not rewrite your prompt.** Your words go through untouched.
 
 ```
 you type:   fix the 500 on the favorite endpoint
 
-it injects: <role>
+claude also gets:
             You are a senior backend engineer on <your project>.
-            - Keep the layer order the codebase already uses (controller → service →
-              repository/entity) and keep the response envelope the siblings return.
-            - Read the nearest sibling module first and mirror it.
-            </role>
-            <quality_bar>
-            1. Locate the exact failing line and quote it as file:line before proposing anything.
+            1. Locate the exact failing line and quote it as file:line before
+               proposing anything.
             2. Name the ROOT CAUSE, not the symptom — and say why it surfaces now.
             3. Fix it at its single source; do not patch each call site.
-            </quality_bar>
-            <output_contract>
             Root cause as file:line → the fix → blast radius → how to verify it.
-            </output_contract>
-            <scope_discipline>
-            Only what was asked. No extra features, no cleanup of surrounding code...
-            </scope_discipline>
-            [+ the sections of your knowledge base that mention this code]
+            Only what was asked. No extra features, no cleanup of surrounding code.
+            + whatever your project notes say about this code
 ```
 
-That is real output, trimmed for width — run the command under *Install* below to see the whole
-block for any prompt of your own.
+Those are the real words it sends, copied out of the output — just fewer of them, so it fits here.
+You can print the whole block for any prompt in one command (see below).
 
-**Does it actually help?** Measured, not claimed — see [`RESULTS.md`](RESULTS.md). The short
-version: a blind judge preferred the enhanced answers **62%** of the time overall and **70%** on
-vague, multi-part and review prompts. It did **not** make answers more factually correct (Opus 5
-scored 96–99% either way on a small codebase), and it did **not** beat a well-written static rules
-file. Where it did worse is in there too.
+## Does it actually work?
 
-**What it looks like in practice:** [`EXAMPLES.md`](EXAMPLES.md) — eight unedited prompt →
-restatement pairs from four months of daily use, including the time an explicit "send it" was
-paused because the recipient ID looked wrong.
+I benchmarked it instead of guessing. 24 real developer questions, 3 setups, 216 runs, then a
+**second AI compared the answers without knowing which was which**.
 
----
+| | |
+|---|---|
+| Answers judged better **with** the hook | **62%** overall · **70%** on vague or multi-part prompts |
+| Did it make answers more *correct*? | **No.** 96–99% right either way on a small codebase |
+| Did it beat a plain rules file? | **No.** Dead even |
+
+So: it makes Claude *behave* better, not *know* more. [`RESULTS.md`](RESULTS.md) has the full
+numbers, including every case where it did worse. The experiment is in this repo — run it yourself.
+
+Want to see it on real prompts instead of numbers? [`EXAMPLES.md`](EXAMPLES.md) has eight from four
+months of daily use, unedited. Including the time I said "send it" and it stopped anyway, because
+the recipient looked wrong.
 
 ## Install
 
-Two steps. Requires Node ≥ 18, which you already have if you run Claude Code.
+You need Node 18+. You already have it if you run Claude Code.
 
 ```bash
 git clone https://github.com/nagaraju440/prompt-enhancer.git ~/prompt-enhancer
@@ -57,123 +56,100 @@ git clone https://github.com/nagaraju440/prompt-enhancer.git ~/prompt-enhancer
 node ~/prompt-enhancer/engine/install.js /path/to/your/project
 ```
 
-Start a new Claude Code session; it runs on your next prompt. The installer edits exactly one file
-(`.claude/settings.json`), preserves every setting and hook already in it, backs it up first, and is
-safe to run twice.
+Done. Open a new Claude Code session and it works on your next prompt.
+
+To remove it:
 
 ```bash
-node ~/prompt-enhancer/engine/install.js --uninstall    # removes the hooks, keeps your files
+node ~/prompt-enhancer/engine/install.js --uninstall
 ```
 
-**It works with zero configuration.** With no knowledge base at all, the stance layer still reads
-your prompt and injects a role, a quality bar, an output contract and confirm-before-acting flags
-(~3 KB). The grounding layer simply stays quiet until you give it something to retrieve.
+**No setup needed after that.** It reads your prompt and works out the rest. The installer touches
+one file (`.claude/settings.json`), keeps everything already in it, backs it up, and does nothing if
+you run it twice.
 
-See it without starting a session:
+See what it sends, without starting a session:
 
 ```bash
 echo '{"prompt":"fix the login bug"}' | node ~/prompt-enhancer/engine/prompt-enhancer.js
 ```
 
-## Make it yours
+## Make it smarter about your project (optional)
 
-All optional, add any time. The engine picks them up on the next prompt.
+It works out of the box. These make it better, and you can add them whenever.
 
-| Add this file | And you get |
+| Drop this in | What happens |
 |---|---|
-| `.claude/session-guardrail.txt` | your own standing rules, injected verbatim on every prompt |
-| `.claude/knowledge/*.md` (with a `purpose:` frontmatter line) | the grounding layer turns itself on and retrieves the relevant sections |
-| `LESSONS.md`, `CURRENT_FOCUS.md` at the repo root | past corrections and in-flight work get retrieved too, with a scoring boost |
-| `.claude/enhancer.project.json` | `name` and `stack` sharpen the role line; `ticketPattern`, `repos`, `people` are recognised as referents |
+| `.claude/session-guardrail.txt` | your team's rules get added to every prompt |
+| `.claude/knowledge/*.md` | it starts pulling in the notes that match your prompt |
+| `LESSONS.md`, `CURRENT_FOCUS.md` in your repo root | past mistakes and current work get pulled in too |
+| `.claude/enhancer.project.json` | tell it your project name and stack, so the role line fits |
 
-`install.js --starter` drops a starter rules file and project JSON for you to edit. It never
+Run `install.js --starter` and it writes starter versions of those for you to edit. It never
 overwrites a file you already have.
-
-## How it works
-
-Two layers, independent, each fails open on its own:
-
-**1. Preparation** (`lib/prompt-prepare.js`, `lib/prompt-enrich.js`) — regex intent detection over
-your prompt text picks one of 14 intents (`bugfix`, `review`, `design`, `comms`, `data`, …) and a
-domain, then renders only the sections whose detectors fire. On real usage: `role`, `quality_bar`,
-`output_contract` and `done_when` apply to every task; `scope_discipline` fires on 16% of prompts,
-`confirm_before_acting` on 16%, `parts` (multi-part asks) on 13%. A thin prompt gets a shorter bar,
-not a longer one — over-prompting a simple question makes the answer worse.
-
-**2. Grounding** (`lib/kb-retrieval.js`) — BM25 over your `.claude/knowledge/*.md`, `LESSONS.md` and
-`CURRENT_FOCUS.md`, packed to a ~12 KB budget, tagged as reference material rather than instructions.
-
-Both are local regex and arithmetic. Nothing is sent anywhere. An earlier version of this tool did
-send the prompt to an external model for rewriting; that was removed after it invented schema
-columns and once inverted an explicit instruction. Claude already has your conversation — handing it
-the retrieved context directly beats paying a second, context-free model to guess at your meaning.
 
 ## The log
 
-The installer wires **two** hooks, which both write `.claude/enhancer-log.md`:
-
-| hook | records |
-|---|---|
-| `prompt-enhancer.js` (`UserPromptSubmit`) | your prompt, detected intent and domain, which KB files were retrieved, which sections were injected |
-| `refined-prompt-logger.js` (`Stop`) | your prompt paired with the one-line restatement Claude opened with — the pairs in [`EXAMPLES.md`](EXAMPLES.md) |
-
-On by default, because it is how you find out whether it is working and which pattern to tune when
-it isn't. Local, rotated at 1 MB, never leaves your machine — but it holds your prompts verbatim, so:
-
-- `ENHANCER_LOG=0` turns off all logging, both hooks.
-- `install.js --no-logger` skips the `Stop` hook; you keep the injection side only.
-- In a git repo the installer writes `.claude/.gitignore` so `git add .` can't commit it.
-
-**Switches:** `ENHANCER_OFF=1` disables the hook · `ENRICH_OFF=1` keeps grounding, drops the stance
-layer · `ENHANCER_LOG=0` disables logging. Every failure path is fail-open: a broken config, an
-unreadable file or a crash can never block or delay your prompt.
-
----
-
-## The benchmark
-
-`RESULTS.md` is not a vibes check. The experiment that produced it ships in this repo, so you can
-re-run it or disagree with it.
-
-| | |
-|---|---|
-| **Codebase** | `lujakob/nestjs-realworld-example-app` @ `c1c2cc4`, vendored — a public NestJS app with *real* bug reports (#88 plaintext password on update, #6/#44 anyone can edit any article, #79 bad token → 500, #112 mass assignment, #57 bare entity instead of envelope) |
-| **24 traps** | 12 *grounding* (the answer is a fact in the KB) and 12 *stance* (thin, vague, multi-part, risky, format-constrained). Each has regex checks verified against the source and a ground-truth key written from the code |
-| **3 arms** | no hook · a static rules file only · the full enhancer. The only difference is the injection — model, tools, permissions and working directory are identical |
-| **216 runs** | 24 traps × 3 arms × 3 repeats, fresh headless sessions, read-only tools, no MCP, shuffled order. Failed API calls are recorded as failures and re-run, never scored |
-| **2 scorers** | regex traps (can't be charmed) and a blind pairwise judge — a different model, arm hidden, positions swapped, 288 verdicts |
-
-```bash
-node run.js          # 216 answers via claude -p (needs the CLI logged in)
-node rescore.js      # re-grade saved answers after editing a trap — no re-spend
-node judge.js        # 288 blind pairwise verdicts
-node report.js       # writes RESULTS.md
-```
-
-Every raw answer and the exact text each hook injected is committed under
-`results/<runId>/runs/`. `RESULTS.md` also carries the limitations and the corrections made during
-the run — including seven scoring bugs of mine that made the tool look better than it was, which is
-why `rescore.js` exists.
-
-## Layout
+It keeps a simple diary at `.claude/enhancer-log.md`:
 
 ```
-engine/                     the hook
-  prompt-enhancer.js          UserPromptSubmit: the stance + grounding injector
-  refined-prompt-logger.js    Stop: logs what Claude understood you to mean
-  install.js                  one-command install / uninstall
-  lib/                        config (all tunables), retrieval, intent, preparation
-fixture/                    the benchmarked codebase + a realistic knowledge base
-traps/                      24 prompts with mechanical checks (build-traps.js is the source)
-arms/                       the three settings files the benchmark compares
-run.js · rescore.js · judge.js · report.js
-results/<runId>/            every raw answer, the injected text, summary.md, judge.md
-EXAMPLES.md                 real prompt → restatement pairs from daily use
-RESULTS.md                  the numbers · PLAN.md the method and the prediction
+ORIGINAL:
+fix the 500 on favorite
+
+REFINED:
+Find why POST /articles/:slug/favorite returns 500 and fix it at its
+single source. · Assumptions: the unloaded relation, not the controller.
+```
+
+**What you asked, and what Claude thought you meant.** Read it once a week and you'll see straight
+away when it misunderstood you — that is the whole value.
+
+It stays on your machine, never gets sent anywhere, and is capped at 1 MB. If your project is a git
+repo, the installer adds a `.gitignore` rule so it can't be committed by accident.
+
+- `ENHANCER_LOG=0` — no diary at all
+- `ENHANCER_LOG=debug` — also record *why* it chose that stance (only useful when tuning)
+
+## Other switches
+
+- `ENHANCER_OFF=1` — turn the whole hook off for a session
+- `ENRICH_OFF=1` — keep project notes, drop the stance
+
+Everything fails safe: a bad config, a missing file or a crash can never block or slow your prompt.
+Worst case, you get your prompt exactly as you typed it.
+
+## How it works
+
+Two parts, both plain local code:
+
+**1. The stance.** Simple pattern matching on your words picks one of 14 job types — bug fix, review,
+design, data question, message to a colleague — and writes the matching role and quality bar. Each
+piece only appears when it's relevant: "only what was asked" shows up on 16% of prompts, "confirm
+before acting" on 16%, "answer every part" on 13%. **Short prompts get a shorter bar, not a longer
+one** — piling instructions onto a simple question makes the answer worse, and the benchmark shows it.
+
+**2. Your project notes.** A search (BM25, the same ranking search engines use) over your `.claude/knowledge/`
+files picks the few sections that match your prompt, up to a 12 KB budget, and labels them as
+reference — not as orders.
+
+An earlier version sent your prompt to another AI to rewrite it. That got deleted: it invented
+database columns that didn't exist, and once flipped an instruction to its opposite. Claude already
+has your conversation. A second AI that doesn't is just guessing.
+
+## What's in here
+
+```
+engine/          the hook (install.js puts it to work)
+fixture/         the test codebase the benchmark runs against
+traps/           the 24 questions, with the checks for each
+run.js           runs the benchmark · judge.js the blind comparison
+results/         every raw answer from every run, kept so you can check my work
+EXAMPLES.md      real prompts, before and after
+RESULTS.md       the numbers · PLAN.md how I set it up and what I predicted
 ```
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). The vendored fixture is MIT from
-[`lujakob/nestjs-realworld-example-app`](https://github.com/lujakob/nestjs-realworld-example-app);
+MIT — see [`LICENSE`](LICENSE). The test codebase is MIT from
+[`lujakob/nestjs-realworld-example-app`](https://github.com/lujakob/nestjs-realworld-example-app),
 see [`NOTICE`](NOTICE).

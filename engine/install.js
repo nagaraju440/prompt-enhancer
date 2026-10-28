@@ -184,9 +184,9 @@ console.log('  grounding layer : ' + (hasKb
   ? 'on — retrieving from ' + rel(kb)
   : 'quiet — add .claude/knowledge/*.md and it turns itself on'));
 console.log('  log             : ' + (NO_LOGGER
-  ? '.claude/enhancer-log.md (injection side only — restatement logger skipped)'
-  : '.claude/enhancer-log.md (what was injected + what Claude understood)') +
-  ' · local, rotated at 1 MB · off with ENHANCER_LOG=0');
+  ? 'off (--no-logger)'
+  : '.claude/enhancer-log.md — what you asked, and what Claude understood') +
+  '\n                    local, rotated at 1 MB · ENHANCER_LOG=0 off · =debug adds matcher details');
 console.log('');
 console.log('  Start a new Claude Code session in this project; the hook runs on your next prompt.');
 console.log('  See it for yourself, no session needed:');
