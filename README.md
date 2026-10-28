@@ -26,6 +26,41 @@ claude also gets:
 Those are the real words it sends, copied out of the output — just fewer of them, so it fits here.
 You can print the whole block for any prompt in one command (see below).
 
+### What that does to a lazy prompt
+
+Claude opens its answer by telling you what it understood. Three real ones from my own log, after
+three months of using this daily:
+
+```
+you type:   Continue
+
+understood: Re-review ISSUE-205 (web #9995, api #3101, rollout #243) with the
+            upgraded process: the pre-check script, one agent per PR that
+            re-verifies every task, the completeness gate, then post.
+            · Assumptions: the fourth PR stays out of scope, as you said earlier.
+```
+
+```
+you type:   check from the prod snapshot and tell me bro dont assume
+
+understood: Re-run the EXPLAIN ANALYZE on the local prod snapshot for program
+            1117903, the one from the incident. Measure the real prod-sized
+            timings instead of guessing from the test environment, and report
+            only measured numbers. Read-only; the snapshot is confidential,
+            so no PII.
+```
+
+```
+you type:   Can you explain simply what exactly the issue is here?
+
+understood: Explain the 403 on POST /courses in plain words. No jargon, no
+            recap. · Assumptions: you want the cause only, not the fix options.
+```
+
+One word in, a full brief out — and the assumption is stated, so when it guesses wrong you lose one
+line instead of ten minutes. [`EXAMPLES.md`](EXAMPLES.md) has more, including the time I said
+"send it" and it stopped anyway because the recipient looked wrong.
+
 ## Does it actually work?
 
 I benchmarked it instead of guessing. 24 real developer questions, 3 setups, 216 runs, then a

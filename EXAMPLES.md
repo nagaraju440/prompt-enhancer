@@ -113,6 +113,60 @@ source rather than a patch at each call site, and `scope_discipline` suppresses 
 
 ---
 
+## 9. One word, a full brief
+
+> **You typed:** `Continue`
+>
+> **The hook detected:** no retrieval anchor — a continuation, so grounding stayed quiet
+>
+> **Claude restated it as:** *"Re-review ISSUE-205 (web #9995, api #3101, rollout #243) with the upgraded process: the pre-check script, one agent per PR that re-verifies every task (yours, the other reviewer's and mine), the completeness gate, then post new tasks and replies. · Assumptions: the fourth PR stays out of scope, as you said earlier; old-format code is removed in these PRs."*
+
+The shortest possible prompt. The restatement names three pull requests, the process, and a scope
+decision made earlier in the conversation — all of which I'd otherwise have had to re-type or hope
+it remembered.
+
+---
+
+## 10. It picks up the instruction buried in the aside
+
+> **You typed:** `check from the prod snapshot and tell me bro dont assume`
+>
+> **The hook detected:** `data` · `confirm_before_acting` fired on the production reference
+>
+> **Claude restated it as:** *"Re-run the EXPLAIN ANALYZE on the local prod snapshot for program 1117903, the one from the incident. Measure the real prod-sized timings and table sizes instead of guessing from the test environment, and report only measured numbers. Read-only; the snapshot is confidential, so no PII."*
+
+"dont assume" became *"report only measured numbers"*. The read-only and no-PII rules came from the
+standing-rules file, not from the prompt — I didn't have to remember to say them.
+
+---
+
+## 11. "Simply" is obeyed, not noted and ignored
+
+> **You typed:** `Can you explain simply what exactly the issue is here?`
+>
+> **The hook detected:** `explain` · the thinnest stance in the table — one directive, no quality-bar pile-on
+>
+> **Claude restated it as:** *"Explain the 403 on `POST /courses` in plain words. No jargon, no recap. · Assumptions: you want the cause only, not the fix options."*
+
+Worth showing because it is the opposite failure mode to the one the benchmark caught. The judge's
+complaint when the hook *lost* was padding — so the `explain` intent is deliberately the thinnest
+one, and "simply" is treated as a requirement rather than a preference.
+
+---
+
+## 12. It treats an offhand "yes" as the consent it was
+
+> **You typed:** `yes do it and send <colleague>`
+>
+> **The hook detected:** `comms` · `confirm_before_acting` fired on "send"
+>
+> **Claude restated it as:** *"[…the two-part query change…] Then check it on the test environment, update the doc and the SQL file, and send <colleague> a note. · Assumptions: your 'send <colleague>' counts as the go-ahead."*
+
+The draft-first rule means nothing gets sent without an explicit go-ahead — so when you *do* give
+one, it says out loud that it heard it. You find out it is about to send *before* it sends.
+
+---
+
 ## What the log says in aggregate
 
 From 1,378 typed prompts logged with the stance layer live (2026-08-13 → 2026-10-28):
