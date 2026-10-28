@@ -1,0 +1,80 @@
+{
+  "trapId": "g11-public-endpoints",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 87129,
+  "apiMs": 78037,
+  "costUsd": 0.4791235,
+  "inputTokens": 2751,
+  "cacheReadTokens": 214997,
+  "cacheCreationTokens": 19197,
+  "outputTokens": 6636,
+  "numTurns": 23,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "## Auth model\n\nThere's exactly one auth mechanism: `AuthMiddleware` (`src/user/auth.middleware.ts:13`), applied **per-module via `forRoutes()`**. There are no guards, and `main.ts` registers no global guard. So the default is public — a route is protected only if it's explicitly listed in some module's `configure()`.\n\n## Public endpoints (global prefix `/api`)\n\n**Intentionally public — matches the RealWorld spec:**\n\n| Endpoint | Source |\n|---|---|\n| `GET /api` | `src/app.controller.ts:5` |\n| `POST /api/users` (register) | `src/user/user.controller.ts:32` |\n| `POST /api/users/login` | `src/user/user.controller.ts:43` |\n| `GET /api/tags` | `src/tag/tag.module.ts:17` — `configure()` is empty |\n| `GET /api/articles` | `src/article/article.controller.ts:24` |\n| `GET /api/articles/:slug` | `src/article/article.controller.ts:38` |\n| `GET /api/articles/:slug/comments` | `src/article/article.controller.ts:43` |\n| `GET /api/profiles/:username` | `src/profile/profile.controller.ts:18` |\n\nThese read an optional user via the `@User()` decorator, which falls back to decoding the JWT itself when present (`src/user/user.decorator.ts:12`) — that's deliberate optional-auth.\n\nAlso public: **`GET /docs`** (Swagger UI, `src/main.ts:18`). Note it's registered outside the `/api` prefix, so it's exposed even if you firewall `/api`.\n\n## The one that looks unintentional\n\n**`DELETE /api/users/:slug`** — `src/user/user.controller.ts:37`\n\n`UserModule`'s middleware config (`src/user/user.module.ts:20`) covers only `{path: 'user', GET}` and `{path: 'user', PUT}`. The path `users/:slug` matches neither, so this route has no auth at all. It calls `userService.delete(params.slug)`, which deletes by **email** (`src/user/user.service.ts:83`) — so an unauthenticated `DELETE /api/users/victim@example.com` destroys that account. Every other mutating route in the app is listed in a `forRoutes()` block; this one is the sole omission, which is why I'd read it as an oversight rather than a design choice.\n\n## Related, though not strictly \"without logging in\"\n\nSeveral routes *are* behind the middleware but do no ownership check, so any logged-in user can act on anyone's data:\n\n- `PUT /api/articles/:slug` and `DELETE /api/articles/:slug` — service takes only the slug, never compares against the author (`src/article/article.service.ts:190`, `:197`)\n- `DELETE /api/articles/:slug/comments/:id` — same; the controller never passes a user id (`src/article/article.controller.ts:84`)\n\nWorth flagging since the practical impact is similar, but the fix is different: authentication is wired up, authorization is missing.\n\nWant me to fix the `DELETE /api/users/:slug` gap? The minimal change is adding it to `forRoutes()` in `user.module.ts`, though given the handler takes an arbitrary email, scoping it to the authenticated user instead would be the sounder fix.",
+  "score": {
+    "checks": [
+      {
+        "id": "lists-get-articles",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-tags",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-login-and-register",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "catches-unguarded-delete-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-module-configure",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2852
+  }
+}

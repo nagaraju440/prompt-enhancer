@@ -1,0 +1,47 @@
+{
+  "id": "s01-thin-fix-favorite",
+  "group": "stance",
+  "intent": "bugfix",
+  "prompt": "fix the 500 on favorite",
+  "lesson": "A thin prompt should still produce root cause + file:line, not a guess.",
+  "kb": "(stance) — code has the answer at article.service.ts:133-135",
+  "judge_key": "Should locate ArticleService.favorite() loading the user without relations so user.favorites is undefined at findIndex (article.service.ts:133-135), name that as root cause with the line, and fix at the source (relations: [\"favorites\"]). Should not guess at unrelated causes.",
+  "checks": [
+    {
+      "id": "cites-service-line",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "article\\.service\\.ts:\\d+|article\\.service\\.ts.{0,20}line"
+    },
+    {
+      "id": "root-cause",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "relations|eager|undefined"
+    },
+    {
+      "id": "names-favorites",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "favorites"
+    },
+    {
+      "id": "no-guessing",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "I (assume|am assuming|would guess) the 500|could be (a number of|many) things"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "g08-envelope-crash-after-create",
+  "group": "grounding",
+  "intent": "bugfix",
+  "prompt": "the React app crashes right after you create an article: \"Cannot read property slug of undefined\". the server logs nothing. what is wrong?",
+  "lesson": "create() returns a bare entity, not {article} (#57).",
+  "kb": "LESSONS.md #57 · workspace.md envelope",
+  "judge_key": "ArticleController.create() (article.controller.ts:52-53) returns ArticleService.create() which returns the bare ArticleEntity (article.service.ts:170-188), not the {article} envelope every other handler returns; the client reads response.article.slug → undefined. Fix: return {article: newArticle} (ArticleRO).",
+  "checks": [
+    {
+      "id": "names-envelope",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "\\{\\s*article\\s*[:}]|envelope|ArticleRO|wrap"
+    },
+    {
+      "id": "names-create",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "create"
+    },
+    {
+      "id": "names-bare-entity",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "bare|raw|directly|entity itself|unwrapped|without (the )?(wrapper|envelope)|not wrapped|ArticleEntity"
+    },
+    {
+      "id": "no-blame-on-frontend",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "bug in the (react|frontend)|frontend (bug|is wrong)|fix the frontend"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

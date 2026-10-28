@@ -1,0 +1,8 @@
+{
+  "name": "the RealWorld API",
+  "stack": "NestJS 7 + TypeORM 0.2 + MySQL",
+  "ticketPattern": "(?:^|[^\\w])#\\d{1,4}\\b",
+  "ticketLabel": "issue",
+  "repos": [],
+  "people": {}
+}

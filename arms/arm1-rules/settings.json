@@ -1,0 +1,8 @@
+{
+  "$comment": "ARM 1 - static standing rules only (the fixture's session-guardrail.txt), no intent detection, no role, no retrieval. Answers: is the enhancer just a CLAUDE.md with extra steps? Paths are rewritten to absolute ones by run.js at launch.",
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "node \"{{ARM_DIR}}/rules-only-hook.js\"", "timeout": 5 } ] }
+    ]
+  }
+}

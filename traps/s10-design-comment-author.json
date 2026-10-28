@@ -1,0 +1,53 @@
+{
+  "id": "s10-design-comment-author",
+  "group": "stance",
+  "intent": "design",
+  "prompt": "design adding an author to comments",
+  "lesson": "Design the delta: relation, write path, ownership on delete, response shape, existing rows.",
+  "kb": "schema.md comment · CURRENT_FOCUS.md ownership",
+  "judge_key": "Delta: ManyToOne author on Comment (+ optional inverse on UserEntity); addComment() must receive and set the caller (controller passes @User(\"id\")); deleteComment() can then enforce ownership (currently none); response must expose author as the spec profile shape; existing comment rows have NULL author — decide backfill/nullable; synchronize:true will add the column. No implementation code.",
+  "checks": [
+    {
+      "id": "relation",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "ManyToOne"
+    },
+    {
+      "id": "write-path",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "addComment"
+    },
+    {
+      "id": "delete-ownership",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "deleteComment.{0,200}(owner|author|403|forbid)|(owner|author|403).{0,200}deleteComment"
+    },
+    {
+      "id": "existing-rows",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "existing (comments|rows)|null(able)?|backfill|migration|synchronize"
+    },
+    {
+      "id": "response-shape",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "response|envelope|CommentsRO|spec"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "trapId": "g03-stale-token-500",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 71715,
+  "apiMs": 66186,
+  "costUsd": 0.282681,
+  "inputTokens": 2614,
+  "cacheReadTokens": 91372,
+  "cacheCreationTokens": 9695,
+  "outputTokens": 5079,
+  "numTurns": 9,
+  "assistantMessages": 3,
+  "finalText": "## Why\n\n`jwt.verify()` **throws** on an expired token — it doesn't return null. It's called bare, with no `try`, in two places:\n\n- `src/user/auth.middleware.ts:17` — the guard on protected routes\n- `src/user/user.decorator.ts:15` — the `@User()` decorator's fallback path on *public* routes\n\nThe thrown value is a `TokenExpiredError`, a plain `Error`. Nest's default exception filter maps `HttpException` subclasses to their status and everything else to **500**. There's no global filter in this project to soften that (no `useGlobalFilters`, `@Catch`, or `APP_FILTER` anywhere in `src/`), so the error goes out as `500 Internal Server Error` and the mobile app reads it as an outage instead of logging the user out.\n\nThe proof it's purely about *what* is thrown: the same middleware already throws at line 28 for a missing header, and that correctly produces a 401. Same code path, same framework — the only difference is `HttpException` vs. a raw `Error`.\n\nThis is a known regression in this codebase — `LESSONS.md` records it as \"An invalid token must be a 401, not a 500 (#79)\", with the rule: *wrap `jwt.verify` and translate its errors to `HttpStatus.UNAUTHORIZED`*. Worth noting `generateJWT` (`src/user/user.service.ts:103`) sets a 60-day expiry, so this only bites installs that have been dormant past that window.\n\n## The fix\n\nBoth call sites need it — fixing only the middleware leaves 500s on every public route (`GET /articles`, `GET /articles/:slug`, `GET /profiles/:username`) that the app hits with the stale token still attached.\n\nA shared helper, since there are two sites and `src/shared/` already exists:\n\n```ts\n// src/shared/verify-token.ts\nimport { HttpException, HttpStatus } from '@nestjs/common';\nimport * as jwt from 'jsonwebtoken';\nimport { SECRET } from '../config';\n\nexport function verifyToken(token: string): any {\n  try {\n    return jwt.verify(token, SECRET);\n  } catch (err) {\n    // TokenExpiredError | JsonWebTokenError | NotBeforeError\n    throw new HttpException('Not authorized.', HttpStatus.UNAUTHORIZED);\n  }\n}\n```\n\nThen `auth.middleware.ts:17` becomes:\n\n```ts\nconst decoded: any = verifyToken(token);\n```\n\nand `user.decorator.ts:15`:\n\n```ts\nconst decoded: any = verifyToken(token[1]);\n```\n\nThrowing from the param decorator is safe — it runs inside the request pipeline, so the exception filter converts it to a real 401 rather than an unhandled rejection.\n\n## One decision for you\n\nOn the **public** routes, the decorator path has two defensible behaviours, and they're different products:\n\n- **401** (what the helper above does, and what `LESSONS.md` prescribes) — the app gets logged out on its very next request, whatever it is. Consistent, easy to handle client-side with one interceptor.\n- **Degrade to anonymous** (`return undefined` in the catch) — public content keeps rendering for a user with a stale token; they only get the 401 when they touch something guarded. Friendlier, but the logout is delayed and harder to reason about.\n\nI'd go with 401, matching the recorded rule. Want me to apply the change? Note this directory isn't a git repo, so there's no easy revert — say the word and I'll make the three edits.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll dig into the code to find the auth path.\n\nConfirmed — this is a known issue in this codebase (`LESSONS.md`, upstream #79). Let me check the second site and whether anything catches it globally.\n\n## Why\n\n`jwt.verify()` **throws** on an expired token — it doesn't return null. It's called bare, with no `try`, in two places:\n\n- `src/user/auth.middleware.ts:17` — the guard on protected routes\n- `src/user/user.decorator.ts:15` — the `@User()` decorator's fallback path on *public* routes\n\nThe thrown value is a `TokenExpiredError`, a plain `Error`. Nest's default exception filter maps `HttpException` subclasses to their status and everything else to **500**. There's no global filter in this project to soften that (no `useGlobalFilters`, `@Catch`, or `APP_FILTER` anywhere in `src/`), so the error goes out as `500 Internal Server Error` and the mobile app reads it as an outage instead of logging the user out.\n\nThe proof it's purely about *what* is thrown: the same middleware already throws at line 28 for a missing header, and that correctly produces a 401. Same code path, same framework — the only difference is `HttpException` vs. a raw `Error`.\n\nThis is a known regression in this codebase — `LESSONS.md` records it as \"An invalid token must be a 401, not a 500 (#79)\", with the rule: *wrap `jwt.verify` and translate its errors to `HttpStatus.UNAUTHORIZED`*. Worth noting `generateJWT` (`src/user/user.service.ts:103`) sets a 60-day expiry, so this only bites installs that have been dormant past that window.\n\n## The fix\n\nBoth call sites need it — fixing only the middleware leaves 500s on every public route (`GET /articles`, `GET /articles/:slug`, `GET /profiles/:username`) that the app hits with the stale token still attached.\n\nA shared helper, since there are two sites and `src/shared/` already exists:\n\n```ts\n// src/shared/verify-token.ts\nimport { HttpException, HttpStatus } from '@nestjs/common';\nimport * as jwt from 'jsonwebtoken';\nimport { SECRET } from '../config';\n\nexport function verifyToken(token: string): any {\n  try {\n    return jwt.verify(token, SECRET);\n  } catch (err) {\n    // TokenExpiredError | JsonWebTokenError | NotBeforeError\n    throw new HttpException('Not authorized.', HttpStatus.UNAUTHORIZED);\n  }\n}\n```\n\nThen `auth.middleware.ts:17` becomes:\n\n```ts\nconst decoded: any = verifyToken(token);\n```\n\nand `user.decorator.ts:15`:\n\n```ts\nconst decoded: any = verifyToken(token[1]);\n```\n\nThrowing from the param decorator is safe — it runs inside the request pipeline, so the exception filter converts it to a real 401 rather than an unhandled rejection.\n\n## One decision for you\n\nOn the **public** routes, the decorator path has two defensible behaviours, and they're different products:\n\n- **401** (what the helper above does, and what `LESSONS.md` prescribes) — the app gets logged out on its very next request, whatever it is. Consistent, easy to handle client-side with one interceptor.\n- **Degrade to anonymous** (`return undefined` in the catch) — public content keeps rendering for a user with a stale token; they only get the 401 when they touch something guarded. Friendlier, but the logout is delayed and harder to reason about.\n\nI'd go with 401, matching the recorded rule. Want me to apply the change? Note this directory isn't a git repo, so there's no easy revert — say the word and I'll make the three edits.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-jwt-verify",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-uncaught",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "fix-is-401",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-middleware-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3368
+  }
+}

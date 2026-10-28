@@ -1,0 +1,80 @@
+{
+  "trapId": "g11-public-endpoints",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 70946,
+  "apiMs": 63623,
+  "costUsd": 0.5274485,
+  "inputTokens": 2620,
+  "cacheReadTokens": 221657,
+  "cacheCreationTokens": 26757,
+  "outputTokens": 5438,
+  "numTurns": 17,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Verified directly from the three `configure()` blocks — that's the only place auth is applied. Global prefix is `/api` (`src/main.ts:8`).\n\n## Public endpoints (no token required)\n\n| Endpoint | Source | Intended? |\n|---|---|---|\n| `GET /api` | `src/app.controller.ts:5` | yes — hello-world root |\n| `POST /api/users` (register) | `src/user/user.controller.ts:32` | yes |\n| `POST /api/users/login` | `src/user/user.controller.ts:43` | yes |\n| **`DELETE /api/users/:slug`** | `src/user/user.controller.ts:37` | **no — see below** |\n| `GET /api/articles` | `src/article/article.controller.ts:24` | yes |\n| `GET /api/articles/:slug` | `src/article/article.controller.ts:38` | yes |\n| `GET /api/articles/:slug/comments` | `src/article/article.controller.ts:43` | yes |\n| `GET /api/profiles/:username` | `src/profile/profile.controller.ts:18` | yes |\n| `GET /api/tags` | `src/tag/tag.controller.ts:17` | yes — `TagModule.configure()` is an empty body (`src/tag/tag.module.ts:17-18`) |\n\nEverything else is guarded: `GET|PUT /user` (`src/user/user.module.ts:20`), the eight article routes in `src/article/article.module.ts:24-31`, and `profiles/:username/follow` for all methods (`src/profile/profile.module.ts:22`).\n\n## The one that matters\n\n`DELETE /api/users/:slug` is unauthenticated and deletes by **email**:\n\n```ts\n// user.controller.ts:37-40\n@Delete('users/:slug')\nasync delete(@Param() params) { return await this.userService.delete(params.slug); }\n\n// user.service.ts:83-85\nasync delete(email: string): Promise<DeleteResult> {\n  return await this.userRepository.delete({ email: email });\n}\n```\n\nNo token, no ownership check — anyone who knows a user's email address can delete that account. It's absent from `UserModule`'s `forRoutes` list, which only covers `GET /user` and `PUT /user`.\n\n## Two things that look like protection but aren't\n\n- **`@ApiBearerAuth()`** sits on all four controllers (e.g. `user.controller.ts:14`, `tag.controller.ts:10`). It's a Swagger annotation only — it documents a lock icon, it enforces nothing. Same for the `@ApiResponse({status: 403})` lines on the article controller; nothing in the codebase returns 403.\n- **`@User('id')` on a public route** (`profile.controller.ts:19`) decodes the token itself when middleware didn't run (`user.decorator.ts:13-17`). That's optional identity, not a guard — it returns `undefined` with no token. It also means `GET /profiles/:username` with a *malformed* token throws out of `jwt.verify` uncaught → 500 rather than 401, the same bug `LESSONS.md:29-36` records for the middleware.\n\nWant me to draft a fix for `DELETE /users/:slug` — add it to `UserModule`'s `forRoutes` and switch it to delete the caller (`@User('id')`) instead of an arbitrary email?",
+  "score": {
+    "checks": [
+      {
+        "id": "lists-get-articles",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-tags",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-login-and-register",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "catches-unguarded-delete-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-module-configure",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2724
+  }
+}

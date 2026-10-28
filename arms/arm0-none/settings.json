@@ -1,0 +1,4 @@
+{
+  "$comment": "ARM 0 - true baseline. No hooks at all. The model sees only the user's raw prompt plus whatever the fixture folder contains.",
+  "hooks": {}
+}

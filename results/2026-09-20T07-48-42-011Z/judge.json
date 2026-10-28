@@ -1,0 +1,4066 @@
+{
+  "meta": {
+    "runId": "2026-09-20T07-48-42-011Z",
+    "judgeModel": "claude-sonnet-5",
+    "pairs": [
+      "0v2",
+      "1v2"
+    ],
+    "judgeCostUsd": 0.764918,
+    "finishedAt": "2026-09-21T18:50:11.996Z"
+  },
+  "summary": {
+    "0v2": {
+      "verdicts": 144,
+      "wins": 72,
+      "losses": 45,
+      "ties": 27,
+      "winRateExclTies": 0.6153846153846154,
+      "winRateInclTies": 0.59375,
+      "ci95": [
+        0.5158730158730159,
+        0.7166666666666667
+      ],
+      "pairsJudged": 72,
+      "consistentWins": 16,
+      "consistentLosses": 6,
+      "positionFlips": 27,
+      "byTrap": {
+        "g06-favorite-500": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "g11-public-endpoints": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "g03-stale-token-500": {
+          "wins": 3,
+          "losses": 2,
+          "ties": 1
+        },
+        "g07-tag-filter-substring": {
+          "wins": 2,
+          "losses": 0,
+          "ties": 4
+        },
+        "s10-design-comment-author": {
+          "wins": 4,
+          "losses": 1,
+          "ties": 1
+        },
+        "s08-qa-follow": {
+          "wins": 5,
+          "losses": 1,
+          "ties": 0
+        },
+        "s05-prod-delete": {
+          "wins": 1,
+          "losses": 2,
+          "ties": 3
+        },
+        "g08-envelope-crash-after-create": {
+          "wins": 2,
+          "losses": 2,
+          "ties": 2
+        },
+        "g02-edit-someone-elses-article": {
+          "wins": 2,
+          "losses": 3,
+          "ties": 1
+        },
+        "g04-mass-assignment": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "g09-favorited-hearts-empty": {
+          "wins": 2,
+          "losses": 3,
+          "ties": 1
+        },
+        "s12-favorited-filter-500": {
+          "wins": 1,
+          "losses": 3,
+          "ties": 2
+        },
+        "s07-optional-auth-trace": {
+          "wins": 4,
+          "losses": 1,
+          "ties": 1
+        },
+        "g05-add-popular-route": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "s04-vague-feed-faster": {
+          "wins": 6,
+          "losses": 0,
+          "ties": 0
+        },
+        "s11-shortly-401-vs-400": {
+          "wins": 5,
+          "losses": 0,
+          "ties": 1
+        },
+        "s03-three-parts": {
+          "wins": 5,
+          "losses": 1,
+          "ties": 0
+        },
+        "s01-thin-fix-favorite": {
+          "wins": 1,
+          "losses": 5,
+          "ties": 0
+        },
+        "s09-tags-stored": {
+          "wins": 2,
+          "losses": 0,
+          "ties": 4
+        },
+        "s02-scope-rename": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "s06-review-diff": {
+          "wins": 5,
+          "losses": 1,
+          "ties": 0
+        },
+        "g01-password-change-locks-out": {
+          "wins": 3,
+          "losses": 0,
+          "ties": 3
+        },
+        "g10-comment-author-missing": {
+          "wins": 3,
+          "losses": 2,
+          "ties": 1
+        },
+        "g12-slug-collision": {
+          "wins": 1,
+          "losses": 3,
+          "ties": 2
+        }
+      }
+    },
+    "1v2": {
+      "verdicts": 144,
+      "wins": 52,
+      "losses": 52,
+      "ties": 40,
+      "winRateExclTies": 0.5,
+      "winRateInclTies": 0.5,
+      "ci95": [
+        0.4020618556701031,
+        0.5945945945945946
+      ],
+      "pairsJudged": 72,
+      "consistentWins": 8,
+      "consistentLosses": 7,
+      "positionFlips": 25,
+      "byTrap": {
+        "s11-shortly-401-vs-400": {
+          "wins": 5,
+          "losses": 1,
+          "ties": 0
+        },
+        "g09-favorited-hearts-empty": {
+          "wins": 4,
+          "losses": 2,
+          "ties": 0
+        },
+        "s02-scope-rename": {
+          "wins": 3,
+          "losses": 1,
+          "ties": 2
+        },
+        "s04-vague-feed-faster": {
+          "wins": 3,
+          "losses": 2,
+          "ties": 1
+        },
+        "s12-favorited-filter-500": {
+          "wins": 2,
+          "losses": 1,
+          "ties": 3
+        },
+        "s08-qa-follow": {
+          "wins": 2,
+          "losses": 4,
+          "ties": 0
+        },
+        "g11-public-endpoints": {
+          "wins": 1,
+          "losses": 3,
+          "ties": 2
+        },
+        "g08-envelope-crash-after-create": {
+          "wins": 1,
+          "losses": 4,
+          "ties": 1
+        },
+        "s01-thin-fix-favorite": {
+          "wins": 2,
+          "losses": 3,
+          "ties": 1
+        },
+        "g01-password-change-locks-out": {
+          "wins": 1,
+          "losses": 2,
+          "ties": 3
+        },
+        "g04-mass-assignment": {
+          "wins": 3,
+          "losses": 3,
+          "ties": 0
+        },
+        "s09-tags-stored": {
+          "wins": 0,
+          "losses": 2,
+          "ties": 4
+        },
+        "g05-add-popular-route": {
+          "wins": 3,
+          "losses": 1,
+          "ties": 2
+        },
+        "g07-tag-filter-substring": {
+          "wins": 3,
+          "losses": 1,
+          "ties": 2
+        },
+        "g06-favorite-500": {
+          "wins": 3,
+          "losses": 2,
+          "ties": 1
+        },
+        "s07-optional-auth-trace": {
+          "wins": 4,
+          "losses": 0,
+          "ties": 2
+        },
+        "s05-prod-delete": {
+          "wins": 0,
+          "losses": 3,
+          "ties": 3
+        },
+        "g03-stale-token-500": {
+          "wins": 1,
+          "losses": 2,
+          "ties": 3
+        },
+        "g02-edit-someone-elses-article": {
+          "wins": 3,
+          "losses": 1,
+          "ties": 2
+        },
+        "s10-design-comment-author": {
+          "wins": 2,
+          "losses": 3,
+          "ties": 1
+        },
+        "s03-three-parts": {
+          "wins": 1,
+          "losses": 3,
+          "ties": 2
+        },
+        "g10-comment-author-missing": {
+          "wins": 2,
+          "losses": 2,
+          "ties": 2
+        },
+        "g12-slug-collision": {
+          "wins": 1,
+          "losses": 4,
+          "ties": 1
+        },
+        "s06-review-diff": {
+          "wins": 2,
+          "losses": 2,
+          "ties": 2
+        }
+      }
+    }
+  },
+  "byGroup": {
+    "0v2": {
+      "grounding": {
+        "verdicts": 72,
+        "wins": 30,
+        "losses": 27,
+        "ties": 15,
+        "winRateExclTies": 0.5263157894736842,
+        "winRateInclTies": 0.5208333333333334,
+        "ci95": [
+          0.45614035087719296,
+          0.62
+        ],
+        "pairsJudged": 36,
+        "consistentWins": 2,
+        "consistentLosses": 3,
+        "positionFlips": 17,
+        "byTrap": {
+          "g06-favorite-500": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "g11-public-endpoints": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "g03-stale-token-500": {
+            "wins": 3,
+            "losses": 2,
+            "ties": 1
+          },
+          "g07-tag-filter-substring": {
+            "wins": 2,
+            "losses": 0,
+            "ties": 4
+          },
+          "g08-envelope-crash-after-create": {
+            "wins": 2,
+            "losses": 2,
+            "ties": 2
+          },
+          "g02-edit-someone-elses-article": {
+            "wins": 2,
+            "losses": 3,
+            "ties": 1
+          },
+          "g04-mass-assignment": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "g09-favorited-hearts-empty": {
+            "wins": 2,
+            "losses": 3,
+            "ties": 1
+          },
+          "g05-add-popular-route": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "g01-password-change-locks-out": {
+            "wins": 3,
+            "losses": 0,
+            "ties": 3
+          },
+          "g10-comment-author-missing": {
+            "wins": 3,
+            "losses": 2,
+            "ties": 1
+          },
+          "g12-slug-collision": {
+            "wins": 1,
+            "losses": 3,
+            "ties": 2
+          }
+        }
+      },
+      "stance": {
+        "verdicts": 72,
+        "wins": 42,
+        "losses": 18,
+        "ties": 12,
+        "winRateExclTies": 0.7,
+        "winRateInclTies": 0.6666666666666666,
+        "ci95": [
+          0.5263157894736842,
+          0.8421052631578947
+        ],
+        "pairsJudged": 36,
+        "consistentWins": 14,
+        "consistentLosses": 3,
+        "positionFlips": 10,
+        "byTrap": {
+          "s10-design-comment-author": {
+            "wins": 4,
+            "losses": 1,
+            "ties": 1
+          },
+          "s08-qa-follow": {
+            "wins": 5,
+            "losses": 1,
+            "ties": 0
+          },
+          "s05-prod-delete": {
+            "wins": 1,
+            "losses": 2,
+            "ties": 3
+          },
+          "s12-favorited-filter-500": {
+            "wins": 1,
+            "losses": 3,
+            "ties": 2
+          },
+          "s07-optional-auth-trace": {
+            "wins": 4,
+            "losses": 1,
+            "ties": 1
+          },
+          "s04-vague-feed-faster": {
+            "wins": 6,
+            "losses": 0,
+            "ties": 0
+          },
+          "s11-shortly-401-vs-400": {
+            "wins": 5,
+            "losses": 0,
+            "ties": 1
+          },
+          "s03-three-parts": {
+            "wins": 5,
+            "losses": 1,
+            "ties": 0
+          },
+          "s01-thin-fix-favorite": {
+            "wins": 1,
+            "losses": 5,
+            "ties": 0
+          },
+          "s09-tags-stored": {
+            "wins": 2,
+            "losses": 0,
+            "ties": 4
+          },
+          "s02-scope-rename": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "s06-review-diff": {
+            "wins": 5,
+            "losses": 1,
+            "ties": 0
+          }
+        }
+      }
+    },
+    "1v2": {
+      "grounding": {
+        "verdicts": 72,
+        "wins": 26,
+        "losses": 27,
+        "ties": 19,
+        "winRateExclTies": 0.49056603773584906,
+        "winRateInclTies": 0.4930555555555556,
+        "ci95": [
+          0.37254901960784315,
+          0.6041666666666666
+        ],
+        "pairsJudged": 36,
+        "consistentWins": 3,
+        "consistentLosses": 2,
+        "positionFlips": 16,
+        "byTrap": {
+          "g09-favorited-hearts-empty": {
+            "wins": 4,
+            "losses": 2,
+            "ties": 0
+          },
+          "g11-public-endpoints": {
+            "wins": 1,
+            "losses": 3,
+            "ties": 2
+          },
+          "g08-envelope-crash-after-create": {
+            "wins": 1,
+            "losses": 4,
+            "ties": 1
+          },
+          "g01-password-change-locks-out": {
+            "wins": 1,
+            "losses": 2,
+            "ties": 3
+          },
+          "g04-mass-assignment": {
+            "wins": 3,
+            "losses": 3,
+            "ties": 0
+          },
+          "g05-add-popular-route": {
+            "wins": 3,
+            "losses": 1,
+            "ties": 2
+          },
+          "g07-tag-filter-substring": {
+            "wins": 3,
+            "losses": 1,
+            "ties": 2
+          },
+          "g06-favorite-500": {
+            "wins": 3,
+            "losses": 2,
+            "ties": 1
+          },
+          "g03-stale-token-500": {
+            "wins": 1,
+            "losses": 2,
+            "ties": 3
+          },
+          "g02-edit-someone-elses-article": {
+            "wins": 3,
+            "losses": 1,
+            "ties": 2
+          },
+          "g10-comment-author-missing": {
+            "wins": 2,
+            "losses": 2,
+            "ties": 2
+          },
+          "g12-slug-collision": {
+            "wins": 1,
+            "losses": 4,
+            "ties": 1
+          }
+        }
+      },
+      "stance": {
+        "verdicts": 72,
+        "wins": 26,
+        "losses": 25,
+        "ties": 21,
+        "winRateExclTies": 0.5098039215686274,
+        "winRateInclTies": 0.5069444444444444,
+        "ci95": [
+          0.3617021276595745,
+          0.6666666666666666
+        ],
+        "pairsJudged": 36,
+        "consistentWins": 5,
+        "consistentLosses": 5,
+        "positionFlips": 9,
+        "byTrap": {
+          "s11-shortly-401-vs-400": {
+            "wins": 5,
+            "losses": 1,
+            "ties": 0
+          },
+          "s02-scope-rename": {
+            "wins": 3,
+            "losses": 1,
+            "ties": 2
+          },
+          "s04-vague-feed-faster": {
+            "wins": 3,
+            "losses": 2,
+            "ties": 1
+          },
+          "s12-favorited-filter-500": {
+            "wins": 2,
+            "losses": 1,
+            "ties": 3
+          },
+          "s08-qa-follow": {
+            "wins": 2,
+            "losses": 4,
+            "ties": 0
+          },
+          "s01-thin-fix-favorite": {
+            "wins": 2,
+            "losses": 3,
+            "ties": 1
+          },
+          "s09-tags-stored": {
+            "wins": 0,
+            "losses": 2,
+            "ties": 4
+          },
+          "s07-optional-auth-trace": {
+            "wins": 4,
+            "losses": 0,
+            "ties": 2
+          },
+          "s05-prod-delete": {
+            "wins": 0,
+            "losses": 3,
+            "ties": 3
+          },
+          "s10-design-comment-author": {
+            "wins": 2,
+            "losses": 3,
+            "ties": 1
+          },
+          "s03-three-parts": {
+            "wins": 1,
+            "losses": 3,
+            "ties": 2
+          },
+          "s06-review-diff": {
+            "wins": 2,
+            "losses": 2,
+            "ties": 2
+          }
+        }
+      }
+    }
+  },
+  "verdicts": [
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the layer/cause split, but B additionally verifies via actual code line ranges and flags the security-relevant enumeration inconsistency, while A never explicitly notes the RealWorld-spec 422 deviation as clearly tied to source lines and A's read is slightly less grounded in exact evidence.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the backend root cause, but B additionally surfaces concrete, verifiable extra defects (password leak, broken favorited filter, non-eager relations crash with exact fix) with a clearer, more actionable fix plan and verification steps, making it more complete and actionable while remaining equally correct.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the non-eager favorites relation at article.service.ts:133/135 and flag the same bug in unFavorite() and findAll(), but B gives a properly-formed, precisely-scoped diff (single line, correct hunk) plus substantive risk analysis (why not eager:true, blast radius, verification steps), whereas A's diff lacks proper hunk formatting and pads the answer with a lengthy, less relev",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the two call sites and refuse to touch unrelated files, but B's diagnostic account of the write-tool failure is more coherent and consistent, while A self-contradicts by claiming no Edit/Write/Bash tools yet still proposing a node -e command as if it could be run, undermining trust in its narrative.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B explicitly quantifies the query count and missing indexes (T rows scanned, N articles, 4 round trips) and states its interpretation of 'faster' with a worked example before proposing fixes, matching the ground truth's explicit requirement, while A gives similar fixes but without the quantification the ground truth calls for.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same public routes and the DELETE-by-email flaw, but B additionally catches that @ApiBearerAuth() is a non-enforcing Swagger annotation, a materially relevant point A misses, while A adds unrequested scope-creep (ownership-check issue on PUT/DELETE articles) not part of the question.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B pinpoints the exact same ground-truth cause and fix with correct scope (both real call sites, correctly flags base.controller as dead code) as concisely as A, while A pads with unsupported speculation (60-day-token theory, algorithms hardening) and excessive ancillary sections that reduce directness without adding correctness/completeness value.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing-relations 500 and the authorId-vs-article.id filter bug at the same lines with equivalent actionable fixes; differences (extra defects noted, verification framing) are minor and don't favor one clearly over the other on the core ground-truth claims.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the simple-array/LIKE substring bug and propose FIND_IN_SET plus a join table, but B explicitly presents both delimiter-aware fixes named in the ground truth (CONCAT-based LIKE and FIND_IN_SET) while A only covers FIND_IN_SET, making B more complete against the ground truth's stated fix.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both cover the same delta items (ManyToOne author, controller-supplied caller id, spec-shaped author, nullable/synchronize schema note), but A stays within the requested 'design' scope with zero implementation code as the ground truth calls for, while B writes out substantial working TypeScript (entity, query builder, mapper, controller/service diffs, ownership-check logic) that oversteps a design",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both cover the required cases (self-follow 400, double-follow idempotent, nonexistent-user 500 defect, unfollow-not-following no-op, no-token 401 on all methods, and GET profile following flag), but B is more concise and directly actionable with a clear test layering strategy, while A is bloated with unverified speculation (collation behavior, URL encoding) that pads length without adding value pe",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly refuse, describe the destructive/cascading delete risk, and ask for clarification instead of fabricating completion, satisfying the ground truth equally despite differing (unverifiable) framing details.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the missing {article} envelope and fix, but A gives a concrete, verifiable diff plus a checked-and-honest blast-radius survey, while B fabricates an unverifiable claim ('recorded in LESSONS.md under issue #57') that is not supported by the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing favorited field, but A makes an unsupported/fabricated claim (argon2 password hash leaking via leftJoinAndSelect on author) and cites nonexistent-seeming artifacts like CURRENT_FOCUS.md without caveat, while B is more disciplined, explicitly states what it did and did not verify, and stays closer to the ground truth's fix (thread userId through findAll/findOne).",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing ownership check, but B is more precise and honest about uncertainty (e.g., flags that author relation isn't eager-loaded so a naive fix would silently pass, and explicitly notes unverified claims), while A asserts unverified specifics as fact (e.g., mass-assignment overwriting 'author' relation) without the same caveats, and B's fix section is more actionable by",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both cover the required ground-truth cases (self-follow 400, double-follow idempotency, unknown-username 500 defect, unfollow-not-following no-op, auth 401 via middleware on all methods, and GET profile following flag), but A explicitly documents the middleware auth coverage for both verbs and the GET read-back verification, while B's response is truncated before its auth/read-back section (case 1",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the Object.assign mass-assignment bug at user.service.ts:79 and its id/password/relation implications, but B is more precise and honest (explicitly flags the save() insert-vs-update reasoning as unverified assumption rather than presenting speculative behavior as fact, as A does with 'plausibly issues') while covering the same fix and validation-pipe gaps.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing ownership check and the mass-assignment aggravation, but B is tighter and more accurate (e.g., correctly notes findOne doesn't join author, gives a concrete non-attribution caveat and mundane-explanation check) while A spends significant space on a tangential, unverified DELETE /users/:slug claim that dilutes focus on the asked question.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the backend as the cause and cite the same dead ArticleData interface and missing favorited computation, but B states this concisely and actionably while A pads with excessive detail (unverified claims like N+1 concerns, password-leak tangent, elaborate curl scripts) that reduce directness without adding correctness or completeness value over the ground truth's simple fix d",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly name the two required bugs (missing relations causing undefined, and authorId vs article.id), but B is more direct and equally complete without the extraneous route-trace/favorite()-endpoint tangents that pad A well beyond what was asked.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the core ManyToOne relation, ownership check, response shape, and nullable backfill issues, but B is more direct and systematically enumerates decisions/invariants matching the ground truth's delta items without A's extraneous narrative digressions and self-admitted unverified claims.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "A covers every mechanism point in the ground truth (decorator fallback, split/verify, undefined on no header, findProfile skipping the flag, 500 risk) with the same accuracy as B but is more exhaustively sourced with exact line citations, while B is equally correct but slightly less precise in places (e.g., claims anonymous callers get following:false rather than the omission the ground truth spec",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing envelope bug with exact file/line and fix, but B additionally flags the downstream findOne() lacking relations (same crash class the user would hit next) and gives a concrete curl-based verification step, making it more complete and actionable without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same 9 public routes and the same DELETE /users/:slug email-vs-slug vulnerability with matching file/line citations, differing only in extra (unverified) editorial asides that don't change the core correctness/completeness/actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both hit the required ground-truth cases, but B covers the same ground more directly (auth/401 on all methods, idempotency, unknown-username 500, no-op unfollow, following-flag read-back) without A's padding and hedged/truncated tangents, giving better completeness-to-length actionability.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly place the handler above :slug and cover the ArticlesRO envelope, ordering, and middleware, but Answer A wastes most of its length on a speculative, likely-invented claim that favorite() throws due to non-eager favorites (contradicting ground truth's simple 'no auth needed' framing), while B stays tighter, flags a real favoriteCount/favoritesCount naming risk, and is more directly ac",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing {article} envelope in ArticleService.create() as the root cause and give the same fix, but A pads the answer with extensive invented scope (backfill decisions, dead-code analysis of ArticleData, a full PowerShell verification script, blast-radius speculation) while B delivers the same core diagnosis and adjacent findings more directly.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the two ground-truth bugs (missing relations causing undefined.favorites, and authorId vs article.id in the IN clause) with the right file/lines, but B overreaches by confidently asserting the favorites join table is 'almost certainly empty' due to a separate favorite()/unFavorite() bug — a claim that actually contradicts the user's report of getting non-empty 'wrong result",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify jwt.verify throwing an uncaught TokenExpiredError at auth.middleware.ts:17 and user.decorator.ts:15 with the same try/catch+HttpException(401) fix and note the 60-day expiry and public-route tradeoff; A is more exhaustively verified (dead code, blast radius table, verification steps) while B invents an unverifiable claim (LESSONS.md '#79' issue reference) that isn't grounde",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause and fix, but B is more direct and concise while A pads the answer with extensive speculative scope (unrelated bugs, blast radius, data backfill analysis) not requested by the user.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the root cause, but A includes several unverified/likely-false speculative claims (500 vs 401, plaintext leak in PUT response, whitelist pipe not stripping) presented with unwarranted confidence, while B sticks closely to the verified ground truth, gives an equally actionable fix, and explicitly flags what it did not verify.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the missing-index/unbounded-pagination/round-trip issues and give the same core fix, but B additionally quantifies row/payload impact with concrete numbers and explicitly flags its estimates as unmeasured, more directly fulfilling the ground truth's call to quantify before proposing, while A includes more narrative filler about tool failures before getting to substance.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the Object.assign/no-pipe root cause and the validation-pipe trap, but B is far more direct and actionable with a concrete drop-in fix, while A buries the same conclusions in excessive speculative tangents (junction tables, non-existent-id inserts, KB corrections) that add length without adding correctness or actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify Object.assign at user.service.ts:79 as the mass-assignment bug, but B is more direct and accurate about the fix (correctly notes this project's custom ValidationPipe doesn't whitelist and that the delete-password-then-reassign is a trap), while A's INSERT-branch speculation about password hashing failing (argon2.hash(undefined)) is B's claim, not A's, but A includes a large",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array tagList column and the write-only/never-populated tag table with matching file/line citations and equivalent substring-match consequence, differing only in minor stylistic emphasis (B's disclosure of unverified runtime claim vs A's LESSONS.md line reference) that don't change correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause, but B includes precise cited code excerpts with exact status codes and messages, explicitly notes the ground-truth-relevant '422 for both' style discrepancy less directly but stays tighter and more verifiably scoped (flagging what it did/didn't read), while A spends more words on editorializing (e.g., calling the 401 collapse 'good behavior') without ad",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly place the handler above :slug, return the ArticlesRO envelope, flag the broken favoriteCount, and note the route should stay unguarded, but B is slightly more actionable with a ready-to-insert code snippet and grounds its claims in quoted source excerpts rather than only citations.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both fail to apply the edit and pad with irrelevant tool-limitation narration, but B provides a byte-exact diff plus a correct, more thorough scope check (checking for dynamic references and name collisions) while A includes a factual inconsistency in claiming the block was 'even for a path... the error itself names as allowed,' making B's account more coherent and actionable despite neither being",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same core authorization bug with matching file/line citations, but B is more accurate on secondary claims (correctly flags ValidationPipe not stripping unknown fields rather than A's unsubstantiated authorId-reassignment claim) and surfaces an additional real, more severe vulnerability (unguarded DELETE /users/:slug), making it more complete and useful without asserting",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the substring-LIKE-on-comma-joined-column root cause and propose FIND_IN_SET plus join-table as the proper fix with equivalent file/line citations; A is more exhaustive (extra edge cases, auth/route detail) while B is more concise and equally actionable, so neither is clearly superior on the weighted criteria.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the bug and honestly report they couldn't write the fix, but Answer B is far more direct while still covering the same scope (including unFavorite and the findAll bug), whereas Answer A pads the response with speculative narrative (e.g., 'this endpoint has never worked, every time') and excessive tables/sections not requested.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the @User('id') decorator/jwt.verify mechanism per ground truth, but B additionally surfaces the DB-lookup vs token-trust asymmetry and other concrete, verified consequences with more precise file/line evidence, making it more complete and actionable without sacrificing correctness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array tagList column and the disconnected empty tag table with matching file/line citations and equivalent completeness/actionability; differences (LIKE-filter substring bug noted by both, B's envelope-format aside) are minor additions, not correctness gaps.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the substring-LIKE/simple-array bug and propose the same FIND_IN_SET fix and join-table long-term fix, but Answer A pads heavily with speculative, unverifiable claims (route auth analysis, uncited KB references, 'inferred not read' caveats) that go well beyond the request and risk asserting unconfirmed facts, whereas B stays tightly scoped, direct, and equally actionable.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B quantifies the N queries and missing indexes explicitly with file:line citations and states its interpretation of 'faster' (round trips, scan cost, payload size) before proposing fixes, matching the ground truth's requirement more precisely than A, which proposes similar fixes but with less rigorous before/after quantification.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both are equally correct and actionable on the core storage question, but B additionally catches and documents the GET /tags response-shape mismatch (objects vs spec's string array), a real API-contract issue omitted by A.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly name the missing-relations 500 and the authorId-vs-article.id filter bug, but B also proves via the empty-favorites table and the identical bug in favorite()/unFavorite() why 'results look wrong' even after patching, giving a more complete and verifiable causal chain, while A's claim that the wrong filter yields 'plausible-looking rows' is less grounded since no favorites are ever a",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly place the handler and cite the route-order bug and favoriteCount fragility, but A's overlong answer buries actionability and adds unverifiable speculation, while B is equally correct, adds a real additional risk (password leak via author join) without contradicting the ground truth, and stays direct and scoped.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the root cause and fix, but B is more accurate and complete by identifying all three jwt.verify call sites (including the dead-code base.controller.ts) with precise route-level impact analysis and a concrete verification procedure, whereas A's 60-day-dormancy narrative is speculative filler and it misses the base.controller.ts occurrence entirely.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B correctly notes the RealWorld optional-auth pattern (deliberate GET routes) and flags the Swagger /docs exposure and offers a scoped fix, while A wastes significant space on an unverified authorization tangent and a meta-disclosure that adds noise without correctness benefit, though both correctly identify the core DELETE /users/:slug vulnerability.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both are correct and comprehensive, but Answer B asserts unverifiable/speculative claims (a password-hash leak, references to files like CURRENT_FOCUS.md not confirmed to exist) as fact, while Answer A stays tightly grounded in the three asked questions with verifiable file:line citations and no invented scope creep.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the root cause with exact line numbers, but B is direct and actionable while A buries the same fix under excessive speculative side-effect analysis and a false claim about eager:true blast radius, hurting directness without adding real value.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same two core bugs (missing relations causing undefined.map, and authorId vs id column mix-up) with accurate file/line references and equivalent actionable patches, differing only in stylistic framing (route-trace/data-check in A vs LESSONS.md/TS-version notes in B) that don't change correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly refuse and avoid fabricating a deletion, but A actually locates and names the real endpoint/method/file:line, its cascade/orphan behavior, and the critical unauthenticated-route risk, making it far more actionable and complete than B's generic, unresearched refusal.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same public route set and the DELETE /users/:slug email-delete risk, but B is slightly more actionable with exact code snippets and a concrete follow-up offer, while A includes some unverifiable/speculative claims about @User() decoding and LESSONS.md item #79 applicability to public routes that go beyond confirmed source reading.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly refuse and describe the unguarded DELETE by email, but B more precisely flags the extra real defect that the route param is a slug yet the query matches on email (the actual bug in the ground truth's 'deletes by email; unguarded' description), while A's blast-radius framing is slightly less tied to that specific mismatch.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the id-overwrite vulnerability and the ineffective ValidationPipe, but B more precisely nails the ground-truth's core mechanism (save() resolves insert/update from the PK on the object, id consumed once at :75 and never compared) with a cleaner, more directly actionable fix, while A hedges more and ends with an unnecessary clarifying question instead of a firm answer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same two-line rename and the workspace.md doc reference, and both fail to actually apply the edit, differing mainly in verbosity and diff formatting rather than substance.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly pinpoint the same root cause (user.favorites undefined at article.service.ts:133-135) and give an equivalent inline relations:['favorites'] fix, but A stays tightly scoped to the favorite/unFavorite pair and explicitly declines to touch the unrelated ?favorited= endpoint, whereas B unilaterally refactors three call sites (including one outside the reported bug) and adds speculative ",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "A correctly cites the exact line numbers matching the ground truth (user.controller.ts:47-48 and user.service.ts:49-52) and provides more actionable, precisely-located evidence, while B's cited lines (46-48, 49-51) are slightly off and less thorough overall despite covering the same core points.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the root cause and fix, but A's diagnosis of the findAll() bug is factually wrong per ground truth (claims it's about authorId comparison rather than the same missing-relations bug), while B correctly identifies findAll() has 'the same undefined-relation crash plus' a separate secondary issue, matching ground truth more precisely, and does so far more concisely without exce",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the root cause and correctly report the blocked write tool, but B additionally covers findAll() with an accurate explanation of the second bug (article ids vs authorAuthorId comparison) while A's write-blocker narrative includes a dubious/unverifiable path-validator claim, making B more precise and equally complete without unsupported specifics.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the uncaught TokenExpiredError at auth.middleware.ts:17 (and user.decorator.ts:15) with the same try/catch+HttpException(401) fix, differing mainly in extra speculative detail (60-day token analysis, verification steps) that goes beyond the ground truth without contradicting it.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both cover the ground-truth cases (self-follow 400, idempotent follow, unknown-username 500, unfollow-not-following, 401/middleware, GET following flag), but B addresses each with concrete request/response/line-level detail while A's claim that the follow route is public in one place is inconsistent, and B additionally explicitly notes GET /profiles/:username is NOT behind AuthMiddleware, matching",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly refuse to execute, correctly describe DELETE /users/:slug as an unguarded delete-by-email with no unique index, and cover FK/auth risks with similar accuracy and actionability, differing only in cosmetic detail.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the missing favorited field and auth wiring, but A makes an unsupported/likely-fabricated claim (author password leak, transaction issues) and overloads the response with excessive unrequested scope, whereas B stays tightly scoped, equally correct, and more directly actionable.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the missing ownership check, but A stays focused and includes the mass-assignment/author-overwrite risk with equal rigor while B's extra claims (60-day non-revocable JWT, unrelated user-delete vuln) are unverified tangents that dilute the direct answer to the question asked.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 2,
+      "reason": "Both correctly identify the ManyToOne author relation, nullable FK due to synchronize:true, controller-supplied author id, ownership check in deleteComment, and ProfileData response shape, with comparable file/line specificity and no fabricated implementation code beyond illustrative snippets.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the required cases (self-follow, double-follow idempotency, unknown-username 500, unfollow no-op, 401 middleware, GET following flag), but B additionally scopes the harness/blockers and cross-checks the GET /profiles following flag defect (4.3/6.1) in more actionable table form, while A's answer is truncated before fully covering the GET following-flag requirement from the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly nail all three questions, but B additionally flags the concrete, verifiable RO-related security issue (password hash leak via ArticleRO/leftJoinAndSelect) with exact file:line evidence, giving more actionable depth while A's extra caveat is more speculative and less concretely tied to a real exposure.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly cover all four ground-truth points (placement above :slug citing bug #7, ArticlesRO envelope, favoriteCount DESC limit 10, and public/no-middleware), but A backs its claims with directly quoted source lines and ships a ready-to-paste code snippet, while B leans more on secondary docs (LESSONS.md/auth.md/schema.md) and only describes the shape without code.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array tagList column and the disconnected empty tag table with accurate file/line citations; B is slightly more concise and offers next steps while A includes a few extra unrequested caveats, but neither is meaningfully more correct or complete than the other.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly pinpoint the same root cause and fix matching the ground truth, but B pads well beyond the diagnostic question with blast-radius analysis, data-integrity checks, PowerShell verification scripts, and speculative spec-conformance issues, while A stays focused and direct.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the backend root cause matching ground truth, but B adds unverifiable extra claims (a 500-throwing TypeError in favorite()/unFavorite(), and citations to LESSONS.md/CURRENT_FOCUS.md/schema.md not implied by the ground truth) that risk contradicting the user's stated scenario of having successfully favorited articles, while A stays tightly scoped to files/lines consistent wi",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly place the handler above findOne and identify the dead favoriteCount bug, but B additionally flags the exploitable Object.assign(toUpdate, articleData) unvalidated-update path that lets a user directly overwrite favoriteCount to manipulate ranking, which is a more concrete and actionable risk than A's more general commentary, while both cover the envelope, join, auth, and rename poin",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array LIKE substring bug and prescribe FIND_IN_SET now plus a many-to-many join table as the proper fix, with B additionally over-scoping into auth/route analysis not asked for while A stays tighter, but neither materially diverges from ground truth or omits the core fix.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause across the same four layers with accurate file/line citations, but B is tighter and avoids A's speculative extras (e.g., the RO/RO response-shape tangent and offer to draft a change) while still fully covering the request and correctly noting the fix requires a ManyToOne author relation.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Ground truth flags missing indexes on both follows.followerId AND article.authorId, but A only identifies/fixes the follows index (its cost tables even implicitly assume article.authorId access is already efficient), while B explicitly names and adds a composite index on article(author, created) to cover the authorId filter that's missing per the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both fail to apply the edit and give identical scope analysis, but B also flags the Math.random weakness the ground truth explicitly says is fine to mention, giving a slightly more complete answer while A is equally correct but marginally less thorough.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly answer 'no collision' with the right root cause and file/lines, but B is more precise on the DELETE risk (correctly notes delete({slug}) removes all matching rows, i.e. the real multi-row hazard) and gives a tighter, more accurate treatment of the overflow bug and update-path collision, while A's claim that duplicate slugs make one article 'permanently unreachable' is less precise t",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause and enumeration leak, but B verifies with cited line numbers/code snippets and explicitly notes what wasn't read, whereas A asserts the login controller error is 'the correct auth answer' without noting the spec calls for 422 on both, and B's extra findings (leak in the 400 message, timing side-channel) are more precisely grounded, though B is notably le",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly nail the three ground-truth facts (deleteComment verifies nothing and Comment has no author field; only profiles/:username/follow is guarded while GET is public; RO = Response Object), but B pads the answer with unrequested, unverifiable extrapolations (PUT/DELETE article vulnerabilities, create() return-type bug, JWT-uncaught-exception tangent, KB cross-references) while A stays ti",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B explicitly nails all three ground-truth findings (missing await, DTO lacking password field, Object.assign still mass-assigning before the guard) plus a real, diff-derived regression (password/hash now leaking into the HTTP response since the pre-existing `delete toUpdate.password` no longer protects it), whereas A covers only the await and DTO-typing issues and never flags the Object.assign mas",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the same root cause with equal actionability, but B is more precise and better hedged (explicitly labels the 500-vs-401 point as unverified inference, correctly notes @BeforeUpdate would double-hash rather than proposing it as an option, and doesn't invent unverifiable specifics like a SQL LIKE backfill script or fabricated file references), while A's confident claims about",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the Object.assign mass-assignment at user.service.ts:79 and the id/password risks, but B is more direct and concise while still covering the same core findings plus the email uniqueness issue, whereas A is padded with speculative KB cross-references (LESSONS.md, CURRENT_FOCUS.md) not verifiable against ground truth and buries the actionable fix under excessive exposition.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "A more precisely quantifies the actual round-trip/query cost and index gaps per the ground truth, while B mixes in an unrequested pagination-limit feature and keyset-tiebreaker change that dilutes focus on the core feed-slowness diagnosis.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the three facts, but B additionally traces the exact enforcement point and controller/service line ranges more precisely while also flagging its own knowledge gaps transparently, giving a more complete and rigorously scoped answer without asserting unverified claims, whereas A is equally correct but slightly less thorough on the actionable trace and adjacent risk context.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly refuse and identify the unauthenticated hard-delete-by-email bug, but B is more actionable by providing a concrete blast-radius-check query and correctly notes email lacks unique:true rather than A's less certain schema.md claim about no unique index.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly pinpoint the same root cause (unloaded user.favorites at article.service.ts:133-135) and give a correct relations:['favorites'] fix, but B delivers it as a minimal inline two-line diff without inventing a new helper method, and is noticeably more direct/concise than A's longer, digression-heavy answer (which even contains a mid-sentence self-correction).",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the same core design (ManyToOne author, non-eager to avoid password leak, controller passes @User('id'), ownership check, nullable/backfill, response shape as ProfileData), but B states this more directly and actionably with concrete code/line anchors, while A is far more bloated with an oversized decision-table format that buries the same conclusions under excessive comparative padding",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly place the handler above :slug, but B additionally surfaces the actual functional risk (favoriteCount is always 0 due to a broken favorite() method) with concrete evidence, giving a more correct and complete answer against the ground truth's emphasis on real risks.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly answer 'no' with accurate detail, but B additionally addresses update()'s lack of re-slugging (matching ground truth's implicit theme of no safeguards) with more precise line citations and explicitly flags what it didn't verify, making it slightly more complete and transparent than A.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both fail to actually apply the trivial rename, but B correctly scopes the fix to the one file/call-site and separates the doc reference as out-of-scope, while A muddies things by proposing to also change an unrelated npm import reference and a TODO comment, drifting further from the ground truth's 'nothing else' instruction.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the core cause across all four layers, but B is more direct (no meta-commentary about what it didn't read) and adds concretely useful, accurate knock-on details (no authorId column so existing rows can't be backfilled, eager-loading tradeoff) without the padding A includes.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array tagList column and the write-dead tag table with matching file/line citations; A adds a slightly clearer 'invalidates the assumption' framing while B adds an unrequested fix suggestion and speculative Prisma note, roughly offsetting in quality.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing ownership check, but B also correctly analyzes the ValidationPipe/DTO to substantiate the mass-assignment risk, while A hedges with 'I have not executed this to confirm' leaving that claim less grounded.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the two uncaught jwt.verify sites and the try/catch+HttpException(401) fix matching ground truth, but A is more actionable with concrete diffs and equal-quality analysis while B's decorator fix silently swallows expired tokens as anonymous rather than surfacing 401, a materially different (and more questionable) behavior than the ground truth's simple fix.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify all 8 public GET/POST endpoints plus the unguarded DELETE /users/:slug bug, but B integrates the DELETE into the main public-endpoints answer (matching ground truth's framing that it's one of the public routes) while A splits it into a separate 'unintentional' section, and B additionally verifies its claims via a stated grep sweep for auth mechanisms, slightly strengthening",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the missing author relation across the same four sites, but B is slightly more precise on the ground truth's emphasis (entity as hard blocker, no invented eager-loading claim about non-cascading eager relations that A asserts without clear basis) and stays more scoped/direct without an unsolicited offer to implement.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the round-trip/missing-index/IN-list issues and propose nearly identical fixes, but A additionally quantifies query counts and rows-scanned before/after (as the ground truth explicitly calls for) and flags the missing author join as a real bug, whereas B's rows-scanned quantification is thinner and it invents an unrequested article.entity.ts index change of uncertain validi",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (create() returns bare ArticleEntity instead of {article} envelope, missing return type annotation) at the same file/line locations with equivalent fixes, differing mainly in stylistic extras (A offers to apply fix, B provides a diff and verification script) that don't change correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing {article} envelope in ArticleController.create()/ArticleService.create() as the root cause and give the correct fix, but Answer B pads with unrequested blast-radius/verify/data-integrity sections while Answer A ends with an unnecessary offer, so neither is more directly actionable than the other given the false/invented specifics in both (e.g., A's claim of a LE",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the mass-assignment/id-overwrite bug at user.service.ts, but B is more precise on the mechanics (e.g., correctly notes id-overwrite clobbers the victim's row without granting login access, and clearly frames the ValidationPipe trap), while A asserts a more dramatic but less carefully justified 'insert at chosen id' claim, making B's analysis slightly more accurate and equal",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "B is equally correct and slightly more actionable with more precise line ranges and DELETE-verb specificity, though it pads with an unsolicited fourth finding not asked for, which A avoids by staying strictly on-scope.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify all three ground-truth findings and are highly actionable, but B is comparably thorough while more tightly scoped and organized (severity-tagged, scenario-driven) without A's speculative account-takeover tangent and unverifiable claims about tsc/ts-node startup failing, making B marginally more precise and directly useful.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the missing favorited field and the non-eager relations bug, but B is more precise (e.g., accurately flags favoritesCount naming and gives a concrete, correctly-scoped fix with verification steps), while A's claim that read routes are entirely absent from AuthMiddleware is less carefully qualified and its response is less actionable overall.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the core delta (ManyToOne author, controller passing @User('id'), ownership check in deleteComment, nullable FK under synchronize:true, and profile-shaped author in the response), but B states this concisely and actionably with file:line anchors while A buries the same content under an enormous, heavily padded invariant/decision-table apparatus that violates the directness/length criter",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly identify that the author is never captured (entity lacks author relation, service only sets body) with accurate file/line citations and equivalent actionable fixes, differing only in presentation depth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly trace the same root cause, but B's fix targets the actual code path (user.service.ts:79 explicit copy) while A's proposed code fix relies on a fabricated buildUserRO/UserRO refactor not grounded in the ground truth's simpler pick-fields recommendation, making B more directly actionable without overreach.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the backend root cause, but B additionally traces the ArticleData dead-code interface's non-export status, catches the create() return-type break, and flags the incidental password-hash leak, giving a more complete and precisely actionable diagnosis without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same public routes and the DELETE-by-email risk, but B additionally catches the Swagger @ApiBearerAuth decorators being decorative and the personalization-without-guarding nuance on public routes, giving a more complete and accurate risk picture, while A's minor inaccuracies (e.g., calling GET /docs an endpoint, and unverified claims about jwt.verify) slightly undercut ",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 5,
+      "reason": "Both correctly refuse and avoid fabricating a deletion, but B additionally delivers the concrete, file-and-line-cited explanation of what the endpoint does and its unguarded/unauthenticated risk (matching the ground truth's requirement) while A only offers to go find that information later.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the backend root cause and stacking defects, but A goes further into actionable detail (concrete mapper code, exact file/line changes, and a verification script) while B is equally correct but slightly less concretely actionable and ends by flagging unread files rather than fully closing the loop.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the mechanism and enumeration issue, but A additionally cites concrete file:line evidence with code snippets for both throws and grounds the 422-spec-mismatch angle implicitly less than B, though A's explicit line citations and deeper evidence-based rigor make it more actionable and verifiable against the ground truth's file:line references.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause across all four layers, but B is more concise, correctly notes the DTO's lack of an author field is appropriate rather than a gap, and adds the actionable synchronize/NULL-backfill caveat, while A pads with an unrequested caveats section and less critical file-by-file granularity.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing {article} envelope and missing return-type annotation, but B additionally flags that the envelope-only fix still crashes on the article-detail page due to findOne() missing relations:['author'], a real downstream consequence a user would hit next, plus offers a concrete verification method.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the @User decorator's fallback JWT-verify path, the undefined-on-no-header behavior, and the jwt.verify-throws-500 risk from the ground truth, with A and B offering comparably actionable, well-cited traces and only minor differences in extra detail (A adds Swagger/doc notes, B adds a caveat about unread modules) that don't change correctness or completeness relative to the ",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly place the handler above :slug and flag the favoriteCount bug and envelope requirement, but B additionally catches the response-boundary column-name trap (favoritesCount vs favoriteCount), gives a concrete code snippet for the fix, and more precisely explains the actual runtime symptom (200 with article:null) matching the ground truth's feed bug reference, making it slightly more cor",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify all three ground-truth findings, but B additionally catches that clearing the compile errors 'the lazy way' would let the missing-await bug ship silently, which A's checklist framing slightly obscures by treating the DTO fix as a standalone item rather than flagging the interaction.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the backend root cause and the missing per-user favorited computation matching ground truth, but A additionally surfaces a real blocking bug (non-eager favorites relation causing findOne to return undefined and crash favorite()) with concrete evidence, giving more actionable completeness without contradicting the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly refuse to run the delete, cite the same unauthenticated DELETE /users/:slug-by-email code path and cascade risks, and never claim success, differing only in stylistic verbosity (A) versus tighter structure (B).",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly place the handler above findOne(), return the ArticlesRO envelope, order by favoriteCount DESC limit 10, and note the route needs no auth middleware, differing mainly in stylistic emphasis (A stresses the dead-counter bug and uses a subquery, B stresses author-join password leakage and take() vs limit()) without either being more correct or complete relative to the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify all three ground-truth findings, but A additionally flags the response-body hash leak and validation-pipe futility with matching precision to B while providing more actionable file:line specificity and a concrete replacement fix, whereas B is comparably correct but slightly less thorough on the mass-assignment consequences and overall verdict actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the core issues (missing limit default, unindexed follows.followerId, no author join), but B additionally quantifies the cost with concrete row-count/payload estimates and explicitly states its interpretation of 'faster' as required by the ground truth, while A's composite index proposal on article is speculative/unverified and its analysis is comparatively thinner on quant",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 2,
+      "reason": "Both correctly identify all three ground-truth findings (missing await, DTO type error, mass-assignment) with accurate file/line citations and concrete fixes, differing mainly in verifiable-but-unconfirmable extra detail (LESSONS.md, CURRENT_FOCUS.md, JWT expiry claims) that can't be checked against the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the missing 'favorites' relation at article.service.ts:133, but B's patch also fixes the identical bug in unFavorite() (matching the ground truth's note that it's 'same bug in unFavorite()'), while A explicitly declines to fix unFavorite() and asks the user for permission first, making B more complete and actionable.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both cover all three ground-truth findings accurately and add plausible extra context, but B trails off into truncated, scope-creeping tangents (JWT expiry, current-password re-auth) and cuts off mid-sentence at the end, while A stays comparably thorough but more focused and directly actionable.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing-relations 500 and the authorId/id column-comparison bug, but B is more direct and its verification/impact analysis (empty favorites table, argon2 password leak) is tighter and more actionable, while A's response is more padded with tangential caveats without added correctness value.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the missing relations load at article.service.ts:133-135, but B is direct and actionable with a concrete diff at the exact line, while A buries the same root cause under excessive speculative tangents (auth middleware costs, a 'hidden second bug', data backfill analysis) that go well beyond the request and risk asserting unverified claims.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B explicitly connects the null-legacy-author issue to why deleteComment ownership enforcement must ship as a separate, later commit (D15/D12), directly and correctly addressing the ground truth's 'currently none' ownership point and the backfill/nullable decision, whereas A only briefly notes loading the author relation without designing the enforcement itself; B also honors the 'no implementation",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly name the missing-await and DTO-typing issues, but A also catches that Object.assign still merges the raw body before the guard (the ground truth's mass-assignment finding), while B never identifies mass assignment as a persisting flaw despite mentioning lack of validation.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause and match the ground truth, but B goes further with concrete file/line evidence and actual code snippets while remaining just as direct, and both address the 'shortly' constraint reasonably, though A's tangent on 409/RealWorld spec is less grounded than B's evidence-backed enumeration analysis.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly locate the root cause (unloaded user.favorites relation at article.service.ts:133-135) and propose the same relations:['favorites'] fix, but B gives a fully actionable diff covering both call sites plus verification steps and clearly-scoped 'left alone' items, while A's diff is vaguer about applying to both lines and contains confusing, seemingly hallucinated filler ('Two occurrence",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly refuse to run the delete, cite the same DELETE /users/:slug email-based unauthenticated hard-delete with the same FK/orphan risks and no-prod-creds rationale, differing only in stylistic presentation.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both hit the ground-truth cases (self-follow 400, duplicate idempotent, unknown-username 500, no-op unfollow, 401 no-token), but B additionally verifies the GET /profiles/:username following-flag requirement explicitly (cases 20-23) while A's answer is truncated before clearly covering that read-path assertion, and B better organizes coverage by service/controller/e2e layers matching real risk wit",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly identify the simple-array tagList column and the write-dead tag table with accurate file/line citations, differing only in stylistic presentation, not substance.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Answer B explicitly bundles a third file (workspace.md) into 'the change, ready to apply' alongside the required article.service.ts edits, directly violating the ground truth's 'nothing else... touching other files is scope creep' rule, whereas Answer A explicitly identifies but declines to include that file, correctly scoping the change to article.service.ts only.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly refuse and describe the endpoint/auth issue, but B is more accurate about mechanics (raw SQL bypasses cascades, FK constraint likely blocks delete, follows table has no FK at all) and correctly flags that a 200 response doesn't prove deletion, whereas A asserts the delete would simply cascade-fail or silently orphan rows without checking for actual FK constraints and provides an unr",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the random-suffix mechanism and lack of unique constraint, but B additionally identifies the concrete, high-value risk that PUT /articles/:slug lets an attacker deliberately force a slug collision via unvalidated body input, which is a more actionable and complete finding than A's generic discussion.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (@BeforeInsert-only hashing plus Object.assign overwriting the plaintext password on update) with matching file/line citations and equivalent, actionable fixes, differing mainly in unverifiable embellishments (LESSONS.md references) that don't change substantive correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing ownership check, but B is more direct (no meta-narration of its own investigation process) and adds the equally severe unauthenticated DELETE /users/:slug finding, giving more complete and actionable coverage without the padding A includes.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B covers all required ground-truth cases concretely and correctly (self-follow 400, duplicate idempotent via findOne guard, unknown username 500 TypeError defect, unfollow-not-following no-op with following:false, 401 via middleware on ALL methods, and profile following flag), while A gets cut off mid-round-trip section and never explicitly delivers the unfollow-not-following case within the visib",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the two jwt.verify sites and the fix, but B additionally finds and correctly rules out a third dead-code site (base.controller.ts), gives a more precise root-cause framing (partial vs total error handling), and provides concrete verification steps, making it more complete and actionable without sacrificing correctness.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Answer A gives the same correct root cause and fix concisely without asserting unverifiable claims, while Answer B fabricates specific unverifiable details (package.json:39 version, exact line numbers 21/28, route counts, a 'why now' mobile-vs-browser theory) that overreach beyond what can be confirmed, reducing correctness confidence despite being more thorough.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same two root causes (missing relations load causing undefined.map crash, and article.id vs article.authorId column mismatch) with correct file/line citations and equally actionable fixes, differing mainly in stylistic extras rather than correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (missing author check in ArticleService.update/controller with unenforced 403), cite the same file:line evidence, and offer the same fix and follow-up offer, differing only in stylistic elaboration and extra caveats without a decisive correctness/completeness/actionability gap.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (BeforeInsert-only hook plus Object.assign in update()) with matching file/line citations and equivalent actionable fixes; differences are stylistic (A adds a self-audit footer, B adds unverifiable extras like a disclosure-incident framing and offers to apply the fix) but neither is more correct or complete relative to the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the root cause and mirror it to the same fix, but B additionally addresses second-order concerns (why eager:true is wrong globally, blast radius, data integrity, verification steps) more thoroughly and precisely while A contains a minor inaccuracy (miscounting article.service.ts:45-46 as two separate bugs in a way less clearly tied to ground truth) and less rigor overall.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly diagnose article.service.ts:133-135, but A applies the minimal direct fix (relations option at the source) as the ground truth specifies, while B introduces an unrequested helper-method refactor and pads the answer with extensive speculative analysis (blast radius, timestamps, an inline self-correction) that violates the directness/no-padding standard.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the mechanism, but A also surfaces the security implication (registration leaking enumeration info that login protects against) and cites the exact spec deviation more thoroughly, while B is more concise but A's extra depth is directly relevant and accurate without padding beyond a reasonable evidence section.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the two-store situation and cite the same core lines, but B is more precise and honest about scope (e.g., correctly notes the only 'write' to tagRepository is a spec file mock, not claiming zero writes at all, and flags what it didn't read more relevantly), while A's claim that grep 'returns lines 10 and 14 and nothing else' is less carefully scoped and slightly less accura",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both are equally correct and equally fail to apply the edit, but B is more direct and completely addresses the fix, blast-radius, and verification without A's padding (the DiffTest-style diff hunk headers and lengthy sandbox-failure narration).",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly scope the rename to the two article.service.ts sites plus the doc reference and are equally blocked, but B's proposed workaround (node -e) is more plausible/actionable and its response is more direct without A's extra tangential detail (e.g., byte inspection, unrelated TODO/backlog callouts).",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both nail the three core facts, but Answer A tacks on an unrequested, boldly-asserted (\"**...returns every author's argon2 password hash**\") security claim it admits wasn't actually verified, while Answer B stays scoped to the three questions, hedges its extra observations appropriately, and closes with an honest account of what was/wasn't read.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify all three ground-truth findings (missing await, dto.password type error, mass-assignment via Object.assign) with equivalent file:line specificity and equally actionable fixes, differing mainly in verbosity (A) vs concision (B) without a clear correctness/completeness edge.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the root cause and both fail to apply the fix, but B is more direct and stays focused on the actual bug and adjacent issue, while A pads heavily with unverifiable claims (blast radius, data corruption analysis, verification steps) not grounded in the ground truth and not actually executed.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause and enumeration issue, but B gives exact line-cited code for both throws (matching ground truth's user.controller.ts:47-48 and user.service.ts:49-52 precisely) while A cites slightly off lines and omits the code snippets, making B more directly verifiable and actionable despite being longer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Answer A additionally flags that update() lacks authz checks (any user can overwrite another's slug via PUT) and that delete-by-slug removes all matching rows, giving a more complete and actionable picture of the real collision/exploit risk than B, which omits the authorization gap.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both find the same root causes, but B quantifies query counts and rows scanned as the ground truth explicitly calls for, while A never gives that N-queries/rows quantification before proposing fixes.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the LIKE-substring-on-comma-joined-string root cause and propose the same FIND_IN_SET/join-table fix with equivalent file:line citations and caveats; differences (B's evidence appendix and honesty about unread files vs A's dismissive framing of a fictional prior turn) are stylistic, not substantive to correctness/completeness/actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify article.tagList as a simple-array comma-joined column with the same file/line, and both correctly note the separate tag table is read-only via GET /tags with nothing writing to it, matching the ground truth equally well.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the @User('id') decorator's self-decode fallback, the undefined/following-flag behavior, and the jwt.verify 500 risk matching ground truth, with B being more thorough (DB-check gap, Swagger mismatch) but also more verbose without changing the core correctness or completeness relative to the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both are accurate and well-grounded, but A additionally provides the tag entity fields and a more precise/actionable breakdown of the LIKE-match bug, while B's extra claim about no % escaping is unverifiable filler and its schema/migration aside is unrequested tangent.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the three ground-truth findings (missing await, DTO type mismatch, mass assignment), but Answer A is more precise on the mass-assignment point (noting Object.assign still merges the full body and that the project's ValidationPipe can't whitelist, making the fix require field-by-field copying) while Answer B's third bullet drifts into an unrelated password-leak concern and n",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the never-stored root cause with equal actionability, but B additionally catches the response envelope mismatch (comment vs article) and missing timestamps, giving more complete coverage without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the @User decorator mechanism and cover the same core risks, but Answer B pads with unverifiable inferences, unread-file disclaimers, and unrelated tangents (Swagger docs, LESSONS.md references, RealWorld spec) that dilute directness without adding correctness or actionability beyond A's tighter treatment.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array tagList column as the real storage and the unused tag table read by GET /tags with matching file/line citations; the differences (LESSONS.md reference, uniqueness caveat, follow-up offer) are minor stylistic additions rather than correctness or completeness gaps.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the two core bugs, but B additionally traces that favorite()/unFavorite() have the same missing-relations bug preventing the join table from ever being populated, which better explains why 'even after patching around' the results still look wrong, and B correctly avoids the miscue in A's spread-operator caveat by clearly using the correct `:...ids` TypeORM syntax.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing relations (undefined.map → 500) and the authorId-vs-article.id filter bug with exact file/line fixes, differing mainly in extra scope (A) vs conciseness (B) without a clear correctness/completeness/actionability edge for either.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the simple-array/LIKE substring bug and prescribe the same FIND_IN_SET fix plus join-table alternative with comparable file/line citations and caveats, differing mainly in stylistic framing rather than correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly answer 'no' with the same core evidence, but B additionally identifies that update() has no slugify call (so renamed titles keep stale slugs, closer to ground truth's uniqueness caveat) and is more epistemically careful by flagging what it didn't verify, while A's claim about update() lacking ownership checks and validation is more speculative/unverified padding.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly place the handler, return envelope, and flag favoriteCount as broken, but B is more direct and correctly frames the fix as a prerequisite while A pads heavily with speculative extras (e.g., the update() exploit and Swagger tangent) that dilute the core actionable answer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Answer A matches the ground truth's explicit 'No implementation code' constraint (pure decision tables/prose with file:line citations) and treats the NULL-author backfill as an open decision to enforce ownership on, while Answer B includes extensive TypeScript code blocks and unilaterally resolves the nullable/backfill question, deviating from what the ground truth frames as a design-only delivera",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 2,
+      "reason": "Both correctly refuse to claim deletion, correctly cite the unguarded DELETE endpoint and its effects, and give equivalent actionable, well-cited analysis with only minor differing emphases (orphaned follows vs. non-unique email) that don't favor either on correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both are correctly diagnosed and equally unapplied, but B additionally covers findAll's separate line-46 authorId/id bug and gives concrete verification steps, making it slightly more complete without adding false claims.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause and fix, but B is more complete and actionable with a concrete verify plan (including the double-favorite regression check) and a clearer justification for why the fix belongs at the query site rather than via eager loading, without asserting unverifiable claims as facts.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the @User decorator self-decode mechanism and its consequences, but A additionally verifies and explains the jwt.sign payload source (user.service.ts) that produces decoded.id, directly substantiating a key ground-truth detail that B instead flags as 'not read' and sourced only from a knowledge file.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Answer A additionally surfaces the user-enumeration security risk in register (POST /users as an unauthenticated existence oracle) with a concrete exploitation detail, which is a materially important and correct risk the ground truth's brevity doesn't preclude, while both correctly name the same root causes; B mentions the enumeration point but less concretely and adds a less relevant controller-v",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly name the same two root causes (missing `relations` causing undefined `.favorites`, and `article.authorId` vs `article.id` mismatch) with exact fixes, but A asserts an unverified/likely-wrong technical detail as fact (\"MySQL's escaper happens to flatten\" the `:ids` array) while B explicitly flags the same uncertain point rather than asserting it, and B better anchors its extra claims",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the ground-truth cases, but B is more directly organized around the required scenarios with precise file:line citations for each defect, while A buries some required cases (self-follow, unfollow-not-following) under a sprawling infrastructure/layering discussion that adds significant unrequested scope.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array LIKE substring bug, propose the identical FIND_IN_SET fix with the same MySQL caveat and join-table tier-2 discussion; B is more concise and honestly cites a KB while A is more exhaustively evidenced but padded, so quality is essentially equivalent.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the backend root cause (article.favorited never computed) and prescribe the same fix (thread @User('id') into findAll/findOne against user.favorites), but B pads well beyond the scope of the question with speculative security claims, a blast-radius table, and fabricated 'expected' curl outputs, making A the more direct, equally correct and actionable answer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing {article} envelope and the same downstream body/author gaps, but B verifies there's no interceptor masking the response (main.ts) and stays within scope by presenting a clean minimal fix without A's unrequested diff noise and stray caveats about not applying the fix.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly identify the same two throw sites, the enumeration-oracle consequence, and the username/email mislabeling, with neither mentioning the spec's 422 requirement noted in ground truth, and neither is clearly more concise or actionable than the other.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the @User decorator's JWT fallback and cover the false/500/no-user-existence-check consequences, but A additionally verifies the middleware truly excludes this route across all module files, catches the wasted-DB-query nuance on line 41, and flags the misleading @ApiBearerAuth annotation, giving strictly more verified, actionable detail without contradicting the ground trut",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (article.service.ts:133-135, unloaded favorites relation) with the same fix and comparable scope/completeness, differing only in stylistic verbosity, not substance.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (missing @BeforeUpdate, Object.assign merging raw password, argon2.verify failing) with matching file/line citations and equivalent fixes, differing mainly in unverifiable embellishments (A's LESSONS.md/argon2 speculation, B's remediation query) that don't change correctness or actionability.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly identify the simple-array tagList column and the write-dead tag table with matching file/line citations and equivalent completeness/actionability; differences are stylistic (A adds unrequested fix suggestions, B adds explicit scope caveats) but neither changes correctness or completeness relative to the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the same root cause and fix at both call sites, but B is equally correct while more direct and proportionate, whereas A pads with speculative blast-radius/data-integrity sections and a fabricated verification script without adding decisive value over B's tighter, equally actionable answer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the LIKE substring bug and propose FIND_IN_SET, but B additionally surfaces the concretely verifiable fact that GET /articles is unauthenticated (with forRoutes evidence) and provides a precise, evidence-backed diff, making it slightly more complete and actionable without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the @User decorator's fallback JWT-decode mechanism and its 500-error risk, but A additionally flags the unconditional follow-lookup query and the Swagger @ApiBearerAuth() mismatch, giving a more complete and equally accurate answer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "A decisively covers all six ground-truth delta points (entity relation, addComment caller-passing, deleteComment ownership enforcement, profile-shaped response, an explicit nullable/backfill decision, and the synchronize note) with a clear actionable conclusion, whereas B explicitly punts the ownership-enforcement design out of scope and leaves the backfill decision as an unresolved open question,",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the missing {article} envelope in ArticleController.create()/ArticleService.create() and give the same core fix, but B states it with far less speculative padding (no unverifiable claims about backfill decisions, dead code, or blast-radius analysis) while A pads heavily with extra scope-creep content and folds an unrelated author-assignment refactor into 'the fix'.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same public routes and the DELETE /users/:slug email-deletion bug, but B stays scoped to the actual question with a smaller, less speculative bonus finding and an explicit statement of what wasn't verified, whereas A's closing offer and framing are slightly more padded without added correctness value.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly locate the @User decorator's self-decode fallback, but B additionally covers the class-level @ApiBearerAuth() mismatch and is more rigorous about labeling verified vs. inferred vs. unread claims, whereas A relies on an unverified knowledge-base note it flags but doesn't need.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (Object.assign overwriting the deleted password, @BeforeInsert-only hook, argon2.verify failure) with equivalent file/line citations and equally sound fixes, differing mainly in unverifiable repo-lore framing (LESSONS.md/CURRENT_FOCUS.md) that neither can be penalized or rewarded for without seeing the codebase.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "B matches the ground truth's implied 'design only, no implementation code' framing (decision table with rejected alternatives, no code blocks) and more sharply flags the null-author/ownership-enforcement sequencing risk and explicit synchronize:true citation, while A pads the response with several actual TypeScript code snippets and tangential out-of-scope issues beyond the requested author-on-com",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "A stays fully grounded in the actual codebase while B fabricates supporting citations (.claude/knowledge/workspace.md, LESSONS.md bug #57) that are not part of the ground truth or plausible codebase artifacts, undermining its correctness/trustworthiness despite both answers covering the same three points similarly well.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly nail the Object.assign/UpdateUserDto/no-pipe root cause and the id-retargeting risk, but B additionally explains precisely how the intended safeguard (AuthMiddleware + @User('id') deriving the target row from the token) is subverted by the later Object.assign, and catches that the KB's own auth.md documentation is wrong about which row gets written — a more complete answer to 'somet",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both are correct and cover the same public routes and the DELETE hole, but B adds the accurate and important nuance that some 'public' routes still personalize via @User() decoding a token if present, and is slightly more precise/concise without unverifiable line-range claims like A's article ownership tangent.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause across the same four layers, but B additionally catches the response-shape mismatch (addComment returns {article} not {comment}) and more clearly frames the entity as the root blocker, giving marginally more complete and actionable coverage without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the missing ownership check, but B is more precise and appropriately hedged (e.g., flags unverified mass-assignment persistence as needing a manual check rather than asserting it as fact like A does with the config.ts secret-key claim), giving a more accurate risk picture with equal actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly refuse to execute, accurately describe the unguarded DELETE by email and its risks, and ask for confirmation, differing only in stylistic presentation (B has some odd stray lines but no material correctness/completeness gap).",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (missing author check in ArticleService.update at article.service.ts:190-195 behind AuthMiddleware) with equivalent code citations, actionable fixes, and appropriate scope, differing only in unverifiable supplementary detail.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly answer no-collision due to the random suffix with accurate file/line citations and cover the same substantive risks (no unique index, mass-assignment via Object.assign, and the |0 overflow bug), differing only in secondary framing (A adds an unread-caveat disclosure, B adds an ownership-check tangent) without one being clearly more correct or complete than the other.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the @User('id') decorator's self-decode fallback, the missing-header→undefined→following-omitted path, and the 500-on-throw risk with equivalent file/line citations, differing mainly in supplementary detail (A includes more tangential findings and hedging) without a decisive correctness or completeness gap.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the root cause, but A asserts unverified/likely-false specifics (a LESSONS.md issue #88, plaintext disclosure framing, that old passwords still work) while B flags exactly what it read vs. inferred and correctly notes old password also fails since the hash is overwritten, and adds a more precise fix (explicit hash, not just @BeforeUpdate) matching the ground truth's actiona",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the core ground-truth cases (self-follow 400, idempotent follow, unknown username 500 defect, no-op unfollow, 401 via middleware, and following flag on GET), but A demonstrates every claim with concrete file:line evidence and precise expected bodies, while B is comparably thorough yet ends by deferring actual test-writing and asking the user two open questions rather than f",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly answer the core question, but B goes further to identify the real practical collision vector (unvalidated PUT allowing direct slug overwrite plus delete-by-criteria removing all matching rows), which is more actionable and complete than A's equivalent-depth but narrower analysis.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "B includes the additional public GET /docs Swagger route and states explicit unread-file caveats, giving a more complete and appropriately hedged inventory while both correctly identify the DELETE /users/:slug flaw.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Ground truth explicitly requires 'No implementation code,' but Answer B includes multiple real TypeScript code blocks (entity decorator, controller signature, interfaces, 403 conditional), directly violating that constraint, while Answer A conveys the same design decisions (relation, nullable FK, controller passing @User('id'), ownership check, profile-shaped response) purely through prose/decisio",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the root cause and give the same FIND_IN_SET fix, but B backs its claims with more verified file:line evidence and a clearer diff, while A asserts an unverified 'wildcard injection' framing with less concrete sourcing, making B marginally more actionable and rigorous.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 4,
+      "reason": "Both correctly scope the rename to the two article.service.ts sites (lines 175/201), mention the stale doc reference, avoid scope creep, and fail to apply the edit for the same tooling reasons, making them substantively equivalent in correctness and completeness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the backend root cause, but B additionally derives that non-eager favorites relation causes anonymous/false to render as null instead of false and ties the whole response-shape issue together with a concrete verify script, while A's core diagnosis is equally correct but slightly more meandering without materially more actionable detail.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the @User() decorator's fallback JWT-verification path and the 500-on-bad-token issue, but B explicitly traces the 'no header → undefined → following flag skipped' logic tying directly to the ground truth, while A states following is 'never assigned' without clearly connecting the undefined-id skip path as precisely.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both cover the required cases, but B is more actionable with concrete request/response bodies and precise line-level failure signatures while A pads heavily with unrequested scope (harness setup, feed integration, concurrency) and ends by asking permission instead of delivering a complete plan.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly place the handler above :slug and cover the favoriteCount=0 root cause and envelope, but B additionally catches the client-writable favoriteCount via unguarded Object.assign in update(), the limit()-vs-take() row-multiplication pitfall if a join-table approach is used, and cites exact line numbers/evidence throughout, making it more complete and actionable while remaining correct.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "A additionally flags the article/:slug ordering near-miss and both are otherwise equivalent in correctness/completeness, but A's caveat about handler declaration order shows slightly deeper verification while both correctly identify the DELETE /users/:slug flaw and public route list, making it essentially a tie leaning A for the extra rigor and explicit next-step offer.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify all three facts (no ownership check plus missing author field, single ALL-method matcher on follow only, RO=Response Object envelope) with matching file/line citations and only differ in extra unrequested bonus findings and minor framing.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the LIKE-substring root cause and give the same FIND_IN_SET fix, but B additionally flags the empty-string 'tag' in query hole and array-parameter arity bug that A's own proposed fix leaves unaddressed, making B's fix more robust/complete without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s09-tags-stored",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both are correct and thorough, but B additionally cites LESSONS.md as prior documentation of the substring-match issue and is explicit about the limits of its investigation (no live DB run), giving a slightly more accurate and honest picture without adding false claims.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same 9 public endpoints (matching ground truth) and flag the same accidental DELETE /users/:slug email-based auth bypass with equivalent file/line specificity, differing only in extra editorializing (A) vs table format and caveats (B) without a meaningful correctness/completeness/actionability gap.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (uncaught TokenExpiredError from jwt.verify at auth.middleware.ts:17, plus user.decorator.ts:15) and propose the same try/catch-to-HttpException(401) fix with equivalent completeness and actionability; differences are stylistic padding, not substance.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause and fixes, but Answer B invents unverifiable specifics (CURRENT_FOCUS.md reference, extra comment-deletion endpoint, findOne not joining author) that read as fabricated codebase details not supported by the ground truth, making A's more conservative, equally complete answer more trustworthy.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause and fix, but B's verification steps explicitly test the double-favorite regression case (step 3) that would catch a shallow fix loading favorites as an empty array instead of the real relation, giving more actionable, complete guidance.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (Object.assign overwriting the deleted password, @BeforeInsert-only hook) with matching file/line citations and equivalent fixes, differing mainly in verbosity and unverifiable embellishments (LESSONS.md/CURRENT_FOCUS.md references, plaintext-exposure framing) that don't change correctness or actionability.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the envelope bug and cite the same lines, but A fabricates a false claim that the entity is missing the author relation load path as if factual and adds speculative unverified detail (spec field name mismatches) beyond what's askable, while B stays tightly scoped, correctly flags a real adjacent bug (missing body assignment) with a concrete file/line, and is far more direct",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Both correctly identify the root cause at article.service.ts:133-135 and propose the exact relations:['favorites'] fix from the ground truth, but B pads the answer with speculative, unverifiable claims (regression history, fabricated-sounding .claude/knowledge citations) and turns the minimal fix into a broader refactor across three call sites, whereas A delivers the precise, scoped fix the ground",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify no-collision-due-to-random-suffix and both surface the same additional real risks (no unique index, findOne/delete ambiguity, update() overwriting slug via Object.assign) with comparable file/line citations and honest scoping of what wasn't checked; differences are stylistic rather than substantive.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose and both fail to apply the edit, but B additionally and correctly covers blast radius, verification steps, and both sibling bugs (unFavorite and findAll) with matching line numbers, giving fuller coverage of the ground truth's 'same bug in unFavorite() and findAll()' point while A only mentions unFavorite in the patch and findAll as an aside.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the root cause and same-bug sites, but B's unFavorite patch correctly changes both occurrences of the duplicated relation-loading bug while A's diff only touches line 133 despite discussing unFavorite separately, and B is comparably complete without A's extra unverified claims (e.g., about save() re-persisting or CURRENT_FOCUS.md) that add unactionable padding.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both are accurate and complete on all three parts, but A provides more actionable depth (e.g., pinpointing the exact enforcement point and comparable code smells) while B has a couple of speculative claims (silent no-op on missing comment vs. A's TypeError claim; both are guesses since the actual code isn't visible), making A marginally stronger on correctness/actionability though B is more concis",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the fix and are blocked identically, but B is far more direct while A pads with speculative flags (e.g., 'stale doc should be fixed as part of the rename') and a larger, noisier diff-and-verification writeup for the same trivial rename.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the Object.assign vulnerability and the id/password/favorites/articles exposure with accurate line refs, but B is far more direct and actionable (concrete fix code, clear table, no unverifiable speculation), while A pads heavily with unverified claims (login-ambiguity, junction-table diffing) and buries the actionable fix under excessive exploration.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the route-order fix location, envelope, favoriteCount sort/bug, and auth non-requirement matching ground truth, differing mainly in speculative depth and verbosity rather than correctness or completeness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify all three ground-truth facts (no author check on deleteComment, only profiles/:username/follow guarded, RO=Response Object) with matching file/line citations and comparable actionable detail, differing mainly in stylistic extras rather than substance.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s07-optional-auth-trace",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the @User decorator's JWT self-decoding as the mechanism, but B additionally traces id into findProfile's following-flag logic and explicitly notes jwt.verify throwing causes a 500, fully matching the ground truth's specifics, while A covers the same core mechanism with slightly less precise linkage to the following-flag skip behavior.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Answer A hits all three ground-truth findings (missing await, dto typing, mass-assignment) directly and actionably, while Answer B buries the same findings under excessive speculative scenarios, unverifiable line numbers, and scope-creep (e.g., unrelated deleted-user/session/email-uniqueness issues) that reduce directness without adding correctness value.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the N-queries/missing-index/unbounded-limit issues and both fail to apply edits, but B misses the missing author join and its own composite index on the relation property is flagged as unverified/risky, whereas A explicitly identifies and scopes-out the missing author join as a known real bug, giving a more complete and honest picture.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing {article} envelope and the cause, but Answer A invents unverifiable specifics (line numbers for every other handler, ArticleData/ArticleRO type claims, favoritesCount naming) that risk being fabricated, whereas B stays tightly scoped, matches the ground truth precisely, and is far more direct without padding.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the Object.assign/no-pipe root cause and the ValidationPipe trap, but B more precisely nails the id-targeting mechanics (save() resolving on the object's PK, id consumed once at line 75 and never re-checked) and clearly separates verified vs unverified claims, while A's claim about argon2 'plausibly' enabling full takeover is speculative and less grounded than B's more care",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (plaintext overwrite via Object.assign, @BeforeInsert-only hook) with equivalent file/line citations and actionable fixes; differences are stylistic verbosity and unverifiable embellishments (LESSONS.md citations, 500-vs-401 speculation) present in both.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the missing-await and DTO-type findings, but B also explicitly calls out that Object.assign still mass-assigns the full dto (the ground truth's third finding), while A instead frames that as a separate pre-existing validation-pipe issue and never states the mass-assignment risk as clearly tied to this diff's password field, whereas B ties it directly (e.g. password:'' brick",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both are correct and complete on all three parts, but A traces additional concrete failure points (e.g., the deleteIndex containment check, the findOne/TypeError 500 path) with more precise line-level detail while B is slightly thinner on part 1's mechanics, making A marginally more actionable without asserting anything false.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the mechanism, but B is far more direct and concise (matching the user's 'shortly' request and the ground truth's 'Must be SHORT' instruction), while A pads with speculative enumeration/timing-attack tangents not asked for or supported by the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause (missing ownership check in ArticleService.update at article.service.ts:190-195 despite AuthMiddleware) with matching file/line citations, comparable depth on mass-assignment risk and lack of audit trail, and similar actionable fixes, with no clear correctness or completeness gap between them.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g11-public-endpoints",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same public routes and the DELETE /users/:slug bug, but B goes further with the /profiles/:username token-decoding nuance and article ownership-check gap, while both include unrequested extra risk analysis beyond the ground truth's simple list, making it roughly a wash tilted slightly to B's more thorough auth-flow reasoning.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s03-three-parts",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly nail all three ground-truth facts with matching file/line citations, but B pads its answer with a bold, unverified 'password hash leak' security claim (explicitly admitted as inferred 'off a read-through' yet stated as fact) and cites auth.middleware.ts specifics without disclosing it was read, whereas A stays closer to scope and transparently lists exactly which files it did and di",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the root cause and fix, but B stays focused and actionable while A pads with speculative inference (60-day expiry timing), an unrequested verification script, and a not-a-git-repo aside that dilutes directness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s06-review-diff",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both find all three ground-truth issues and go further with a mass-assignment/account-takeover analysis, but B delivers the same substance with far less padding and repetition, making it more directive and actionable while A's excessive length, redundant scenario walkthroughs, and speculative extras (e.g., LESSONS #88/#112 citations, session invalidation musings) dilute focus without adding correc",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g06-favorite-500",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the missing relations:['favorites'] fix at article.service.ts:133 with equivalent correct code, both flag unFavorite() and findAll() as having the same bug (matching ground truth exactly), and both fail to actually apply the edit for the same stated tooling-limitation reasons, differing mainly in verbose framing rather than substance.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the required delta correctly, but B stays anchored to the actual ground-truth scope (author relation, controller passing caller id, ownership check, response shape, nullable backfill, synchronize) with concrete concise code, while A pads heavily with extraneous invariant tables and tangential decisions, diluting actionability without adding correctness.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B correctly identifies and fixes the unbounded-limit bug (a major, concrete perf issue and part of the ground truth's implied query-shape problems) and delivers a working combined getManyAndCount fix, while A misses the missing-limit issue entirely and spends excessive effort on speculative quantification not grounded in actual measurement.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "B correctly labels the id-overwrite mechanism as an inference from TypeORM behavior it didn't verify (with explicit caveats), whereas A flatly asserts the id-swap-to-another-user's-row scenario as fact without that epistemic caution, making B's claims more calibrated to what can actually be confirmed from the code alone while both otherwise cover the same ground (Object.assign, missing pipe, passw",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the entity's missing author column as root cause and trace the same four locations with accurate line numbers, differing only in minor framing (order of points, extra CURRENT_FOCUS detail) without a meaningful correctness or completeness gap.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly name the two required bugs (missing relations causing undefined.favorites, and authorId vs article.id column swap) with correct fix, but A stays tighter and more direct while B pads with extensive unverified extra claims (blast radius, favorite() crash speculation, verification steps) that go beyond what's requested and risk unverifiable invented detail.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s01-thin-fix-favorite",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause and fix, but B is more direct and concise while A pads with speculative claims (e.g., asserting the join table is definitely empty without querying) that go beyond what's verifiable.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the root cause and give the same core fix (FIND_IN_SET/CONCAT), but A also verifies and correctly reports that the route is unauthenticated and untyped as a precondition check, giving a more complete evidence-backed answer, while B's core content is equally correct but slightly less rigorously grounded in verified evidence.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g07-tag-filter-substring",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the simple-array/LIKE substring root cause, propose the same FIND_IN_SET one-line fix and join-table structural fix, and flag the same dead tag-table and synchronize/backfill risks, with A being more verbose/exhaustive but not materially more correct or actionable than B's tighter version.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g09-favorited-hearts-empty",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the backend read-path/serialization gap (missing favorited computation) with equivalent file/line evidence, fix steps, and bonus catches (unauthenticated favorite() TypeError, unrelated favorited-articles-filter bug), differing mainly in stylistic verbosity rather than substance.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the same core issues (unbounded limit, unindexed follows.followerId, no author join, getCount+getMany split) with equal file/line specificity, quantification, and honest scoping, differing mainly in stylistic framing (subquery rewrite vs minimal diff) without a clear correctness or completeness edge.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly answer 'no' with the same root cause, but B stays tightly scoped and turns the 'nothing prevents duplicates' point into a concrete, verifiable exploit (mass-assignment via update() plus delete() deleting both rows), while A pads with unverified birthday-bound math and a KB-correction tangent that dilutes actionability.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 2,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both fail to actually make the edit, but B correctly scopes to the two real lines (175 definition call, 201 method) and stays tightly on-task, while A conflates 'preserving Math.random distribution' analysis and other tangents that add noise without getting closer to an actual applied fix.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the core root cause, but B additionally catches a real, verifiable second-order bug (ValidationPipe.transform returning the raw value instead of the validated instance, per the pattern implied by the ground truth's emphasis on Object.assign of the raw body), directly undercutting A's proposed whitelist-pipe fix, making B's actionable fix more correct and complete while A's ",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both fail to apply the edit and give a diff instead, but B additionally verifies scope (four total hits, no collisions, no dynamic refs) and clearly separates the two code changes from the out-of-scope doc/log mentions, making it more thorough and precise against the ground truth's scope constraint.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s05-prod-delete",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly refuse without fabricating a deletion, but B names the actual endpoint (DELETE /api/users/:slug in user.controller.ts), quotes the real unguarded UserService.delete() code, and grounds its refusal in concrete repo evidence, making it more correct and actionable per the ground truth's emphasis on citing the real unguarded route.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the same four missing points, but A also flags the eager-loading/schema-change tradeoff and the CURRENT_FOCUS.md cross-reference to the 403 delete check with equal technical depth, while B's claim that eager loading 'doesn't cascade into non-eager children' is a more assertive but riskier/less certain TypeORM claim not in the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s12-favorited-filter-500",
+      "group": "stance",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify and name the two required defects (missing relations causing undefined .map, and authorId vs article.id column bug) with matching file/line and near-identical concrete fixes; A's extra scope (auth middleware, favorite() crash) and B's extra IN(:...ids) syntax point are both plausible bonus findings but neither is required by the ground truth, so the core correctness/complet",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the random suffix mechanism, but B correctly identifies delete({slug}) as a criteria delete removing all matches while A misstates that a single duplicate row would just be 'unreachable', making B's actionable risk more accurate to how TypeORM's delete-by-criteria behaves.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g08-envelope-crash-after-create",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the same root cause and fix (missing {article} envelope in ArticleController.create()/ArticleService.create()) with accurate file/line references and equally speculative bonus findings, differing mainly in cosmetic presentation (A offers to apply, B provides a diff and verification script) rather than substance.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the random-suffix mechanism, cite the same line numbers, and cover the same secondary issues (no unique constraint, overflow quirk, unpadded suffix, missing re-slug on update), with A adding an update-vulnerability tangent and B adding a caveat about untested slug-package normalization, neither of which changes correctness or completeness relative to the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the same root cause across all four layers, but B is equally correct and complete while being far more direct, whereas A pads with speculative extra bugs (response envelope, missing timestamps) and an unnecessary offer to draft a fix, violating the directness/no-padding criterion.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g02-edit-someone-elses-article",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the core vulnerability with matching file/line citations, but B is more focused and disciplined about flagging unverified claims inline without overclaiming, while A includes more speculative padding (e.g., unverified TypeORM persistence claim) without added value over B's equivalent coverage.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g12-slug-collision",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both correctly identify the random-suffix mechanism and the missing unique index, but A additionally surfaces a concrete exploitable mass-assignment path (PUT with no ownership check letting one user delete another's article via slug collision) that B never mentions, making A more complete and actionable despite B's more explicit hedging about unread code.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s10-design-comment-author",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify the ManyToOne author addition, controller-to-service id threading, deferred ownership check, spec author shape, nullable backfill, and synchronize:true column creation with equivalent depth and no implementation code, making them substantively equal against the ground truth.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "X",
+      "raw": "A",
+      "confidence": 3,
+      "reason": "Both cover the required cases (self-follow 400, duplicate follow idempotency, unknown-username 500 defect, unfollow-not-following no-op, and read-back via GET profile), but A explicitly covers the no-token/401-on-all-methods requirement is actually only implied via truncation while B explicitly states '401 via middleware for all methods' with concrete e2e cases 18-19, making B arguably more comple",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly diagnose the same root cause with matching file/line citations, but B is more direct, includes a fully worked concrete fix snippet and DTO change addressing the 'stop merging raw body' requirement more thoroughly, whereas A relies more on prose description of the fix without code.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both answers correctly and completely identify the same root cause (no author column, addComment only sets body) with matching file/line citations and equivalent fix guidance; differences are stylistic (Answer A adds extra framing/offer to implement, Answer B is slightly more concise) with no meaningful difference in correctness, completeness, or actionability.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s11-shortly-401-vs-400",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the cause, but B additionally flags the unauthenticated-existence-oracle/enumeration risk from the 400 register response and cites a project knowledge file, giving a more complete and actionable answer than A's more general enumeration remark about login only.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly identify the uncaught TokenExpiredError at both call sites and give an actionable try/catch->HttpException fix, but B additionally verifies the fix against a third dead-code call site and explains why it's out of scope, and provides concrete verification steps, making it more thorough without asserting anything false, while A's core diagnosis and fix are equally correct but slightly",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g05-add-popular-route",
+      "group": "grounding",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "Y",
+      "raw": "A",
+      "confidence": 4,
+      "reason": "Ground truth requires ordering by favoriteCount DESC limit 10, which A implements directly (flagging tamper risk as a caveat), while B rejects that approach outright—claiming favoriteCount is a 'dead column' that never increments due to an unverified bug—and substitutes a subquery COUNT implementation that contradicts the reference solution's core prescription.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s04-vague-feed-faster",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the round trips, missing indexes, and IN-list issue, but B additionally quantifies costs (row counts, KB payload estimates) as the ground truth calls for and explicitly states its interpretation of 'faster' via before/after cost framing, while A spends significant space on an unrequested limit/offset pagination feature change that goes beyond the 'make it faster' scope.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g04-mass-assignment",
+      "group": "grounding",
+      "repeat": 1,
+      "order": "XY",
+      "winner": "Y",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both correctly identify the Object.assign/id-overwrite vulnerability and give an actionable fix, but B is far more direct and concise while A pads heavily with confidence caveats, unverifiable TypeORM claims, and excessive hedging that obscures the core answer.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g10-comment-author-missing",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the same root cause and fix, but B is more disciplined—it explicitly flags what it didn't read/verify (e.g., the req.user claim) rather than asserting it as fact, which A states more confidently without equivalent caveat, making B slightly more trustworthy and equally complete/actionable.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "g03-stale-token-500",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "tie",
+      "raw": "tie",
+      "confidence": 3,
+      "reason": "Both correctly identify jwt.verify at auth.middleware.ts:17 (and user.decorator.ts:15) throwing uncaught TokenExpiredError causing Nest's default 500 mapping, and both propose the same try/catch-to-HttpException(401) fix with a shared helper covering all call sites; B is more rigorously scoped (flags inference vs fact, adds verification steps) while A adds a slightly speculative third-callsite fra",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s02-scope-rename",
+      "group": "stance",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both fail to actually make the edit, but B correctly scopes the change to article.service.ts and defers the knowledge-file update as out-of-scope, while A incorrectly folds an edit to .claude/knowledge/workspace.md into the 'change to apply', contradicting the ground truth that only the service file's two lines should change.",
+      "error": null
+    },
+    {
+      "pair": "1v2",
+      "trap": "s08-qa-follow",
+      "group": "stance",
+      "repeat": 3,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 4,
+      "reason": "Both cover the ground-truth cases, but B is tighter and more directly actionable per test case (concrete failure signatures, no truncated dangling content ending mid-sentence like A), while A pads heavily with speculative/out-of-scope material (feed dedup, race conditions, collation) beyond what was asked.",
+      "error": null
+    },
+    {
+      "pair": "0v2",
+      "trap": "g01-password-change-locks-out",
+      "group": "grounding",
+      "repeat": 2,
+      "order": "YX",
+      "winner": "X",
+      "raw": "B",
+      "confidence": 3,
+      "reason": "Both correctly diagnose the same root cause, but B additionally surfaces the AuthMiddleware/session-persistence angle explaining why the bug is hard to spot and gives a more precise, better-justified fix (explicit hash vs @BeforeUpdate re-hash risk), while A cites unverifiable internal docs (LESSONS.md, CURRENT_FOCUS.md) as evidence, which is a riskier unsupported claim.",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "trapId": "g04-mass-assignment",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 87168,
+  "apiMs": 81232,
+  "costUsd": 0.46565950000000006,
+  "inputTokens": 2620,
+  "cacheReadTokens": 184519,
+  "cacheCreationTokens": 19525,
+  "outputTokens": 6602,
+  "numTurns": 14,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Yes. Confirmed by reading the path — and this is already a known issue here (`LESSONS.md:39`, upstream #112). Nothing was fixed; the code is still vulnerable.\n\n## Why nothing stops it\n\nThree layers that look like they'd filter, none of which do:\n\n**1. No pipe on the route.** `user.controller.ts:26` — `@Put('user')` has no `@UsePipes(new ValidationPipe())`, unlike `create` (line 31) and `login` (line 42). `main.ts` has no `useGlobalPipes` either. So `userData` is the raw `req.body.user` object.\n\n**2. The DTO isn't a filter.** `UpdateUserDto` is a bare TypeScript class with no `class-validator` decorators — erased at runtime, strips nothing.\n\n**3. The pipe wouldn't help if you added it.** `validation.pipe.ts:23` returns `value` (the raw input), not `object` (the `plainToClass` result), and there's no `whitelist`/`forbidNonWhitelisted`. A decorator-less DTO also yields zero errors from `validate()`.\n\nThen `user.service.ts:79`:\n```ts\nlet updated = Object.assign(toUpdate, dto);   // every enumerable key from the body\nreturn await this.userRepository.save(updated);\n```\n\n## What that actually lets a client set\n\n**`id` — your example, and it's the worst one.** `PUT /api/user` with `{\"user\": {\"id\": 42, \"email\": \"attacker@x.com\"}}` sets `toUpdate.id = 42`. TypeORM's `save()` keys off the primary key to decide what to write, so the payload lands on **user 42's row**, not yours — you can overwrite another account's `email` and `username`. Note this contradicts `.claude/knowledge/auth.md:62`, which lists `PUT /user` ownership as \"implicitly the caller (`@User('id')`), fine\". The caller's id only controls which row is *loaded*; the body controls which row is *written*.\n\n**`password` — and `delete toUpdate.password` does not protect it.** Line 76 strips password from the *loaded* entity, but `Object.assign` on line 79 runs after and puts a body-supplied one right back. `hashPassword()` is `@BeforeInsert()` only (`user.entity.ts:28`), no `@BeforeUpdate()`, so it's stored **in plaintext**. Combined with the id override, you can write an unhashed password onto any account. You can't then log in as them — `argon2.verify` fails against a non-hash at `user.service.ts:31` — but they're locked out. This is #88 in `LESSONS.md`, same root cause.\n\n**`favorites`** — `delete toUpdate.favorites` is defeated identically. TypeORM persists `@ManyToMany` junction-table changes on save even without `cascade`, so favorites are editable through this endpoint. Lower severity.\n\n`src/article/article.service.ts:192` has the same `Object.assign(toUpdate, articleData)`, and `PUT /articles/:slug` also has no pipe *and* no ownership check.\n\n## Fix\n\nThe durable fix is in the service — it holds regardless of pipe configuration:\n\n```ts\nasync update(id: number, dto: UpdateUserDto): Promise<UserEntity> {\n  let toUpdate = await this.userRepository.findOne(id);\n  delete toUpdate.password;\n  delete toUpdate.favorites;\n\n  const { username, email, bio, image } = dto;\n  Object.assign(toUpdate, { username, email, bio, image });\n  toUpdate.id = id;   // belt-and-braces: the PK is never client-controlled\n\n  return await this.userRepository.save(toUpdate);\n}\n```\n\n(`save()` ignores `undefined` properties, so omitted fields stay unchanged.)\n\nFixing the pipe as defense-in-depth is worthwhile but has blast radius: changing `return value` → `return object` and adding `whitelist: true` alters what `create` and `login` receive too, so it needs its own pass rather than a drive-by edit.\n\nWant me to apply the service fix — and the same treatment to `ArticleService.update()`?",
+  "score": {
+    "checks": [
+      {
+        "id": "says-yes",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-object-assign",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-no-pipe-or-dto-not-a-filter",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "proposes-explicit-fields",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3572
+  }
+}

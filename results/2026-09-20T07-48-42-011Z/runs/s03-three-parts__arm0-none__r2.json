@@ -1,0 +1,80 @@
+{
+  "trapId": "s03-three-parts",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 64002,
+  "apiMs": 58268,
+  "costUsd": 0.428198,
+  "inputTokens": 2620,
+  "cacheReadTokens": 202046,
+  "cacheCreationTokens": 18405,
+  "outputTokens": 5201,
+  "numTurns": 19,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Answers below — all three verified against the source.\n\n## 1. `deleteComment` — no, it does not verify authorship\n\nThere's no ownership check anywhere in the chain, and no data to check against even if you added one.\n\n**Controller** (`src/article/article.controller.ts:84-88`):\n```ts\n@Delete(':slug/comments/:id')\nasync deleteComment(@Param() params) {\n  const {slug, id} = params;\n  return await this.articleService.deleteComment(slug, id);\n}\n```\nNo `@User('id')` param — the caller's identity never leaves the request. Compare `favorite`/`unFavorite`/`create` (lines 52, 94, 102), which all take `@User('id') userId`.\n\n**Service** (`src/article/article.service.ts:114-129`): loads the article by slug, loads the comment by id, and deletes it. The only guard is `deleteIndex >= 0`, which checks that the comment belongs to *that article* — not that it belongs to *you*.\n\n**Entity** (`src/article/comment.entity.ts:5-15`): `Comment` has `id`, `body`, and a `ManyToOne` to `ArticleEntity`. There is no author/user column. `addComment` (`article.service.ts:101-112`) only sets `comment.body`, so authorship is never recorded in the first place.\n\nThe route *is* behind `AuthMiddleware` (`src/article/article.module.ts:29`), so you must be logged in — but any logged-in user can delete any comment on any article. Authenticated, not authorized.\n\nSame pattern applies to `PUT /articles/:slug` and `DELETE /articles/:slug` (`article.controller.ts:60, 69`) — also no ownership check, though there at least `ArticleEntity` has an `author` relation to check against.\n\nTwo smaller things in the same method: if `:id` doesn't exist, `commentRepository.findOne(id)` returns `undefined` and `comment.id` on line 118 throws a `TypeError` (500, not 404); and the `else` branch returns `{article}` with a 201, so deleting a nonexistent-on-this-article comment silently looks like success.\n\n## 2. Profile routes with `AuthMiddleware`\n\n`src/profile/profile.module.ts:19-23` registers exactly one matcher:\n\n```ts\n.forRoutes({path: 'profiles/:username/follow', method: RequestMethod.ALL});\n```\n\n| Route | Handler | Auth middleware |\n|---|---|---|\n| `POST /profiles/:username/follow` | `follow` (`profile.controller.ts:23`) | ✅ (via `RequestMethod.ALL`) |\n| `DELETE /profiles/:username/follow` | `unFollow` (`profile.controller.ts:28`) | ✅ (via `RequestMethod.ALL`) |\n| `GET /profiles/:username` | `getProfile` (`profile.controller.ts:18`) | ❌ not covered |\n\n`getProfile` being uncovered is deliberate, not a gap — it's the RealWorld \"optional auth\" case. `@User('id')` falls through to the second branch of `src/user/user.decorator.ts:12-17`, which decodes the JWT off the header itself when `req.user` isn't set. So with a token you get `profile.following`; without one, `id` is `undefined` and `profile.following` is omitted by the `if (id)` guard at `profile.service.ts:43`.\n\nOne inconsistency worth noting: `follow` takes `@User('email')` while `unFollow` takes `@User('id')` — both work, but the service methods have divergent signatures (`follow(followerEmail, ...)` vs `unFollow(followerId, ...)`) for no real reason.\n\n## 3. The `RO` suffix\n\n`RO` = **Response Object**. It's documented in `.claude/knowledge/workspace.md:61-74`.\n\nIt marks the RealWorld response *envelope* — the single-key wrapper object every handler returns, rather than a bare entity:\n\n| Interface | Shape |\n|---|---|\n| `ArticleRO` | `{ article: {...} }` |\n| `ArticlesRO` | `{ articles: [...], articlesCount: n }` |\n| `CommentsRO` | `{ comments: [...] }` |\n| `UserRO` | `{ user: {..., token} }` |\n| `ProfileRO` | `{ profile: {..., following} }` |\n\nThey live in `*.interface.ts` per module. Clients read `response.article.slug`, `response.user.token`, so returning a bare entity breaks every RealWorld frontend — `LESSONS.md:49-57` records this as a past bug (#57) and states the rule: a handler whose return type isn't a `*RO` interface is a bug even if it works in Postman.\n\nRequest bodies mirror it — handlers read `@Body('article')`, `@Body('user')`, `@Body('comment')`.\n\n(Note: `ArticleRO` actually types its field as `ArticleEntity`, not the `ArticleData` interface defined just above it in `article.interface.ts:7-18` — so `ArticleData` and the local `Comment` interface are dead code, and the entity leaks its full column set into the response type.)",
+  "score": {
+    "checks": [
+      {
+        "id": "part1-no-verification",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "part1-comment-has-no-author",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "part2-follow-route",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "part2-get-profile-public",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "part3-response-object",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 4314
+  }
+}

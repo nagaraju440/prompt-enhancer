@@ -1,0 +1,8 @@
+{
+  "$comment": "ARM 2 - the full enhancer under test: preparation layer + KB retrieval + standing rules. Paths are rewritten to absolute ones by run.js at launch.",
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "node \"{{ENGINE_DIR}}/prompt-enhancer.js\"", "timeout": 5 } ] }
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 26177,
+  "apiMs": 20074,
+  "costUsd": 0.14724500000000001,
+  "inputTokens": 2483,
+  "cacheReadTokens": 62760,
+  "cacheCreationTokens": 7545,
+  "outputTokens": 1120,
+  "numTurns": 5,
+  "assistantMessages": 2,
+  "finalText": "Two different code paths, written with different intents — not one scheme.\n\n**Login** (`src/user/user.controller.ts:45-48`): `findOne()` returns `null` for *both* unknown email and wrong password, and the controller maps that single `null` to `401 {User: ' not found'}`. It's treated as \"I can't authenticate you\" — an auth failure.\n\n**Register** (`src/user/user.service.ts:49-51`): the uniqueness query throws `400 {message: 'Input data validation failed', errors}` — the same envelope the `class-validator` check throws 10 lines below it. It's treated as \"your input is invalid,\" alongside a missing username or malformed email.\n\nSo: 401 = authentication outcome, 400 = input validation outcome. That's coherent as far as it goes.\n\nTwo things worth knowing though:\n\n- Login collapsing unknown-email and wrong-password into one 401 is the right call — no user enumeration. But register's 400 hands that back: you can probe whether any email or username is taken. The two endpoints undercut each other.\n- That register error is always keyed `{username: 'Username and email must be unique.'}` even when it was the *email* that collided — the query is `username = :username OR email = :email` but the response never says which.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the auth code to answer this.\n\nTwo different code paths, written with different intents — not one scheme.\n\n**Login** (`src/user/user.controller.ts:45-48`): `findOne()` returns `null` for *both* unknown email and wrong password, and the controller maps that single `null` to `401 {User: ' not found'}`. It's treated as \"I can't authenticate you\" — an auth failure.\n\n**Register** (`src/user/user.service.ts:49-51`): the uniqueness query throws `400 {message: 'Input data validation failed', errors}` — the same envelope the `class-validator` check throws 10 lines below it. It's treated as \"your input is invalid,\" alongside a missing username or malformed email.\n\nSo: 401 = authentication outcome, 400 = input validation outcome. That's coherent as far as it goes.\n\nTwo things worth knowing though:\n\n- Login collapsing unknown-email and wrong-password into one 401 is the right call — no user enumeration. But register's 400 hands that back: you can probe whether any email or username is taken. The two endpoints undercut each other.\n- That register error is always keyed `{username: 'Username and email must be unique.'}` even when it was the *email* that collided — the query is `username = :username OR email = :email` but the response never says which.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1269
+  }
+}

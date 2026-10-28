@@ -1,0 +1,53 @@
+{
+  "id": "s08-qa-follow",
+  "group": "stance",
+  "intent": "qa",
+  "prompt": "test plan for follow and unfollow",
+  "lesson": "Cases come from the branches and unguarded lookups in the code.",
+  "kb": "auth.md · profile.service.ts",
+  "judge_key": "Must include: follow yourself (400 by design), follow twice (idempotent — findOne guard), follow a username that does not exist (followingUser undefined → TypeError → 500, a real defect), unfollow someone you do not follow (delete no-op, following:false), no token (401 via middleware on ALL methods of the follow route), and that GET /profiles/:username following flag reflects it.",
+  "checks": [
+    {
+      "id": "self-follow",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "self|yourself|themselves|own (profile|username|account)|same user"
+    },
+    {
+      "id": "double-follow",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "twice|again|already follow|idempot|duplicate"
+    },
+    {
+      "id": "unknown-username",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "unknown|non-?existent|does not exist|doesn't exist|missing user|not found|404"
+    },
+    {
+      "id": "no-token",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "401|no token|without (a )?token|unauthenticated|not logged"
+    },
+    {
+      "id": "following-flag",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "following"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

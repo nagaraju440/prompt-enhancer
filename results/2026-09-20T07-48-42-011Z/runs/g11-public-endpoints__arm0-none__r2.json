@@ -1,0 +1,80 @@
+{
+  "trapId": "g11-public-endpoints",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 76060,
+  "apiMs": 68260,
+  "costUsd": 0.542527,
+  "inputTokens": 2755,
+  "cacheReadTokens": 306644,
+  "cacheCreationTokens": 23193,
+  "outputTokens": 5740,
+  "numTurns": 20,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "**Refined prompt:** Enumerate every HTTP endpoint in this NestJS RealWorld API that is reachable without a valid JWT, answering as a code auditor, grounded in the actual `configure()` middleware registrations rather than Swagger decorators, with each claim cited to file:line and the security-relevant cases called out.\n\n`AuthMiddleware` is registered per-route in each module's `configure()`. Anything not in one of those lists is public. All paths below carry the global `/api` prefix (`src/main.ts:8`).\n\n## Public endpoints\n\n| Endpoint | Handler |\n|---|---|\n| `GET /` | `src/app.controller.ts:5` — returns `'Hello World!'` |\n| `POST /api/users` | `src/user/user.controller.ts:32` — register |\n| `POST /api/users/login` | `src/user/user.controller.ts:43` — login |\n| **`DELETE /api/users/:slug`** | `src/user/user.controller.ts:37` — see below |\n| `GET /api/articles` | `src/article/article.controller.ts:24` |\n| `GET /api/articles/:slug` | `src/article/article.controller.ts:38` |\n| `GET /api/articles/:slug/comments` | `src/article/article.controller.ts:43` |\n| `GET /api/profiles/:username` | `src/profile/profile.controller.ts:18` |\n| `GET /api/tags` | `src/tag/tag.controller.ts:17` |\n\nThe guarded set, for contrast: `GET`/`PUT /user` (`src/user/user.module.ts:20`); the eight article routes at `src/article/article.module.ts:24-31`; and `profiles/:username/follow` for `RequestMethod.ALL`, which covers both the POST and the DELETE (`src/profile/profile.module.ts:22`). `TagModule.configure()` is an empty body (`src/tag/tag.module.ts:17-18`) — it applies nothing.\n\n## The one that matters\n\n`DELETE /api/users/:slug` is unauthenticated account deletion. It is in no `forRoutes()` list, and `params.slug` is passed straight to `UserService.delete()`, which deletes **by email** (`src/user/user.service.ts:83-84`):\n\n```\nDELETE /api/users/victim@example.com\n```\n\nThat removes the account. No token, no ownership comparison, no rate limit. This is distinct from the ownership gaps already tracked in `CURRENT_FOCUS.md:10-12` — those routes are at least authenticated, so they require *an* account; this one requires nothing but a guessed email address. It isn't on your active list, and I'd argue it outranks the article ownership work.\n\n## Two caveats on reading this code\n\n`@ApiBearerAuth()` sits on all four controllers (e.g. `src/user/user.controller.ts:14`, `src/tag/tag.controller.ts:10`) and the article handlers carry `@ApiResponse({status: 403})`. Both are Swagger documentation only and enforce nothing — the same trap recorded as LESSONS.md #6/#44. The middleware registration is the only source of truth.\n\nAlso, \"public\" doesn't mean \"anonymous-only\": `GET /api/profiles/:username` and `GET /api/articles` take `@User('id')`, which decodes a token itself when one is sent and yields `undefined` otherwise. So these routes personalize for a logged-in caller without ever guarding. That same decoder path is where the unhandled `jwt.verify` throw turns a bad token into a 500 (LESSONS.md #79) — on a public route, meaning an anonymous caller can trigger it with a junk `Authorization` header.\n\nOne note on method: I cross-checked the `.claude/knowledge/auth.md` route table against the source rather than quoting it, and it holds up on every line. I did not read `src/user/user.decorator.ts` directly — the `@User()` behavior above is from that KB file, not verified at source.",
+  "score": {
+    "checks": [
+      {
+        "id": "lists-get-articles",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-tags",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "lists-login-and-register",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "catches-unguarded-delete-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-module-configure",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 2,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3071
+  }
+}

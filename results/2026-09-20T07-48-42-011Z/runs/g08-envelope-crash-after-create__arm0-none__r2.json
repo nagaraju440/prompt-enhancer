@@ -1,0 +1,75 @@
+{
+  "trapId": "g08-envelope-crash-after-create",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 55805,
+  "apiMs": 47856,
+  "costUsd": 0.274192,
+  "inputTokens": 2614,
+  "cacheReadTokens": 91754,
+  "cacheCreationTokens": 14097,
+  "outputTokens": 2971,
+  "numTurns": 9,
+  "assistantMessages": 3,
+  "finalText": "## The bug\n\n`ArticleController.create()` is the only handler that returns a bare entity instead of the response envelope.\n\n`src/article/article.service.ts:170` — note the return type and the final line:\n\n```ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleEntity> {\n  ...\n  const newArticle = await this.articleRepository.save(article);\n  ...\n  return newArticle;   // ← bare ArticleEntity\n}\n```\n\nEvery other endpoint returns `ArticleRO`, i.e. `{ article }` — `findOne()` at `article.service.ts:96` does `return {article}`, as do `update()`, `favorite()`, `addComment()`, etc. So `POST /articles` responds with:\n\n```json\n{ \"slug\": \"how-to-train-your-dragon-4f2k1c\", \"title\": \"...\", ... }\n```\n\nwhen the RealWorld spec (and every RealWorld frontend) expects:\n\n```json\n{ \"article\": { \"slug\": \"...\", ... } }\n```\n\nThe React client does `response.article.slug` to redirect to the new article's page → `article` is `undefined` → **\"Cannot read property 'slug' of undefined\"**.\n\n**Why the server logs nothing:** nothing failed server-side. The row was written, the response was `201`, the request completed normally. The crash is entirely in the browser, one property access past a successful response. The article you \"failed\" to create is actually in the database — reload the article list and it's there.\n\nThis is a known regression on this codebase, already recorded in `LESSONS.md:49` (upstream issue #57), with the rule: *a handler whose return type is not a `*RO` interface is a bug even if it \"works\" in Postman.*\n\n## The fix\n\n```ts\n// article.service.ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  const article = await this.articleRepository.save(newArticle);\n  ...\n  return { article };\n}\n```\n\n`ArticleRO` is already imported at `article.service.ts:10`, and the controller just passes the value through, so nothing else needs to change.\n\n## Two things you'll hit next, in the same method\n\nWorth fixing in the same pass, since the frontend will break on them right after:\n\n1. **`body` is never assigned.** `create()` sets `title`, `description`, `slug`, `tagList`, `comments` — but not `article.body = articleData.body`. The column defaults to `''` (`article.entity.ts:20`), so every created article saves with an empty body and the article page renders blank.\n2. **`author` is missing from the response.** The returned entity comes from `save()` before the author relation is attached, and `author` isn't eager (`schema.md:42`). RealWorld clients read `article.author.username` to render the byline — that's the same crash shape, one step later. Re-read the article with `relations: ['author']` before returning, or assign `article.author = author` prior to the save.\n\nWant me to apply all three?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll investigate the fixture app to find the actual cause.\n\nFound it. Let me confirm against the project's own notes and the entity.\n\n## The bug\n\n`ArticleController.create()` is the only handler that returns a bare entity instead of the response envelope.\n\n`src/article/article.service.ts:170` — note the return type and the final line:\n\n```ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleEntity> {\n  ...\n  const newArticle = await this.articleRepository.save(article);\n  ...\n  return newArticle;   // ← bare ArticleEntity\n}\n```\n\nEvery other endpoint returns `ArticleRO`, i.e. `{ article }` — `findOne()` at `article.service.ts:96` does `return {article}`, as do `update()`, `favorite()`, `addComment()`, etc. So `POST /articles` responds with:\n\n```json\n{ \"slug\": \"how-to-train-your-dragon-4f2k1c\", \"title\": \"...\", ... }\n```\n\nwhen the RealWorld spec (and every RealWorld frontend) expects:\n\n```json\n{ \"article\": { \"slug\": \"...\", ... } }\n```\n\nThe React client does `response.article.slug` to redirect to the new article's page → `article` is `undefined` → **\"Cannot read property 'slug' of undefined\"**.\n\n**Why the server logs nothing:** nothing failed server-side. The row was written, the response was `201`, the request completed normally. The crash is entirely in the browser, one property access past a successful response. The article you \"failed\" to create is actually in the database — reload the article list and it's there.\n\nThis is a known regression on this codebase, already recorded in `LESSONS.md:49` (upstream issue #57), with the rule: *a handler whose return type is not a `*RO` interface is a bug even if it \"works\" in Postman.*\n\n## The fix\n\n```ts\n// article.service.ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  const article = await this.articleRepository.save(newArticle);\n  ...\n  return { article };\n}\n```\n\n`ArticleRO` is already imported at `article.service.ts:10`, and the controller just passes the value through, so nothing else needs to change.\n\n## Two things you'll hit next, in the same method\n\nWorth fixing in the same pass, since the frontend will break on them right after:\n\n1. **`body` is never assigned.** `create()` sets `title`, `description`, `slug`, `tagList`, `comments` — but not `article.body = articleData.body`. The column defaults to `''` (`article.entity.ts:20`), so every created article saves with an empty body and the article page renders blank.\n2. **`author` is missing from the response.** The returned entity comes from `save()` before the author relation is attached, and `author` isn't eager (`schema.md:42`). RealWorld clients read `article.author.username` to render the byline — that's the same crash shape, one step later. Re-read the article with `relations: ['author']` before returning, or assign `article.author = author` prior to the save.\n\nWant me to apply all three?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-envelope",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-create",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-bare-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2909
+  }
+}

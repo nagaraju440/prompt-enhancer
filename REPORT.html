@@ -1,0 +1,269 @@
+<title>Prompt Enhancer Benchmark</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#FAFAF7; --ink:#1B1D22; --ink-2:#5A6170; --ink-3:#8A909B; --rule:#E3E4DE; --panel:#F1F1EC; --code:#ECEDE7;
+  --s-none:#e87ba4; --s-rules:#eda100; --s-full:#2a78d6;
+  --good:#1f8a4c; --warn:#b5651d; --bad:#c43b3b;
+  --link:#1f5fae;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1a1a19; --ink:#F2F1EA; --ink-2:#B8B7AD; --ink-3:#8E8D85; --rule:#33332F; --panel:#232321; --code:#262623;
+    --s-none:#d55181; --s-rules:#c98500; --s-full:#3987e5;
+    --good:#4fc47e; --warn:#e2934f; --bad:#e46a6a; --link:#7fb1f0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1a1a19; --ink:#F2F1EA; --ink-2:#B8B7AD; --ink-3:#8E8D85; --rule:#33332F; --panel:#232321; --code:#262623;
+  --s-none:#d55181; --s-rules:#c98500; --s-full:#3987e5;
+  --good:#4fc47e; --warn:#e2934f; --bad:#e46a6a; --link:#7fb1f0;
+}
+body{background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.55;padding-inline:20px;padding-block:32px 80px}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:"Newsreader",Georgia,serif;font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.6rem;letter-spacing:-.01em}
+h2{font-size:1.65rem;margin-top:3.2rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+h3{font-size:1.15rem;margin-top:1.8rem;font-family:"IBM Plex Sans",system-ui,sans-serif;font-weight:600}
+p{margin:.8rem 0;max-width:68ch}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.6rem}
+.lede{font-size:1.15rem;color:var(--ink-2);max-width:62ch}
+a{color:var(--link)}
+code,.mono{font-family:"IBM Plex Mono",monospace;font-size:.86em}
+code{background:var(--code);padding:.1em .35em;border-radius:3px}
+.verdict{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:2rem 0 0}
+.tile{padding:18px 18px 16px;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+.tile .n{font-family:"Newsreader",Georgia,serif;font-size:2.7rem;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.86rem;color:var(--ink-2);margin-top:.5rem;line-height:1.35}
+.tile .sub{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-3);margin-top:.35rem}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.86rem;color:var(--ink-2);margin:.6rem 0 0}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.legend .none::before{background:var(--s-none)} .legend .rules::before{background:var(--s-rules)} .legend .full::before{background:var(--s-full)}
+figure{margin:1.4rem 0;padding:0}
+figcaption{font-size:.86rem;color:var(--ink-2);margin-top:.5rem;max-width:68ch}
+svg{max-width:100%;height:auto;display:block}
+svg text{font-family:"IBM Plex Sans",system-ui,sans-serif;fill:var(--ink-2);font-size:12px}
+svg .v{fill:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12px}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .axis{stroke:var(--ink-3);stroke-width:1}
+svg .none{fill:var(--s-none)} svg .rules{fill:var(--s-rules)} svg .full{fill:var(--s-full)}
+svg .ci{stroke:var(--ink-2);stroke-width:2}
+svg .mid{stroke:var(--ink-3);stroke-dasharray:3 3}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+td.num,th.num{text-align:right}
+.chip{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.72rem;padding:.1em .5em;border-radius:999px;border:1px solid var(--rule);color:var(--ink-2);vertical-align:middle}
+.chip.good{color:var(--good);border-color:var(--good)} .chip.bad{color:var(--bad);border-color:var(--bad)} .chip.warn{color:var(--warn);border-color:var(--warn)}
+.quote{border-left:3px solid var(--rule);padding:.2rem 0 .2rem 1rem;margin:1rem 0;color:var(--ink-2);font-size:.95rem}
+.quote b{color:var(--ink);font-weight:600}
+.sbs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:1rem 0}
+.sbs > div{border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--panel);min-width:0}
+.sbs .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.78rem;color:var(--ink-3);margin-bottom:.5rem;font-family:"IBM Plex Mono",monospace}
+.sbs .hd b{color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.9rem}
+.sbs pre{white-space:pre-wrap;font-family:"IBM Plex Mono",monospace;font-size:.76rem;line-height:1.5;margin:0;color:var(--ink);max-height:24rem;overflow:auto}
+ul{padding-left:1.2rem;max-width:68ch} li{margin:.35rem 0}
+.log li{margin:.6rem 0}
+.foot{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--ink-3)}
+@media (max-width:640px){ .verdict{grid-template-columns:1fr} .sbs{grid-template-columns:1fr} h1{font-size:2.1rem} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+<div class="eyebrow">prompt-enhancer · benchmark report · run 2026-09-20T07-48-42-011Z</div>
+<h1>Does a prompt pre-hook make Claude Code better?</h1>
+<p class="lede">Same codebase, same 24 developer questions, same model (Opus 5), same read-only tools. The only difference between arms: what gets injected before the prompt. 216 answers, scored two independent ways, every raw file kept.</p>
+
+<div class="verdict">
+  <div class="tile"><div class="n">62%</div><div class="l">blind judge prefers the enhancer's answer over no hook</div><div class="sub">144 verdicts · 95% CI 52–72%</div></div>
+  <div class="tile"><div class="n">70%</div><div class="l">…on the prompts that test <em>working behaviour</em> (thin, vague, multi-part, risky)</div><div class="sub">stance traps · CI 53–84%</div></div>
+  <div class="tile"><div class="n">50%</div><div class="l">vs a static rules file — a coin flip. The dynamic layers add nothing a good CLAUDE.md doesn't</div><div class="sub">CI 40–59%</div></div>
+</div>
+
+<h2>The verdict in three sentences</h2>
+<p><b>On right-or-wrong, Opus 5 doesn't need the hook.</b> With or without it, the model got 96–99% of the questions right on this small repo; the whole mechanical gap is one trap where the enhancer's answers were too long for a "shortly, why…" request.</p>
+<p><b>On <em>how good</em> the answer is, the hook helps on the prompts that test behaviour</b> — a blind second model preferred the enhancer's answer 70% of the time on vague, multi-part, review, QA and design prompts (it quantified before proposing, covered every part, flagged what it hadn't verified) — and was indifferent on plain fact-finding questions (53%).</p>
+<p><b>But a static rules file gets you the same quality.</b> Enhancer vs. rules-only: 50/50. The intent detection and the knowledge-base retrieval — the clever parts — did not measurably beat "write your working rules down once" for this model on this repo.</p>
+
+<h2>What was tested</h2>
+<div class="tbl"><table>
+<tr><th>Piece</th><th>What it is</th></tr>
+<tr><td>Codebase</td><td><code>lujakob/nestjs-realworld-example-app</code> at <code>c1c2cc4</code> — a public NestJS "Medium clone", 35 TypeScript files. Small enough that a session can read all of it; chosen because it has <em>real</em> bug reports (#88 plaintext password on update, #6/#44 anyone can edit any article, #79 bad token → 500, #112 mass assignment, #57 bare entity instead of envelope).</td></tr>
+<tr><td>Knowledge base</td><td>What a team using the hook would carry: <code>workspace.md</code>, <code>schema.md</code>, <code>auth.md</code>, a <code>LESSONS.md</code> written from those real issues, <code>CURRENT_FOCUS.md</code>, a rules file. All arms share the folder — the no-hook arm can grep it; only the injection differs.</td></tr>
+<tr><td>24 traps</td><td>12 <b>grounding</b> (a fact is in the KB — "users say after changing their password they can't log in") and 12 <b>stance</b> ("fix the 500 on favorite", "make the feed faster", "run the delete on production", "rename slugify to makeSlug", a three-part ask, an inline diff to review, "shortly, why…"). Each has regex checks verified against the source, and a ground-truth key for the judge.</td></tr>
+<tr><td>3 arms</td><td><span class="chip">arm0-none</span> raw prompt · <span class="chip">arm1-rules</span> prompt + the static rules file · <span class="chip">arm2-full</span> prompt + the full hook output (role, quality bar, output contract, risk flags, BM25-retrieved KB sections, rules).</td></tr>
+<tr><td>Runs</td><td>24 × 3 × 3 repeats = 216 fresh headless <code>claude -p</code> sessions, read-only tools (Read/Grep/Glob), no MCP, shuffled order, every assistant message captured. Failed API calls (session-limit hits, timeouts) were re-run, never scored.</td></tr>
+<tr><td>Scorer 1</td><td>Regex traps: pass only if <em>every</em> required item is present and nothing forbidden is. The <code>**Refined prompt:**</code> line is stripped first. Compliance with the injected format (restatement, file:line) is tracked separately and never counted — the hook instructs it, so winning it is obedience, not quality.</td></tr>
+<tr><td>Scorer 2</td><td>Blind pairwise judge: Sonnet 5 sees the prompt, the ground-truth key, and two answers with the arm hidden, twice per pair with positions swapped, no tools, empty directory. 288 verdicts.</td></tr>
+</table></div>
+
+<h2>Results</h2>
+
+<h3>Scorer 1 — did the answer get it right?</h3>
+<figure>
+<svg viewBox="0 0 760 210" role="img" aria-label="Trap pass rate per arm: grounding and stance">
+  <g class="grid"><line x1="150" y1="30" x2="150" y2="175"/><line x1="290" y1="30" x2="290" y2="175"/><line x1="430" y1="30" x2="430" y2="175"/><line x1="570" y1="30" x2="570" y2="175"/><line x1="710" y1="30" x2="710" y2="175"/></g>
+  <text x="150" y="20" text-anchor="middle">0%</text><text x="290" y="20" text-anchor="middle">25%</text><text x="430" y="20" text-anchor="middle">50%</text><text x="570" y="20" text-anchor="middle">75%</text><text x="710" y="20" text-anchor="middle">100%</text>
+  <text x="140" y="52" text-anchor="end">all 24 traps</text>
+  <rect class="none" x="150" y="38" width="552" height="8" rx="4"><title>no hook · 99% (71/72)</title></rect>
+  <rect class="rules" x="150" y="48" width="552" height="8" rx="4"><title>rules only · 99% (71/72)</title></rect>
+  <rect class="full" x="150" y="58" width="537" height="8" rx="4"><title>full enhancer · 96% (69/72)</title></rect>
+  <text class="v" x="712" y="46">99%</text><text class="v" x="712" y="56">99%</text><text class="v" x="697" y="66">96%</text>
+  <text x="140" y="104" text-anchor="end">grounding (12)</text>
+  <rect class="none" x="150" y="90" width="560" height="8" rx="4"><title>no hook · 100% (36/36)</title></rect>
+  <rect class="rules" x="150" y="100" width="560" height="8" rx="4"><title>rules only · 100% (36/36)</title></rect>
+  <rect class="full" x="150" y="110" width="560" height="8" rx="4"><title>full enhancer · 100% (36/36)</title></rect>
+  <text class="v" x="716" y="98">100%</text><text class="v" x="716" y="108">100%</text><text class="v" x="716" y="118">100%</text>
+  <text x="140" y="156" text-anchor="end">stance (12)</text>
+  <rect class="none" x="150" y="142" width="544" height="8" rx="4"><title>no hook · 97% (35/36)</title></rect>
+  <rect class="rules" x="150" y="152" width="544" height="8" rx="4"><title>rules only · 97% (35/36)</title></rect>
+  <rect class="full" x="150" y="162" width="513" height="8" rx="4"><title>full enhancer · 92% (33/36)</title></rect>
+  <text class="v" x="704" y="150">97%</text><text class="v" x="704" y="160">97%</text><text class="v" x="673" y="170">92%</text>
+  <line class="axis" x1="150" y1="30" x2="150" y2="175"/>
+</svg>
+<div class="legend"><span class="none">no hook</span><span class="rules">rules only</span><span class="full">full enhancer</span></div>
+<figcaption>Trap pass rate, 72 answers per arm. Every failure in all 216 answers is on one trap: <code>s11 "shortly, why does login return 401…"</code> — the enhancer's three answers ran 2.1–3.2k characters against a 1.4k limit; no-hook and rules-only each failed it once. Nothing else was ever answered wrong by any arm.</figcaption>
+</figure>
+
+<h3>Scorer 2 — which answer is better? (blind, position-swapped)</h3>
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-label="Judge win rate for the enhancer with 95% confidence intervals">
+  <g class="grid"><line x1="230" y1="30" x2="230" y2="215"/><line x1="350" y1="30" x2="350" y2="215"/><line x1="590" y1="30" x2="590" y2="215"/><line x1="710" y1="30" x2="710" y2="215"/></g>
+  <line class="mid" x1="470" y1="26" x2="470" y2="215"/>
+  <text x="230" y="20" text-anchor="middle">0%</text><text x="350" y="20" text-anchor="middle">25%</text><text x="470" y="20" text-anchor="middle">50% · coin flip</text><text x="590" y="20" text-anchor="middle">75%</text><text x="710" y="20" text-anchor="middle">100%</text>
+  <text x="220" y="56" text-anchor="end">vs no hook — all</text>
+  <line class="ci" x1="480" y1="52" x2="576" y2="52"/><circle class="full" cx="528" cy="52" r="6"><title>62% win (72–45–27) · CI 52–72%</title></circle><text class="v" x="586" y="56">62%</text>
+  <text x="220" y="86" text-anchor="end">vs no hook — grounding</text>
+  <line class="ci" x1="451" y1="82" x2="528" y2="82"/><circle class="full" cx="484" cy="82" r="6"><title>53% win (30–27–15) · CI 46–62%</title></circle><text class="v" x="538" y="86">53%</text>
+  <text x="220" y="116" text-anchor="end">vs no hook — stance</text>
+  <line class="ci" x1="484" y1="112" x2="633" y2="112"/><circle class="full" cx="566" cy="112" r="6"><title>70% win (42–18–12) · CI 53–84%</title></circle><text class="v" x="643" y="116">70%</text>
+  <text x="220" y="166" text-anchor="end">vs rules only — all</text>
+  <line class="ci" x1="422" y1="162" x2="513" y2="162"/><circle class="full" cx="470" cy="162" r="6"><title>50% win (52–52–40) · CI 40–59%</title></circle><text class="v" x="523" y="166">50%</text>
+  <text x="220" y="196" text-anchor="end">vs rules only — stance</text>
+  <line class="ci" x1="403" y1="192" x2="552" y2="192"/><circle class="full" cx="475" cy="192" r="6"><title>51% win (26–25–21) · CI 36–67%</title></circle><text class="v" x="562" y="196">51%</text>
+  <line class="axis" x1="230" y1="30" x2="230" y2="215"/>
+</svg>
+<figcaption>Share of decided verdicts won by the full enhancer (ties excluded), with a bootstrap 95% interval over traps. Above the dashed line the enhancer's answer was preferred. The one interval that clears 50% comfortably is the stance group against no hook.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+<tr><th>trap (stance group)</th><th class="num">enhancer wins</th><th class="num">no-hook wins</th><th class="num">ties</th><th>what the judge kept saying</th></tr>
+<tr><td><code>s04</code> make the feed faster</td><td class="num">6</td><td class="num">0</td><td class="num">0</td><td>quantified queries / rows / missing indexes before proposing; stated its interpretation of "faster"</td></tr>
+<tr><td><code>s03</code> three-part ask</td><td class="num">5</td><td class="num">1</td><td class="num">0</td><td>answered every part; no-hook tended to blur part 2</td></tr>
+<tr><td><code>s06</code> review this diff</td><td class="num">5</td><td class="num">1</td><td class="num">0</td><td>found all three defects (missing <code>await</code>, DTO has no password, mass-assignment remains) with a verdict</td></tr>
+<tr><td><code>s08</code> test plan for follow/unfollow</td><td class="num">5</td><td class="num">1</td><td class="num">0</td><td>cases derived from the code's branches, including the crash on an unknown username</td></tr>
+<tr><td><code>s11</code> shortly, why 401 vs 400</td><td class="num">5</td><td class="num">0</td><td class="num">1</td><td>preferred for precision and citations — even though it was <em>longer</em> than asked (the regex scorer failed it for that)</td></tr>
+<tr><td><code>s10</code> design comment authors</td><td class="num">4</td><td class="num">1</td><td class="num">1</td><td>covered relation, write path, ownership on delete, existing rows</td></tr>
+<tr><td><code>s01</code> fix the 500 on favorite</td><td class="num">1</td><td class="num">5</td><td class="num">0</td><td><b>lost:</b> "buries the same fix under speculative side-effect analysis"; "introduces an unrequested helper-method refactor"</td></tr>
+<tr><td><code>s12</code> favorited filter 500</td><td class="num">1</td><td class="num">3</td><td class="num">2</td><td><b>lost:</b> same two bugs found, more padding</td></tr>
+<tr><td><code>s05</code> run the delete on production</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td>both arms refused / asked for confirmation every time — no separation</td></tr>
+</table></div>
+
+<h2>What the judge said — in its own words</h2>
+<p>Where the enhancer won (confidence 4/5):</p>
+<div class="quote"><b>g08 · envelope crash after create</b> — "Both correctly identify the missing envelope bug with exact file/line and fix, but B additionally flags the downstream <code>findOne()</code> lacking relations (same crash class the user would hit next) and gives a concrete curl-based verification step."</div>
+<div class="quote"><b>s04 · make the feed faster</b> — "B quantifies the N queries and missing indexes explicitly with file:line citations and states its interpretation of 'faster' before proposing fixes… A proposes similar fixes but with less rigorous before/after quantification."</div>
+<div class="quote"><b>g02 · someone edited my article</b> — "B is more precise and honest about uncertainty (flags that the author relation isn't eager-loaded so a naive fix would silently pass, and explicitly notes unverified claims), while A asserts unverified specifics as fact."</div>
+<p>Where it lost (confidence 4/5) — the pattern is consistent:</p>
+<div class="quote"><b>g03 · expired token gives 500</b> — "A pads with unsupported speculation (60-day-token theory, algorithms hardening) and excessive ancillary sections that reduce directness without adding correctness."</div>
+<div class="quote"><b>g09 · hearts always empty</b> — "A pads with excessive detail (unverified claims like N+1 concerns, password-leak tangent, elaborate curl scripts) that reduce directness without adding correctness or completeness."</div>
+<div class="quote"><b>s01 · fix the 500 on favorite</b> — "A applies the minimal direct fix as the ground truth specifies, while B introduces an unrequested helper-method refactor and pads the answer with extensive speculative analysis (blast radius, timestamps, an inline self-correction)."</div>
+<p>Read together: the hook's quality bar ("state the blast radius", "name the test cases", "quantify first") makes the model <b>thorough</b>. On prompts that reward thoroughness — vague, multi-part, review, design — it wins. On a simple fact question or a one-line fix, the same bar reads as padding, and it loses.</p>
+
+<h2>Side by side</h2>
+<h3>Where it helped — "make the feed faster" (repeat 1, judge: enhancer, both orders)</h3>
+<div class="sbs">
+<div><div class="hd"><b>no hook</b><span>5,880 chars · 22 turns</span></div><pre>The feed is `ArticleService.findFeed()` (`src/article/article.service.ts:66`) behind `GET /articles/feed`. Before I change anything, two things are genuinely ambiguous: …
+
+## What's actually slow
+
+`findFeed()` at `src/article/article.service.ts:66`. Three problems, in order of impact:
+
+**1. No index backs the query.** `follows` has no index on `followerId` (`src/profile/follows.entity.ts`), so every feed request full-scans the follows table …</pre></div>
+<div><div class="hd"><b>full enhancer</b><span>6,521 chars · 26 turns</span></div><pre>## Cost before
+
+Three SQL round trips per request, from `src/article/article.service.ts:66-94`:
+
+1. `:67` — `SELECT * FROM follows WHERE followerId = ?`. `follows.followerId` is a plain `@Column()` with no `@Index` and no FK (`follows.entity.ts:9-13`), so InnoDB creates nothing implicitly → **full scan of the whole `follows` table**, which is global, not per-user. 10k users × 50 follows = 500k rows scanned to find ~50.
+2. `:81` — `COUNT(DISTINCT article.id) WHERE authorId IN (…)`. The follow set is round-tripped back into SQL as a literal `IN` list.
+3. `:91` — same `WHERE`, `ORDER BY article.created DESC`, and **no `LIMIT` unless the client sent `?limit=`** (`:83-88`). The RealWorld spec defaults `limit` to 20; this defaults to unbounded.
+
+That last one dominates. 200 followed authors × 50 articles = 10,000 rows …</pre></div>
+</div>
+
+<h3>Where it hurt — "fix the 500 on favorite" (repeat 1, judge: no hook, both orders)</h3>
+<div class="sbs">
+<div><div class="hd"><b>no hook</b><span>2,775 chars · 25 turns</span></div><pre>## Root cause
+
+`POST /articles/:slug/favorite` → `ArticleService.favorite()` at `src/article/article.service.ts:131`:
+
+```ts
+const user = await this.userRepository.findOne(id);          // :133
+const isNewFavorite = user.favorites.findIndex(...) < 0;     // :135  ← TypeError
+```
+
+`UserEntity.favorites` is a plain `@ManyToMany` with no `eager: true` (`src/user/user.entity.ts:33`), so `findOne(id)` returns `favorites === undefined`. `.findIndex` on it throws, nothing catches it, Nest returns 500.
+
+## The patch
+
+Two lines — `favorite()` at :133 and `unFavorite()` at :149 are identical and both crash:
+
+```diff
+-    const user = await this.userRepository.findOne(id);
++    const user = await this.userRepository.findOne(id, { relations: ['favorites'] });
+```</pre></div>
+<div><div class="hd"><b>full enhancer</b><span>6,949 chars · 21 turns</span></div><pre>## Root cause
+
+`src/article/article.service.ts:135`
+
+```ts
+const isNewFavorite = user.favorites.findIndex(_article => _article.id === article.id) < 0;
+```
+
+`user` comes from `:133` — `findOne(id)` with no `relations` option. `favorites` is declared at `user.entity.ts:33-35` as a plain `@ManyToMany` + `@JoinTable()` with **no `eager: true`**, so TypeORM leaves the property `undefined` rather than `[]`.
+
+The single source is the **load at :133**, not the read at :135 — and the same load is duplicated at `:149` for `unFavorite`, which is why the fix belongs in one loader, not two call sites. The file already demonstrates the correct form one method away, at `:181`…
+
+**Why it surfaces now:** it doesn't — this is not a regression. `favorites` is never loaded on any code path, so *every* call to this endpoint has 500'd since the relation was added …
+
+[continues: blast radius, timestamps, a helper-method refactor, test cases — 2.5× the length for the same two-line fix]</pre></div>
+</div>
+
+<h2>What it costs</h2>
+<div class="tbl"><table>
+<tr><th>arm</th><th class="num">injected</th><th class="num">answer length</th><th class="num">output tokens</th><th class="num">turns</th><th class="num">wall time</th><th class="num">$ / answer</th><th class="num">follows the format</th></tr>
+<tr><td>no hook</td><td class="num">0</td><td class="num">3,592 chars</td><td class="num">7,224</td><td class="num">15.4</td><td class="num">112 s</td><td class="num">$0.59</td><td class="num">54%</td></tr>
+<tr><td>rules only</td><td class="num">2.0k chars</td><td class="num">4,099</td><td class="num">7,830</td><td class="num">18.1</td><td class="num">123 s</td><td class="num">$0.63</td><td class="num">92%</td></tr>
+<tr><td>full enhancer</td><td class="num">13.7k chars</td><td class="num">6,202</td><td class="num">9,076</td><td class="num">15.3</td><td class="num">134 s</td><td class="num">$0.66</td><td class="num">97%</td></tr>
+</table></div>
+<p>The hook adds ~3.4k input tokens per turn (mostly served from cache after the first call) and makes answers about 70% longer, for ~12% more per answer. Turn count is unchanged — it doesn't make the model explore more, it makes it <em>write</em> more. "Follows the format" = restatement line present and at least one <code>file:line</code> citation; reported, not scored.</p>
+<p class="mono" style="font-size:.8rem;color:var(--ink-3)">Total spend: 216 Opus 5 answers $135.75 · 288 Sonnet 5 verdicts ≈ $25 · hook itself: ~150 ms per prompt, local, no network.</p>
+
+<h2>Corrections made along the way</h2>
+<p>The first interim numbers looked much better for the hook (86% → 98%). They were wrong, and the raw files are what caught it. Everything below is fixed in the repo; <code>rescore.js</code> re-grades saved answers without re-spending on the model.</p>
+<ul class="log">
+<li><b>7 regex false negatives.</b> Correct answers marked failed because they said "<code>favorite()</code> at line 133" instead of the file name, "wait for your call" instead of "confirm", "has <code>id</code>, <code>body</code> and a ManyToOne to Article" instead of "no author", "a success response does not prove a user was deleted" tripping a fabricated-execution check. Every failure was audited against the answer text before the final numbers.</li>
+<li><b>Runner captured only the last message.</b> When the model wrote its design, then called the ask-user tool (auto-dismissed headless), only the follow-up survived. Switched to <code>stream-json</code> and re-ran the 6 affected answers.</li>
+<li><b>99 "failures" were the Max plan's 5-hour session cap</b> — recorded as failed runs, never scored, re-run the next day. A deny-list typo (<code>MultiEdit</code>) cost 2 more.</li>
+<li><b>8 judge verdicts lost to a greedy JSON regex</b> — refilled; 288/288 in the final table.</li>
+</ul>
+
+<h2>Limitations — read before quoting a number</h2>
+<ul>
+<li>One small fixture, one model, one CLI version, three repeats. A snapshot, not a law. The 95% intervals are wide — treat 62% as "probably better", not "62%".</li>
+<li>The traps were written by the hook's authors from real upstream bugs, but we chose which ones. Add your own: <code>traps/*.json</code>.</li>
+<li>Opus 5 reads a 35-file repo in full on its own, so the retrieval layer had nothing to add here. On a large codebase — or with a cheaper model that doesn't explore as thoroughly — the answer may differ. That is the next experiment, not a claim.</li>
+<li>Every run is a fresh session with a self-contained prompt. Real prompts are mostly mid-conversation follow-ups, which this cannot replay.</li>
+<li>The judge is itself a model, with a measurable position bias (27 of 72 pairs flipped when the order flipped; the two orders are averaged so it cancels in the total but widens the noise).</li>
+</ul>
+
+<h2>Reproduce it</h2>
+<p>Everything is in <code>Desktop/prompt-enhancer-benchmark/</code>: the generic engine, the vendored fixture with its knowledge base, the 24 traps, and <code>results/2026-09-20T07-48-42-011Z/runs/</code> with all 216 answers plus the exact text each hook injected. <code>summary.md</code>, <code>judge.md</code> and <code>RESULTS.md</code> are generated from those files.</p>
+<pre class="mono" style="background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.8rem">node run.js            # 216 answers via claude -p (needs the CLI logged in)
+node rescore.js        # re-grade saved answers after editing a trap
+node judge.js          # 288 blind pairwise verdicts
+node report.js         # RESULTS.md</pre>
+
+<div class="foot">Fixture: lujakob/nestjs-realworld-example-app @ c1c2cc4 (MIT). Answering model claude-opus-5, judge claude-sonnet-5, Claude Code CLI 2.1.172. Prediction recorded before the run in <code>PLAN.md</code>; the data disagreed with it on the grounding traps and on the rules-only arm, and this page reports the data.</div>
+</div>

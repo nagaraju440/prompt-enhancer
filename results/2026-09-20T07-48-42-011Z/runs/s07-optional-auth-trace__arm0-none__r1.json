@@ -1,0 +1,75 @@
+{
+  "trapId": "s07-optional-auth-trace",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 62077,
+  "apiMs": 53872,
+  "costUsd": 0.279881,
+  "inputTokens": 2618,
+  "cacheReadTokens": 144382,
+  "cacheCreationTokens": 10710,
+  "outputTokens": 3500,
+  "numTurns": 10,
+  "assistantMessages": 4,
+  "finalText": "The `@User('id')` decorator does the token work itself. It isn't just a reader of `req.user` — it has a fallback path that duplicates what the middleware would have done.\n\n`src/user/user.decorator.ts:5-18`:\n\n```ts\nconst req = ctx.switchToHttp().getRequest();\nif (!!req.user) {                                    // middleware ran → use its result\n  return !!data ? req.user[data] : req.user;\n}\nconst token = req.headers.authorization ? (...).split(' ') : null;\nif (token && token[1]) {\n  const decoded: any = jwt.verify(token[1], SECRET); // no middleware → decode here\n  return !!data ? decoded[data] : decoded.user;\n}\n```\n\n`ProfileModule.configure` (`src/profile/profile.module.ts:19-23`) only applies `AuthMiddleware` to `profiles/:username/follow`, so on `GET /profiles/:username` `req.user` is unset and the second branch runs. It splits the `Authorization` header on the space, verifies `token[1]` against `SECRET`, and returns `decoded['id']` — which exists because `generateJWT` puts `id` in the payload (`src/user/user.service.ts:108-113`). That's the whole mechanism: optional auth, implemented in the param decorator rather than in a guard.\n\nIf no header is sent, neither `if` matches and the decorator falls off the end returning `undefined`. `findProfile` then treats `id` as \"anonymous\" and omits `following` from the response entirely (`src/profile/profile.service.ts:43-45`), which is the RealWorld-spec behavior.\n\nThree things worth knowing about this path, since it is *not* equivalent to the guarded one:\n\n**No DB lookup.** `AuthMiddleware` does `userService.findById(decoded.id)` and 401s if the row is gone (`src/user/auth.middleware.ts:18-22`). The decorator trusts the payload verbatim. With a 60-day expiry, a deleted user's token still yields a usable `id` here — it just resolves to no follow row, so you get `following: false` rather than an error.\n\n**A malformed token turns a public route into a 500.** `jwt.verify` at line 15 throws on an expired, garbage, or wrongly-signed token, and nothing catches it. On a guarded route that's already a bug (500 where 401 belongs); on this one it's worse in kind, because a public endpoint that should serve anonymous users fine will instead fail hard for anyone with a stale token in local storage. The same header would be harmless if it were absent.\n\n**The follows query runs regardless.** Line 41 executes before the `if (id)` guard on line 43, so anonymous requests still hit `followsRepository.findOne({followerId: undefined, followingId: _profile.id})`. TypeORM drops the `undefined` key from the WHERE clause, so that degrades to \"first follower of this user\" — the result is discarded by the guard, so there's no wrong output, but it is a pointless query on every anonymous profile view.\n\nOne note on the repo's own docs: `.claude/knowledge/auth.md` describes this accurately, including the 500 issue. It also claims `DELETE /users/:slug` is unguarded and deletes by email with no ownership check — I didn't verify that while tracing this route, so treat it as unconfirmed if it matters to you.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the codebase to trace how that route resolves the requesting user.\n\nThe knowledge notes claim the `@User()` decorator does its own decoding. Let me verify against the actual source.\n\nNow the service side, to see what happens when no token is sent:\n\nThe `@User('id')` decorator does the token work itself. It isn't just a reader of `req.user` — it has a fallback path that duplicates what the middleware would have done.\n\n`src/user/user.decorator.ts:5-18`:\n\n```ts\nconst req = ctx.switchToHttp().getRequest();\nif (!!req.user) {                                    // middleware ran → use its result\n  return !!data ? req.user[data] : req.user;\n}\nconst token = req.headers.authorization ? (...).split(' ') : null;\nif (token && token[1]) {\n  const decoded: any = jwt.verify(token[1], SECRET); // no middleware → decode here\n  return !!data ? decoded[data] : decoded.user;\n}\n```\n\n`ProfileModule.configure` (`src/profile/profile.module.ts:19-23`) only applies `AuthMiddleware` to `profiles/:username/follow`, so on `GET /profiles/:username` `req.user` is unset and the second branch runs. It splits the `Authorization` header on the space, verifies `token[1]` against `SECRET`, and returns `decoded['id']` — which exists because `generateJWT` puts `id` in the payload (`src/user/user.service.ts:108-113`). That's the whole mechanism: optional auth, implemented in the param decorator rather than in a guard.\n\nIf no header is sent, neither `if` matches and the decorator falls off the end returning `undefined`. `findProfile` then treats `id` as \"anonymous\" and omits `following` from the response entirely (`src/profile/profile.service.ts:43-45`), which is the RealWorld-spec behavior.\n\nThree things worth knowing about this path, since it is *not* equivalent to the guarded one:\n\n**No DB lookup.** `AuthMiddleware` does `userService.findById(decoded.id)` and 401s if the row is gone (`src/user/auth.middleware.ts:18-22`). The decorator trusts the payload verbatim. With a 60-day expiry, a deleted user's token still yields a usable `id` here — it just resolves to no follow row, so you get `following: false` rather than an error.\n\n**A malformed token turns a public route into a 500.** `jwt.verify` at line 15 throws on an expired, garbage, or wrongly-signed token, and nothing catches it. On a guarded route that's already a bug (500 where 401 belongs); on this one it's worse in kind, because a public endpoint that should serve anonymous users fine will instead fail hard for anyone with a stale token in local storage. The same header would be harmless if it were absent.\n\n**The follows query runs regardless.** Line 41 executes before the `if (id)` guard on line 43, so anonymous requests still hit `followsRepository.findOne({followerId: undefined, followingId: _profile.id})`. TypeORM drops the `undefined` key from the WHERE clause, so that degrades to \"first follower of this user\" — the result is discarded by the guard, so there's no wrong output, but it is a pointless query on every anonymous profile view.\n\nOne note on the repo's own docs: `.claude/knowledge/auth.md` describes this accurately, including the 500 issue. It also claims `DELETE /users/:slug` is unguarded and deletes by email with no ownership check — I didn't verify that while tracing this route, so treat it as unconfirmed if it matters to you.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-decorator-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-jwt-verify-in-decorator",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-undefined-when-no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-passport-guess",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3334
+  }
+}

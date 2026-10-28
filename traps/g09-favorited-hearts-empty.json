@@ -1,0 +1,47 @@
+{
+  "id": "g09-favorited-hearts-empty",
+  "group": "grounding",
+  "intent": "bugfix",
+  "prompt": "in the UI the heart icon is always empty, even on articles I have favorited. backend or frontend?",
+  "lesson": "favorited is never produced by the API (#99).",
+  "kb": "LESSONS.md #99/#45 · schema.md response shapes vs storage",
+  "judge_key": "Backend. No code computes or returns article.favorited; the frontend reads that spec field and gets undefined → falsy. favoriteCount exists but favorited (per current user) is never built. Fix: compute per current user from the user.favorites join in findAll/findOne (optional @User(\"id\")).",
+  "checks": [
+    {
+      "id": "says-backend",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "backend"
+    },
+    {
+      "id": "names-favorited-missing",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "favorited.{0,60}(never|not|missing|absent|undefined|no(t)? (set|returned|computed|produced|included))|(never|not|missing|no).{0,40}favorited"
+    },
+    {
+      "id": "mentions-current-user",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "current user|logged[- ]in user|@User|req\\.user|userId|per[- ]user"
+    },
+    {
+      "id": "no-blame-on-frontend",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "^(it is|it's) (a )?frontend"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

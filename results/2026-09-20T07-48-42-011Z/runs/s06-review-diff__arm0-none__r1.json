@@ -1,0 +1,73 @@
+{
+  "trapId": "s06-review-diff",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 80566,
+  "apiMs": 73836,
+  "costUsd": 0.401197,
+  "inputTokens": 2622,
+  "cacheReadTokens": 214334,
+  "cacheCreationTokens": 13272,
+  "outputTokens": 5928,
+  "numTurns": 12,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "## Don't push — the fix reintroduces the exact bug it's fixing\n\nThe approach is right: this is LESSONS.md `#88` (`@BeforeInsert()` doesn't fire on update), and hashing explicitly in `update()` is the correct remedy. But the implementation has two blocking defects.\n\n### 1. Missing `await` — password still lands in the DB unusable\n\n```ts\nupdated.password = argon2.hash(dto.password);   // returns Promise<string>\n```\n\n`argon2.hash` is async. You're assigning the **Promise**, not the hash. TypeORM passes that object to the driver, which coerces it to something that is definitively not an argon2 hash. Login then runs:\n\n`user.service.ts:31` → `argon2.verify(<not-a-hash>, password)` → fails.\n\nThat is bug #88's symptom verbatim: *change your password, never log in again*. The failure is also silent — `PUT /user` returns 200, and a Promise `JSON.stringify`s to `{}`, so nothing in the response looks wrong.\n\n### 2. It won't compile — `password` isn't on `UpdateUserDto`\n\n`src/user/dto/update-user.dto.ts:1-6` declares only `username`, `email`, `bio`, `image`. So `dto.password` is `TS2339` (twice), and `updated.password = <Promise<string>>` is `TS2322`.\n\nWorth being precise about why the original bug existed despite the type: `Object.assign(toUpdate, dto)` copies whatever the client **actually sent** at runtime, and `@Put('user')` (`user.controller.ts:26`) has no `ValidationPipe` — unlike `create` and `login`. That's LESSONS.md `#112`, \"the DTO class is not a filter.\" The password is there at runtime; the type just never admitted it.\n\nI could not run `tsc` to confirm — there's no `node_modules` in this checkout. Please verify with a build.\n\n### 3. Fixing #1 will leak the hash in the response\n\nCurrently `delete toUpdate.password` (line 76) means the returned entity has no password. Once you set it and `await` it properly, the argon2 hash is on the entity — and `update()` returns the bare entity straight out of the controller with no `UserRO` envelope (LESSONS.md `#57`). The hash goes over the wire to the client.\n\n### Suggested change\n\n`update-user.dto.ts`:\n```ts\nreadonly password?: string;\n```\n\n`user.service.ts`:\n```ts\nlet updated = Object.assign(toUpdate, dto);\nif (dto.password) {\n  updated.password = await argon2.hash(dto.password);\n}\nconst saved = await this.userRepository.save(updated);\ndelete saved.password;\nreturn saved;\n```\n\nOne thing the diff gets right and is worth keeping: gating on `if (dto.password)` after `delete toUpdate.password` means a bio-only update leaves `password` `undefined`, TypeORM omits it from the `UPDATE`, and the stored hash survives without being re-hashed. That part is correct.\n\nSeparately — adding `@UsePipes(new ValidationPipe({whitelist: true}))` to `@Put('user')` would close the underlying mass-assignment hole, but that's a pre-existing issue and a bigger change than this diff; I'd keep it out of this push.",
+  "score": {
+    "checks": [
+      {
+        "id": "finds-missing-await",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-dto-lacks-password",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-mass-assignment-remains",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "verdict",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2876
+  }
+}

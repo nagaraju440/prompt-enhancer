@@ -1,0 +1,75 @@
+{
+  "trapId": "g09-favorited-hearts-empty",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 39891,
+  "apiMs": 34915,
+  "costUsd": 0.3229335,
+  "inputTokens": 2616,
+  "cacheReadTokens": 127577,
+  "cacheCreationTokens": 18324,
+  "outputTokens": 2513,
+  "numTurns": 10,
+  "assistantMessages": 3,
+  "finalText": "**Backend.** The API never sends `favorited` at all, so the frontend has nothing to render a filled heart from.\n\n## The evidence\n\n`ArticleEntity` (`src/article/article.entity.ts:6-46`) has no `favorited` field. The only favorite-related column is:\n\n```ts\n@Column({default: 0})\nfavoriteCount: number;          // article.entity.ts:44-45\n```\n\nAnd every read path returns that raw entity unmodified — `findAll` returns `{articles, articlesCount}` (`article.service.ts:63`), `findOne` returns `{article}` (`article.service.ts:98`), and the controller passes them straight through. Nothing anywhere computes \"does the current user favorite this article.\"\n\n`ArticleData` in `src/article/article.interface.ts:15-16` *declares* `favorited?: boolean` and `favoritesCount?: number` — but that interface is dead code. The response types actually used (`ArticleRO`, `ArticlesRO`) are typed as `ArticleEntity`, not `ArticleData`, so the declaration never influences the payload.\n\n## Three separate spec mismatches, same root cause\n\nYour frontend is a RealWorld client expecting `article.favorited`. What it actually gets:\n\n| Frontend expects | Backend sends |\n|---|---|\n| `favorited: boolean` | *absent* → falsy → empty heart, always |\n| `favoritesCount` | `favoriteCount` (singular) → count likely renders as blank/0 too |\n| `createdAt` / `updatedAt` | `created` / `updated` |\n\nWorth checking the second row in your browser's network tab — if the number next to the heart is also wrong, that confirms the diagnosis rather than something client-side.\n\n## What a fix involves\n\nNot just adding a field — there's a structural obstacle. Computing `favorited` requires knowing the caller, but `GET /articles` and `GET /articles/:slug` are **unguarded** (`article.module.ts:24-31` lists only feed/POST/PUT/DELETE). So `findAll`/`findOne` currently receive no user id at all. The fix needs:\n\n1. `@User('id') userId` added to the `findAll`/`findOne` handlers — the `@User` decorator works on unguarded routes, returning `undefined` when no token is sent (which is correct: anonymous users get `favorited: false`).\n2. Threading `userId` into the service and mapping entities to a response shape that computes `favorited` from the `user_favorites_article` join table.\n3. Renaming the output keys to `favoritesCount` / `createdAt` / `updatedAt`.\n\nTwo landmines for step 2, both already bitten this codebase per `LESSONS.md`:\n\n- `UserEntity.favorites` is a **non-eager** `@ManyToMany` (`user.entity.ts:33-35`). `userRepository.findOne(id)` leaves it `undefined` — you must pass `{relations: ['favorites']}`. This is the same bug behind the 500 in `favorite()` at `article.service.ts:135`.\n- Loading each article's favoriters per-row is an N+1. For list endpoints, fetch the current user's favorited article ids once and check membership in memory.\n\nWant me to implement it? I'd suggest a `buildArticleRO(article, userId)` mapper in the service so all five read paths share one serialization, rather than patching `favorited` in at each call site.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the codebase to trace how favorites flow from backend to UI.\n\nBackend-only repo here (NestJS). Let me check how `favorited` is computed and serialized.\n\n**Backend.** The API never sends `favorited` at all, so the frontend has nothing to render a filled heart from.\n\n## The evidence\n\n`ArticleEntity` (`src/article/article.entity.ts:6-46`) has no `favorited` field. The only favorite-related column is:\n\n```ts\n@Column({default: 0})\nfavoriteCount: number;          // article.entity.ts:44-45\n```\n\nAnd every read path returns that raw entity unmodified — `findAll` returns `{articles, articlesCount}` (`article.service.ts:63`), `findOne` returns `{article}` (`article.service.ts:98`), and the controller passes them straight through. Nothing anywhere computes \"does the current user favorite this article.\"\n\n`ArticleData` in `src/article/article.interface.ts:15-16` *declares* `favorited?: boolean` and `favoritesCount?: number` — but that interface is dead code. The response types actually used (`ArticleRO`, `ArticlesRO`) are typed as `ArticleEntity`, not `ArticleData`, so the declaration never influences the payload.\n\n## Three separate spec mismatches, same root cause\n\nYour frontend is a RealWorld client expecting `article.favorited`. What it actually gets:\n\n| Frontend expects | Backend sends |\n|---|---|\n| `favorited: boolean` | *absent* → falsy → empty heart, always |\n| `favoritesCount` | `favoriteCount` (singular) → count likely renders as blank/0 too |\n| `createdAt` / `updatedAt` | `created` / `updated` |\n\nWorth checking the second row in your browser's network tab — if the number next to the heart is also wrong, that confirms the diagnosis rather than something client-side.\n\n## What a fix involves\n\nNot just adding a field — there's a structural obstacle. Computing `favorited` requires knowing the caller, but `GET /articles` and `GET /articles/:slug` are **unguarded** (`article.module.ts:24-31` lists only feed/POST/PUT/DELETE). So `findAll`/`findOne` currently receive no user id at all. The fix needs:\n\n1. `@User('id') userId` added to the `findAll`/`findOne` handlers — the `@User` decorator works on unguarded routes, returning `undefined` when no token is sent (which is correct: anonymous users get `favorited: false`).\n2. Threading `userId` into the service and mapping entities to a response shape that computes `favorited` from the `user_favorites_article` join table.\n3. Renaming the output keys to `favoritesCount` / `createdAt` / `updatedAt`.\n\nTwo landmines for step 2, both already bitten this codebase per `LESSONS.md`:\n\n- `UserEntity.favorites` is a **non-eager** `@ManyToMany` (`user.entity.ts:33-35`). `userRepository.findOne(id)` leaves it `undefined` — you must pass `{relations: ['favorites']}`. This is the same bug behind the 500 in `favorite()` at `article.service.ts:135`.\n- Loading each article's favoriters per-row is an N+1. For list endpoints, fetch the current user's favorited article ids once and check membership in memory.\n\nWant me to implement it? I'd suggest a `buildArticleRO(article, userId)` mapper in the service so all five read paths share one serialization, rather than patching `favorited` in at each call site.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-backend",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-favorited-missing",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "mentions-current-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3187
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "trapId": "s09-tags-stored",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 30027,
+  "apiMs": 24396,
+  "costUsd": 0.200903,
+  "inputTokens": 2616,
+  "cacheReadTokens": 116996,
+  "cacheCreationTokens": 8235,
+  "outputTokens": 1879,
+  "numTurns": 10,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Tags are stored in **two completely disconnected places** — and only one of them is ever written to.\n\n## 1. `article.tagList` — where tags actually live\n\n`src/article/article.entity.ts:34`\n```ts\n@Column('simple-array')\ntagList: string[];\n```\n\nTypeORM's `simple-array` is **one varchar column holding a comma-joined string** — not a join table, not JSON. An article tagged `java` + `spring` stores the literal text `java,spring`.\n\nWritten on create at `src/article/article.service.ts:176`:\n```ts\narticle.tagList = articleData.tagList || [];\n```\n\n**Filtering by tag is a substring match** (`src/article/article.service.ts:35`):\n```ts\nqb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n```\nSince it matches against the joined string, `?tag=java` also matches an article tagged `javascript`, and `?tag=va,spr` matches across the delimiter. There's also no escaping of `%` or `_`, so a query like `?tag=%` returns everything.\n\n## 2. The `tag` table — orphaned\n\n`src/tag/tag.entity.ts`: an `id` + `tag` varchar table, read by `GET /api/tags` via `TagService.findAll()` (`src/tag/tag.service.ts:14`).\n\nNothing in the codebase ever writes to it. I grepped for every use of `TagEntity` / `tagRepository` — the only non-test references are the module registration, the service's `find()`, and the controller. Article creation puts tags only in `article.tagList`. So on a fresh database `GET /api/tags` returns `[]` indefinitely unless rows are inserted by hand.\n\nSchema comes from entity classes with `synchronize: true` (no migrations, and the `prisma/` directory contains only a `.env` — it's not in use), so changing tag storage means changing the entity.",
+  "score": {
+    "checks": [
+      {
+        "id": "simple-array",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "comma-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "tag-table-exists",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "nothing-writes-tag-table",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1666
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "trapId": "s12-favorited-filter-500",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 83816,
+  "apiMs": 75702,
+  "costUsd": 0.40156450000000005,
+  "inputTokens": 2618,
+  "cacheReadTokens": 156019,
+  "cacheCreationTokens": 17529,
+  "outputTokens": 5407,
+  "numTurns": 11,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Three separate bugs stacked on the same five lines — `src/article/article.service.ts:43-47`. Your repo's own `LESSONS.md` actually predicted both of them (sections \"A relation that is not eager is `undefined`\" and \"The `?favorited=` filter compares the wrong column\"), which is a decent hint this code was never exercised.\n\n```ts\nif ('favorited' in query) {\n  const author = await this.userRepository.findOne({username: query.favorited});\n  const ids = author.favorites.map(el => el.id);\n  qb.andWhere(\"article.authorId IN (:ids)\", { ids });\n}\n```\n\n**1. The 500: `author.favorites` is `undefined`.**\n`UserEntity.favorites` is a `@ManyToMany` with no `eager: true` (`src/user/user.entity.ts:33-35`), and this `findOne` passes no `relations`. TypeORM leaves the property absent, so `.map` throws `TypeError: Cannot read property 'map' of undefined`. Nothing catches it → 500. Same latent crash if `jane` doesn't exist (`author` is `undefined`) — and line 39-40 has that identical unguarded-user bug for `?author=`.\n\n**2. Why the patched results are wrong: the filter compares the wrong column.**\n`ids` holds **article** ids (the things jane favourited), but the predicate filters `article.authorId` — the FK to `user`. So you get articles *written by* the users whose `user.id` happens to numerically collide with those article ids. On a small seed DB that returns plausible-looking garbage rather than nothing, which is why it reads as \"wrong\" instead of \"broken\". It should be `article.id IN (...)`.\n\n**3. A third 500 waiting behind the patch: empty and non-expanded parameters.**\n`IN (:ids)` is not TypeORM's array-expansion syntax — the correct form is `IN (:...ids)`. It only appears to work here because the `mysql` driver expands JS arrays for `?` placeholders (same accident in `findFeed()` at line 77). But if jane has favourited nothing, `ids` is `[]`, which formats to literal `IN ()` → MySQL syntax error 1064 → another 500.\n\nSuggested fix:\n\n```ts\nif ('favorited' in query) {\n  const favoriter = await this.userRepository.findOne(\n    { username: query.favorited },\n    { relations: ['favorites'] },\n  );\n\n  const ids = favoriter ? favoriter.favorites.map(el => el.id) : [];\n\n  if (ids.length === 0) {\n    return { articles: [], articlesCount: 0 };\n  }\n\n  qb.andWhere('article.id IN (:...ids)', { ids });\n}\n```\n\nOne thing worth separating out: if by \"results look wrong\" you also mean the article objects themselves, that's a *different* problem and it's already on your `CURRENT_FOCUS.md` list — responses have no `favorited` field at all, and serve `favoriteCount`/`created` where the spec says `favoritesCount`/`createdAt`. Fixing the filter won't touch that.\n\nWant me to apply the patch above (plus the matching `author` guard on line 39-40), or were you after the response-shape work instead?",
+  "score": {
+    "checks": [
+      {
+        "id": "bug1-relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "bug2-wrong-column",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "bug2-explained",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2807
+  }
+}

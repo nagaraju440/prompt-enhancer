@@ -1,0 +1,66 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 29230,
+  "apiMs": 23057,
+  "costUsd": 0.163824,
+  "inputTokens": 2483,
+  "cacheReadTokens": 63008,
+  "cacheCreationTokens": 7793,
+  "outputTokens": 1679,
+  "numTurns": 6,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "They're two unrelated code paths with different framings of the failure.\n\n**Login** — `src/user/user.controller.ts:45-48`: `findOne()` returns `null` for *both* an unknown email and a wrong password (`user.service.ts:27-35`), so the controller can only throw one thing: `401 {errors: {User: ' not found'}}`. That collapse is actually the good behavior — the caller can't tell \"no such account\" from \"wrong password,\" so it doesn't leak which emails are registered.\n\n**Register** — `src/user/user.service.ts:49-51`: the uniqueness check is written as an *input validation* failure, not an auth failure. It throws `400` with the same envelope (`{message: 'Input data validation failed', errors}`) that the class-validator branch ten lines below uses (`:62-65`). From that path's point of view you aren't authenticating, you're submitting a body that fails a constraint — hence 400.\n\nSo: 401 = \"I won't authenticate you,\" 400 = \"your payload is invalid.\" Neither path knows the other exists.\n\nTwo things that fall out of this, if you care:\n\n- The 400 **undoes login's anti-enumeration property**. Anyone can probe `POST /users` with an email and learn from the 400-vs-201 whether it's taken. Guarding the login response is pointless while registration answers the same question.\n- The error key is always `username` (`:50`) even when the collision was on email — the query is `username = :username OR email = :email` (`:44-45`), so a duplicate *email* reports `{username: 'Username and email must be unique.'}`. Misleading for a client trying to highlight the offending field.\n\nConventionally a duplicate resource is `409 Conflict` rather than 400, but changing it is an API-contract break — this is RealWorld-spec shaped, and the spec expects the 422/400-style `errors` envelope.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 2,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": false,
+    "chars": 1777
+  }
+}

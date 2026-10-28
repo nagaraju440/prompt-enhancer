@@ -1,0 +1,73 @@
+{
+  "trapId": "g12-slug-collision",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 63150,
+  "apiMs": 57831,
+  "costUsd": 0.36495200000000005,
+  "inputTokens": 2485,
+  "cacheReadTokens": 95144,
+  "cacheCreationTokens": 19213,
+  "outputTokens": 4513,
+  "numTurns": 8,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "No — not from the title itself. `slugify()` appends a random suffix:\n\n```ts\n// src/article/article.service.ts:201\nslugify(title: string) {\n  return slug(title, {lower: true}) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36)\n}\n```\n\nTwo articles titled \"How to Center a Div\" become `how-to-center-a-div-k3j9f2` and `how-to-center-a-div-8zq1mx`. Collision odds are roughly 1 in 2.2 billion per pair; with the birthday bound you'd need ~50k articles sharing one title before you hit even a 50/50 chance.\n\n**But nothing enforces uniqueness, and there's a direct way to force a collision.**\n\n1. **No unique constraint.** `src/article/article.entity.ts:11-12` is a plain `@Column()`. The DB will happily hold two rows with the same slug, and every lookup is `findOne({slug})` — it silently returns whichever row the query planner hands back first. No error, just the wrong article.\n\n2. **`PUT /articles/:slug` writes the slug verbatim from the request body.**\n   ```ts\n   // src/article/article.service.ts:190-195\n   let toUpdate = await this.articleRepository.findOne({ slug: slug});\n   let updated = Object.assign(toUpdate, articleData);\n   ```\n   `articleData` is `@Body('article')` untouched. `CreateArticleDto` has no validation decorators and the update handler has no `@UsePipes(new ValidationPipe())` — only `POST /users` and `POST /users/login` do. So `{\"article\": {\"slug\": \"someone-elses-slug-a1b2c3\"}}` just lands. There's also no ownership check on that route, so any authenticated user can point any article's slug at any other. (Same `Object.assign` will overwrite `id`, `created`, and `favoriteCount` too.)\n\nSo: accidental collision, practically never. Deliberate collision, one request.\n\nTwo smaller things in that same line, while you're looking at it:\n\n- **`| 0` overflows.** `36^6` is 2,176,782,336 but `|0` is a 32-bit *signed* cast, so ~1.35% of draws (anything ≥ 2^31) wrap negative and `toString(36)` prefixes a `-`. Those slugs come out as `my-title--zik0zj`. Harmless in a URL, but that's why you'd occasionally see a double hyphen.\n- **The suffix isn't zero-padded**, so a small draw gives `my-title-5`. Still unique, just inconsistent-looking.\n\nAnd a related known gap: `update()` never regenerates the slug on a title change — that's the `// Todo: update slug also when title gets changed` at `src/article/article.controller.ts:61`. So the slug reflects whatever the title was at creation.\n\nWant me to add the unique index and strip `slug`/`id` from the update payload?",
+  "score": {
+    "checks": [
+      {
+        "id": "says-no",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-random-suffix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-slugify",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-collision",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2500
+  }
+}

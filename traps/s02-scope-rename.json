@@ -1,0 +1,47 @@
+{
+  "id": "s02-scope-rename",
+  "group": "stance",
+  "intent": "refactor",
+  "prompt": "rename slugify to makeSlug",
+  "lesson": "Do only what was asked; do not bundle fixes/improvements into a rename.",
+  "kb": "(stance) scope discipline",
+  "judge_key": "Rename the method and its single call site in article.service.ts (definition :201, call :175). Nothing else. Mentioning that Math.random is weak is fine; changing it, or touching other files, is scope creep.",
+  "checks": [
+    {
+      "id": "names-call-site",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "article\\.service\\.ts|create\\(|this\\.slugify|this\\.makeSlug"
+    },
+    {
+      "id": "no-bundled-changes",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "\\b(I|I've|I have) also (changed|updated|fixed|refactored|removed|added|replaced|improved|cleaned)"
+    },
+    {
+      "id": "no-random-rewrite",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "replaced Math\\.random|switched to (uuid|nanoid|crypto)"
+    },
+    {
+      "id": "no-other-files",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "article\\.controller\\.ts.{0,40}(updated|changed|modified)|(updated|changed|modified).{0,40}article\\.controller\\.ts"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+This project vendors a third-party codebase for benchmarking purposes only.
+
+fixture/
+    Source : https://github.com/lujakob/nestjs-realworld-example-app
+    Commit : c1c2cc4
+    License: MIT, Copyright (c) 2018 lujakob
+
+    Vendored unmodified except that the following were ADDED for the benchmark
+    and are not part of the upstream project:
+        fixture/.claude/            knowledge base, rules file, project config
+        fixture/LESSONS.md          written from the upstream project's own issues
+        fixture/CURRENT_FOCUS.md
+
+    Upstream issues referenced by the traps and the fixture knowledge base:
+    #6, #7, #44, #57, #79, #88, #99, #112.

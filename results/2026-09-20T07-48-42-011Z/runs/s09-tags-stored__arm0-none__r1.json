@@ -1,0 +1,73 @@
+{
+  "trapId": "s09-tags-stored",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 37516,
+  "apiMs": 28015,
+  "costUsd": 0.21800950000000002,
+  "inputTokens": 2616,
+  "cacheReadTokens": 117489,
+  "cacheCreationTokens": 8791,
+  "outputTokens": 2331,
+  "numTurns": 11,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "There are **two unrelated things called \"tags\"** here, and they don't talk to each other.\n\n## 1. An article's tags — `article.tagList`, a `simple-array` column\n\n`src/article/article.entity.ts:34-35`:\n\n```ts\n@Column('simple-array')\ntagList: string[];\n```\n\nTypeORM's `simple-array` is **not** a join table and not JSON — it's a single varchar column holding the values comma-joined, e.g. `java,spring`. Writing happens only in `ArticleService.create()` (`src/article/article.service.ts:176`), straight from the DTO.\n\nTwo consequences worth knowing:\n\n- **Filtering is a substring match.** `src/article/article.service.ts:35` does `article.tagList LIKE '%<tag>%'`. So `?tag=java` also matches an article tagged `javascript`, and `?tag=a,b` can match on the delimiter itself.\n- **A tag containing a comma silently splits into two tags** on read-back, since the delimiter is the storage format.\n\n## 2. The `tag` table — `src/tag/tag.entity.ts`\n\nA separate entity with `id` + `tag` columns, served by `GET /api/tags` via `TagService.findAll()` (`src/tag/tag.service.ts:13-15`).\n\n**Nothing in the codebase ever writes to it.** I grepped the whole `src/` tree for `TagEntity`/`tagRepository` — every hit is the read path, the module wiring, or the spec file. So on a fresh database `GET /api/tags` returns `[]` indefinitely, no matter how many tagged articles exist. Creating an article populates `article.tagList` and never touches the `tag` table.\n\n## Schema provenance\n\nTables are generated from the entity classes at boot (`synchronize: true`) — there are no migration files, so a column change is an entity change. The `prisma/` directory at the repo root contains only a `.env` and no schema; Prisma is not the ORM in play despite the directory name.\n\nIf your actual goal is a working tag list endpoint, the gap is a write path: populate `tag` during `ArticleService.create()`, or drop the table and derive the list from `tagList`. Happy to do either.",
+  "score": {
+    "checks": [
+      {
+        "id": "simple-array",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "comma-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "tag-table-exists",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "nothing-writes-tag-table",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1948
+  }
+}

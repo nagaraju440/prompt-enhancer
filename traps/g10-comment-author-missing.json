@@ -1,0 +1,47 @@
+{
+  "id": "g10-comment-author-missing",
+  "group": "grounding",
+  "intent": "investigate",
+  "prompt": "comments show no author name in the app. where do we lose it?",
+  "lesson": "Comment entity has no author column/relation; addComment sets only body.",
+  "kb": "schema.md comment · LESSONS.md",
+  "judge_key": "It is never stored: comment.entity.ts has only id, body and the article relation — no author; addComment() (article.service.ts:101-112) sets only comment.body. There is nothing to lose downstream. Fix requires a ManyToOne author relation on Comment set at insert from the caller.",
+  "checks": [
+    {
+      "id": "names-no-author-on-entity",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "comment\\.entity|Comment entity|no author (column|field|relation|property)|has no author|author.{0,40}(never|not) (stored|saved|set|persisted)|(never|not) (stored|saved|set|persisted).{0,40}author"
+    },
+    {
+      "id": "names-addcomment",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "addComment|createComment"
+    },
+    {
+      "id": "fix-relation",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "ManyToOne|relation"
+    },
+    {
+      "id": "no-frontend-blame",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "frontend (drops|loses|strips)"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

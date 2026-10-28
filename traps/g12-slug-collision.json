@@ -1,0 +1,47 @@
+{
+  "id": "g12-slug-collision",
+  "group": "grounding",
+  "intent": "explain",
+  "prompt": "if two people publish an article with the exact same title, do the slugs collide?",
+  "lesson": "slugify appends a random base-36 suffix.",
+  "kb": "workspace.md Slugs",
+  "judge_key": "No: ArticleService.slugify() (article.service.ts:201-203) appends \"-\" + a random base-36 suffix from Math.random(), so equal titles get different slugs (collision only if the 6-char suffix repeats; there is no unique index to catch that).",
+  "checks": [
+    {
+      "id": "says-no",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "\\bno\\b|do not collide|don't collide|will not collide|different slugs|unique"
+    },
+    {
+      "id": "names-random-suffix",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "random|suffix|base[- ]?36|toString\\(36\\)"
+    },
+    {
+      "id": "names-slugify",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "slugify"
+    },
+    {
+      "id": "no-false-collision",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "^(yes|they (do|will) collide)"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

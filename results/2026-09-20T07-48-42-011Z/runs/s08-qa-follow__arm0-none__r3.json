@@ -1,0 +1,80 @@
+{
+  "trapId": "s08-qa-follow",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 135874,
+  "apiMs": 130785,
+  "costUsd": 0.6284550000000001,
+  "inputTokens": 2751,
+  "cacheReadTokens": 235320,
+  "cacheCreationTokens": 24569,
+  "outputTokens": 10054,
+  "numTurns": 22,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "Read the implementation — here's the plan, grounded in what `ProfileService` actually does.\n\n## Surface under test\n\n| Route | Handler | Service | Auth |\n|---|---|---|---|\n| `POST /profiles/:username/follow` | `profile.controller.ts:24` | `follow(email, username)` — keyed by **email** | guarded |\n| `DELETE /profiles/:username/follow` | `profile.controller.ts:29` | `unFollow(id, username)` — keyed by **id** | guarded |\n| `GET /profiles/:username` | `profile.controller.ts:19` | `findProfile(id, username)` — produces `following` | public |\n| `GET /articles/feed` | — | `findFeed()` reads `follows` (`article.service.ts:67`) | guarded |\n\nNote the asymmetry: follow resolves the follower by email (two user lookups), unfollow by id (one). Same feature, two identity paths — tests should pin both.\n\n## Prerequisite: there is no test harness yet\n\n`jest.json` picks up `/src/**.spec.ts`, but the only existing spec (`tag.controller.spec.ts:13`) calls `TypeOrmModule.forRoot()`, so it needs a live MySQL to even compile a module. `supertest` is in `devDependencies` and unused; there's no e2e config, no test DB, no fixture seeding.\n\nSo Layer 1 below deliberately avoids `forRoot()` — inject fake repos via `getRepositoryToken()` so the unit suite runs with zero infrastructure. Layer 2 needs a real `nestjsrealworld_test` DB + truncate-between-tests helper; that's the actual cost of this plan.\n\n## Layer 1 — `ProfileService` unit tests (no DB)\n\n`src/profile/profile.service.spec.ts`, mocking `userRepository` and `followsRepository`.\n\n**`follow()`**\n\n| # | Case | Expected |\n|---|---|---|\n| F1 | Not yet following | `save()` called once; returns `{profile:{…, following:true}}` |\n| F2 | Already following (`findOne` returns a row) | `save()` **not** called; still `following:true` |\n| F3/F4 | `username` / `followerEmail` missing | 400, `'Follower email and username not provided.'` |\n| F5 | Self-follow | 400 (`profile.service.ts:58`) |\n| F6 | **Unknown username** | should be 404 — see bug table |\n| F7 | Row field mapping | assert `save()` got exactly `{followerId: follower.id, followingId: following.id}` — the only guard against the ids being swapped |\n| F8 | Envelope | matches `ProfileRO`; no `password` / `id` on the returned profile (the repo hands back a full `UserEntity`) |\n\n**`unFollow()`**\n\n| # | Case | Expected |\n|---|---|---|\n| U1 | Following → unfollow | `delete({followerId, followingId})`; `following:false` |\n| U2 | Not following | no throw, `following:false` (idempotent) |\n| U3/U4 | `username` / `followerId` missing | 400 |\n| U5 | Self-unfollow | 400 (`profile.service.ts:88`) |\n| U6 | **Unknown username** | should be 404 — see bug table |\n| U7 | Reverse relation untouched | B→A must survive A unfollowing B; assert `delete` args exactly |\n\n`!followerId` at `profile.service.ts:82` treats id `0` as missing. Unreachable with autoincrement PKs, worth one comment rather than a test.\n\n**`findProfile()` — the `following` flag**\n\n| # | Case | Expected |\n|---|---|---|\n| P1/P2 | Authed, following / not following | `following: true` / `false` |\n| P3 | **Anonymous** (`id` undefined) | spec says `following:false` — see bug table |\n| P4 | **Unknown username** | should be 404 — see bug table |\n| P5 | Query hygiene | `followsRepository.findOne` must not be called with `followerId: undefined` (`profile.service.ts:41` runs before the `if (id)` on line 43) |\n\n## Layer 2 — E2E (supertest)\n\n| # | Case | Expected |\n|---|---|---|\n| E1/E2 | POST / DELETE with no token | 401 `'Not authorized.'` |\n| E3 | **Malformed or expired token** | should be 401 — see bug table (`LESSONS.md` #79) |\n| E4 | Round trip: register A+B → A follows B → `GET /profiles/B` as A → unfollow → GET again | `following` true then false |\n| E5 | Double POST follow | exactly **one** row in `follows` |\n| E6 | **Two concurrent POST follows** | one row — see bug table |\n| E7 | A follows B, then anonymous `GET /profiles/B` | `following:false`, not A's relation |\n| E8 | Status codes | Nest defaults: POST → **201**, DELETE → 200. Pin them so a change is visible |\n| E9 | Username needing URL-encoding | resolves, no 500 |\n\n## Layer 3 — downstream feed\n\nThe only consumer of the `follows` table. Worth covering because follow/unfollow is otherwise unobservable server-side.\n\n- FE1 A follows B → `/articles/feed` contains B's articles only\n- FE2 **A follows B *and* C → feed contains both.** `article.service.ts:77` binds `IN (:ids)` with an array, not the `IN (:...ids)` spread form TypeORM expects — this is the test that would catch it if that binding is wrong. Verify the actual result before concluding either way\n- FE3 after unfollow, B's articles disappear\n- FE4 following nobody → `{articles: [], articlesCount: 0}` (`article.service.ts:69`)\n\n## Bugs this plan is designed to surface\n\nWrite these as normal assertions of correct behaviour and expect red:\n\n| ID | Trigger | Expected | Actual |\n|---|---|---|---|\n| F6/U6 | `POST|DELETE /profiles/nope/follow` | 404 | `findOne` returns undefined → `followingUser.email` / `.id` at `profile.service.ts:58,88` throws **TypeError → 500** |\n| P4 | `GET /profiles/nope` | 404 | `profile.service.ts:33` returns `undefined` → **200 with empty body** |\n| P3 | Anonymous profile fetch | `following:false` | key absent from JSON — same class as `LESSONS.md` \"spec fields must actually be produced\" |\n| E3 | Tampered token | 401 | `jwt.verify` throws uncaught in `auth.middleware.ts:17` → **500** (`LESSONS.md` #79) |\n| E6 | Concurrent follows | 1 row | `follows` has **no unique index on (followerId, followingId)** (`.claude/knowledge/schema.md`); the `findOne` check at `profile.service.ts:62` is a TOCTOU window → 2 rows, and the dupe then survives unfollow only because `delete` is by criteria |\n\nE6 is the one with real consequences — a duplicate row makes `findFeed`'s id list contain the same author twice.\n\n## Suggested order\n\n1. `profile.service.spec.ts` with fake repos — no infra, catches F6/U6/P3/P4 immediately\n2. Test DB + truncate helper, then `profile.e2e-spec.ts` (E1–E9) — needs a `test` script split, since `testRegex` currently globs everything under `src/`\n3. Feed integration (FE1–FE4)\n\nWant me to write Layer 1 now? It's self-contained and needs no database.",
+  "score": {
+    "checks": [
+      {
+        "id": "self-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "double-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "unknown-username",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "following-flag",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 6214
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "g11-public-endpoints",
+  "group": "grounding",
+  "intent": "explain",
+  "prompt": "which of our endpoints can be called without logging in?",
+  "lesson": "Guards are per-route in module configure(); DELETE /users/:slug is unguarded.",
+  "kb": "auth.md guarded routes",
+  "judge_key": "Public: GET /articles, GET /articles/:slug, GET /articles/:slug/comments, GET /profiles/:username, GET /tags, POST /users, POST /users/login, GET / — and DELETE /users/:slug (deletes by email, no token needed). Guarded lists are in article.module.ts, user.module.ts, profile.module.ts configure().",
+  "checks": [
+    {
+      "id": "lists-get-articles",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "GET\\s*/?(api/)?articles"
+    },
+    {
+      "id": "lists-tags",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "tags"
+    },
+    {
+      "id": "lists-login-and-register",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "login"
+    },
+    {
+      "id": "catches-unguarded-delete-user",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "DELETE\\s*/?(api/)?users/:?\\w*|users/:slug|delete.{0,40}user.{0,60}(public|unprotected|no (auth|token)|without (a )?(token|login)|not (guarded|protected))"
+    },
+    {
+      "id": "names-module-configure",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "module\\.ts|configure\\(|forRoutes|middleware"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "s09-tags-stored",
+  "group": "stance",
+  "intent": "data",
+  "prompt": "how are tags stored?",
+  "lesson": "Answer from the entity, and say what nothing writes to.",
+  "kb": "schema.md tagList + tag table",
+  "judge_key": "On the article as a simple-array column tagList (comma-joined string, article.entity.ts:34-35). There is also a separate tag table/entity read by GET /tags, but nothing in the codebase writes to it — GET /tags is empty on a fresh DB.",
+  "checks": [
+    {
+      "id": "simple-array",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "simple-array"
+    },
+    {
+      "id": "comma-string",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "comma"
+    },
+    {
+      "id": "tag-table-exists",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "tag\\.entity|TagEntity|`tag` table|tag table"
+    },
+    {
+      "id": "nothing-writes-tag-table",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "(never|nothing|not|no code|no one|nobody).{0,60}(writes?|populat|insert|fill)|(writes?|populat|insert|fill).{0,60}(never|nothing|not)"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

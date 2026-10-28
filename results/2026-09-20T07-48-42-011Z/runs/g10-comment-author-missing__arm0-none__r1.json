@@ -1,0 +1,73 @@
+{
+  "trapId": "g10-comment-author-missing",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 48552,
+  "apiMs": 42119,
+  "costUsd": 0.315557,
+  "inputTokens": 2616,
+  "cacheReadTokens": 131034,
+  "cacheCreationTokens": 15936,
+  "outputTokens": 3104,
+  "numTurns": 12,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "It's not lost anywhere — it's never captured in the first place. The author drops out at four points along the chain, the earliest being the entity itself.\n\n**1. The column doesn't exist** — `src/article/comment.entity.ts:5-15`\n\n```ts\nexport class Comment {\n  @PrimaryGeneratedColumn() id: number;\n  @Column() body: string;\n  @ManyToOne(type => ArticleEntity, article => article.comments) article: ArticleEntity;\n}\n```\n\nNo `author` relation, so no `authorId` FK. Since the app runs `synchronize: true` with no migrations, the `comment` table physically has nowhere to put a user reference.\n\n**2. The controller never reads the authenticated user** — `src/article/article.controller.ts:77`\n\n```ts\nasync createComment(@Param('slug') slug, @Body('comment') commentData: CreateCommentDto)\n```\n\nThis is the frustrating one: `POST /articles/:slug/comments` *is* behind `AuthMiddleware` (`article.module.ts:28`), so `req.user` is populated and the identity is sitting right there. The handler just doesn't ask for it. Compare `create()` at line 52 and `favorite()` at line 94, which both take `@User('id') userId`.\n\n**3. The service only assigns a body** — `src/article/article.service.ts:104-105`\n\n```ts\nconst comment = new Comment();\ncomment.body = commentData.body;\n```\n\n**4. The response type doesn't declare it** — `src/article/article.interface.ts:3-5`\n\n```ts\ninterface Comment { body: string; }\n```\n\nSo `CommentsRO` is typed body-only, and `findComments()` (`article.service.ts:165`) is contractually incapable of returning an author even once the data exists.\n\n`CreateCommentDto` is fine as-is — the author should come from the JWT, not the request body.\n\n**One trap for the fix:** `findComments()` returns `article.comments` off the eager relation (`article.entity.ts:40`). Adding a plain `@ManyToOne author` to `Comment` will *not* auto-load through that — eager loading doesn't cascade into non-eager children. You'd need to mark the new relation eager too, or switch `findComments()` to an explicit `relations: ['comments', 'comments.author']` / query-builder join.\n\nAdjacent issue worth flagging: `deleteComment()` (`article.service.ts:114`) has no ownership check — any authenticated user can delete any comment. There's currently no author to check against, so fixing this is a prerequisite for closing that hole.\n\nWant me to wire it up end to end — entity relation, `@User('id')` on the controller, service assignment, interface, and the eager-load fix? Note it's a schema change, so `synchronize: true` will alter the `comment` table on next boot.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-no-author-on-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-addcomment",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "fix-relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-frontend-blame",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2557
+  }
+}

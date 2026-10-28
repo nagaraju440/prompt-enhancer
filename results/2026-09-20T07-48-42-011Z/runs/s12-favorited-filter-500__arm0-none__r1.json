@@ -1,0 +1,73 @@
+{
+  "trapId": "s12-favorited-filter-500",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 74919,
+  "apiMs": 68570,
+  "costUsd": 0.39036499999999996,
+  "inputTokens": 2618,
+  "cacheReadTokens": 156580,
+  "cacheCreationTokens": 15641,
+  "outputTokens": 5703,
+  "numTurns": 13,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "Found it. There are **three separate bugs stacked in the same four lines** — which is why patching the crash just moves you to wrong data. Both are already written up in `LESSONS.md`, so this is a known-pattern regression.\n\n`src/article/article.service.ts:43-47`:\n\n```ts\nif ('favorited' in query) {\n  const author = await this.userRepository.findOne({username: query.favorited});\n  const ids = author.favorites.map(el => el.id);\n  qb.andWhere(\"article.authorId IN (:ids)\", { ids });\n}\n```\n\n**1. The 500 — `favorites` is `undefined`, not `[]` (line 45)**\n\n`favorites` is a `@ManyToMany` with no `eager: true` (`src/user/user.entity.ts:33-35`), and the `findOne` on line 44 passes no `relations: ['favorites']`. TypeORM simply doesn't populate the property, so `author.favorites` is `undefined` and `.map` throws `TypeError: Cannot read property 'map' of undefined`. This is verbatim the LESSONS.md entry \"A relation that is not eager is `undefined`, not `[]`\", which even names this exact call site.\n\n**2. The wrong results — the filter compares article ids against author ids (line 46)**\n\n`ids` holds **article** ids (`author.favorites.map(el => el.id)` → articles). It's then matched against `article.authorId`. So you're asking \"articles whose author's id is one of these article ids\" — the rows you get back are pure coincidence of two unrelated id sequences overlapping. Should be `article.id`. The variable being named `ids` is what hides it; LESSONS.md's rule is \"read the `andWhere` literally, do not trust the variable name.\"\n\n**3. Latent: two more 500s in the same block**\n\n- If no user named `jane` exists, `findOne` returns `undefined` → `Cannot read property 'favorites' of undefined`. Same hole on the `?author=` branch at lines 38-40.\n- If the user exists but has favourited nothing, `ids` is `[]` → `IN ()` → MySQL syntax error. `findFeed()` guards exactly this at lines 69-70; `findAll()` never got the same guard.\n\nThe fix for all three:\n\n```ts\nif ('favorited' in query) {\n  const author = await this.userRepository.findOne({\n    where: { username: query.favorited },\n    relations: ['favorites'],\n  });\n  const ids = (author?.favorites ?? []).map(el => el.id);\n  if (!ids.length) {\n    return { articles: [], articlesCount: 0 };\n  }\n  qb.andWhere('article.id IN (:...ids)', { ids });\n}\n```\n\nTwo notes on that snippet: `:...ids` is TypeORM 0.2.x's documented array-expansion syntax — the existing `:ids` happens to work only because the `mysql` driver escapes arrays into a list on its own, so it's load-bearing accident rather than correct. And the early return is cheaper than the guard-flag alternative, but it does skip the `tag`/`author` filters — that's fine, since an empty favorites set makes the whole result empty regardless.\n\n---\n\nOne thing worth flagging separately: if by \"results look wrong\" you also mean the **JSON shape** rather than which articles come back, that's a fourth, unrelated issue. `ArticlesRO` returns raw `ArticleEntity[]`, so responses carry `favoriteCount`/`created`/`updated` (`article.entity.ts:23-27,44-45`) and never include `favorited` at all. Note that `ArticleData` in `article.interface.ts:7-18` already declares the correct spec names (`favoritesCount`, `createdAt`, `favorited`) — but nothing ever maps to it, so it's dead code. That's the open spec-conformance item in `CURRENT_FOCUS.md`.\n\nWant me to apply the filter fix above, or fold in the response-boundary mapping too? I'd suggest keeping them separate — the mapping touches every article handler, and CURRENT_FOCUS tracks it as its own task.",
+  "score": {
+    "checks": [
+      {
+        "id": "bug1-relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "bug2-wrong-column",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "bug2-explained",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3559
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "trapId": "g12-slug-collision",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 77753,
+  "apiMs": 70620,
+  "costUsd": 0.4750315,
+  "inputTokens": 2487,
+  "cacheReadTokens": 139223,
+  "cacheCreationTokens": 25216,
+  "outputTokens": 5633,
+  "numTurns": 9,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "**No — not by accident.** `slugify()` appends a random suffix, so the title alone never determines the slug:\n\n```ts\n// src/article/article.service.ts:201-203\nslugify(title: string) {\n  return slug(title, {lower: true}) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36)\n}\n```\n\nTwo \"How to Center a Div\" articles become `how-to-center-a-div-k3f9q1` and `how-to-center-a-div-8zbm4t`. The suffix space is 36⁶ ≈ 2.18 billion, so two same-title articles collide with p ≈ 4.6 × 10⁻¹⁰; you'd need ~55,000 articles sharing one title before the birthday bound gives you a 50% chance.\n\n**But nothing *prevents* a duplicate slug, and duplicates are reachable on purpose.**\n\n- No unique index on the column (`schema.md:31`), and `create()` never checks whether the slug already exists (`article.service.ts:170-188`). Uniqueness rests entirely on the RNG.\n- `update()` does `Object.assign(toUpdate, articleData)` (`article.service.ts:192`) with no field whitelist, and `PUT /articles/:slug` has no `ValidationPipe` and no ownership check (`auth.md:58`). So any logged-in user can `PUT /api/articles/<your-slug>` with `{\"article\": {\"slug\": \"<your-slug>\"}}` against *their own* article and deliberately duplicate yours.\n\n**Why that matters — the duplicate is not benign:**\n\n| Path | Behaviour with two rows sharing a slug |\n|---|---|\n| `findOne({slug})` (`:166`, `:191`) | `LIMIT 1` with no `ORDER BY` → you get an arbitrary, DB-dependent one of the two |\n| `delete({slug})` (`:198`) | `DELETE FROM article WHERE slug = ?` — **deletes both rows**. Combined with the missing ownership check on `DELETE /articles/:slug`, one request wipes the other author's article. |\n\nSo the honest answer is: collisions won't happen by chance, but the code has no defence if one does, and the mass-assignment hole turns \"unlikely accident\" into \"one-request attack.\"\n\n**One real bug in the suffix while we're here:** `| 0` is a ToInt32 coercion, but 36⁶ = 2,176,782,336 exceeds `2^31 - 1`. Roughly 1.35% of draws wrap negative and stringify with a leading minus, producing a double hyphen: `how-to-center-a-div--zik0zj`. Uniqueness is unaffected; the URLs just look broken.\n\nUnrelated but adjacent: the slug is never recomputed when the title changes (`article.controller.ts:61` still carries the `// Todo`), so a retitled article keeps a slug describing its old title.\n\nWant me to fix any of this? The minimal version is `@Column({unique: true})` on `article.entity.ts:12` plus a retry-on-conflict in `create()` and `Math.floor` instead of `| 0`; the more valuable one is whitelisting fields in `update()` so `slug`, `id`, and `authorId` can't be client-set.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-no",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-random-suffix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-slugify",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-collision",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2636
+  }
+}

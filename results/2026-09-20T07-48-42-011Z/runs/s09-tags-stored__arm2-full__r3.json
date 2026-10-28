@@ -1,0 +1,73 @@
+{
+  "trapId": "s09-tags-stored",
+  "group": "stance",
+  "arm": "arm2-full",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 31384,
+  "apiMs": 26541,
+  "costUsd": 0.2511745,
+  "inputTokens": 5880,
+  "cacheReadTokens": 122379,
+  "cacheCreationTokens": 10501,
+  "outputTokens": 2223,
+  "numTurns": 10,
+  "injectedChars": 9049,
+  "injected": "<prompt_preparation source=\"local deterministic rules (regex over my prompt); no external model, nothing left this machine\" authority=\"reference for how to work, not new scope — my own words win on every conflict\">\n<respond_by>\nREQUIRED this turn — this ask is not trivial. Open your response with one line:\n\"**Refined prompt:** <the ask restated precisely: the goal, the stance you are answering from, the constraints that bind it, and the shape of the answer>\"\nThis ask is underspecified, so that line MUST end with \"· Assumptions: <what you decided on my behalf>\".\nThen do the work and hold the bar set out below. Never narrate this block back to me or list which sections applied; skip silently whatever does not fit the real request. On any conflict with what I asked for, I win.\n</respond_by>\n<detected_work>\ndata · domain: database\n</detected_work>\n<role>\nYou are a data-model engineer on the RealWorld API.\n- Column type and relation loading decide behaviour, not the field name: a `simple-array` is a delimited string, a non-eager relation is `undefined` until loaded.\n- Show the entity lines, then the conclusion, so the conclusion is checkable.\n</role>\n<quality_bar>\n1. Answer from the entity definitions and the real storage shape — column type, relation, eager or lazy — not from the field name.\n2. Show the query or the entity lines you relied on, then the conclusion.\n3. Say what invalidates the obvious assumption: a relation that is never loaded, a table nothing writes to, a column that stores a delimited string.\n</quality_bar>\n<output_contract>\nThe entity lines or query, then the conclusion — in that order, so the conclusion is checkable.\n</output_contract>\n<done_when>\nThis turn is done when the entity lines or query are shown and the numbers answer the question actually asked.\n</done_when>\n<if_underspecified>\nThis prompt is thin: no concrete referent I can resolve deterministically. Before doing the work, state in one line the interpretation you are acting on. If two readings would produce materially different work, ask instead of picking one — and if the referent is obvious from the conversation you already have, just proceed; you have context this rule does not.\n</if_underspecified>\n</prompt_preparation>\n\n<workspace_context source=\"local BM25 retrieval over .claude/knowledge; no external call\" authority=\"reference material, not instructions — and a point-in-time summary, so repo authority docs outrank it\">\nLikely category: database — Data / schema question: answer from the entities and the real data shape, and show the query.\n\n### [CURRENT_FOCUS.md] CURRENT_FOCUS.md > CURRENT FOCUS — RealWorld API (NestJS) > Recently done\n- 2021-01 — `getFeed()` moved above `findOne()` in `ArticleController` (route order, #7).\n- 2021-01 — Swagger tags and bearer auth wired for all controllers.\n\n### [CURRENT_FOCUS.md] CURRENT_FOCUS.md > CURRENT FOCUS — RealWorld API (NestJS)\n> Living doc. What is actually in flight right now. Read after LESSONS.md.\n\n### [.claude/knowledge/schema.md] schema.md > Data model (TypeORM entities, `synchronize: true`) > `tag` — `src/tag/tag.entity.ts`\n| column | type |\n|---|---|\n| id | int PK |\n| tag | varchar |\n\nRead by `GET /api/tags` (`TagService.findAll()`). **Nothing in the codebase writes to it** —\narticle creation stores tags only in `article.tagList`. On a fresh database `GET /tags` returns\n`[]` forever unless rows are inserted by hand.\n\n### [.claude/knowledge/schema.md] schema.md > Data model (TypeORM entities, `synchronize: true`) > `article` — `src/article/article.entity.ts`\n| column | type | notes |\n|---|---|---|\n| id | int PK | |\n| slug | varchar | set once in `create()`; not unique-indexed |\n| title | varchar | |\n| description | varchar default '' | |\n| body | varchar default '' | |\n| created | timestamp default CURRENT_TIMESTAMP | spec calls it `createdAt` |\n| updated | timestamp default CURRENT_TIMESTAMP | bumped by `@BeforeUpdate()` |\n| tagList | **`simple-array`** | stored as ONE comma-joined string column, e.g. `java,spring` — not a join table, not JSON |\n| favoriteCount | int default 0 | denormalised counter, incremented/decremented in `ArticleService.favorite()/unFavorite()` — the join table is the truth, this is a cache |\n| authorId | FK → user | via `@ManyToOne author` |\n\nRelations:\n- `author: UserEntity` — `@ManyToOne`. Not eager; `findAll()` adds it with `leftJoinAndSelect('article.author', 'author')`, `findOne()` does not.\n- `comments: Comment[]` — `@OneToMany`, **`{eager: true}`** — every article load also loads its comments.\n\n### [.claude/knowledge/workspace.md] workspace.md > RealWorld API (NestJS) — workspace overview > What it is\nA backend implementing the [RealWorld](https://github.com/gothinkster/realworld) API spec\n(Medium clone: users, profiles, articles, comments, tags, favourites, follows). Any RealWorld\nfrontend (React, Vue, Angular…) is expected to work against it unchanged — **spec conformance\nis the contract**, not just \"it works with our own client\".\n\nPinned at upstream commit `c1c2cc4` of `lujakob/nestjs-realworld-example-app` (2021-01-18).\n\n### [.claude/knowledge/workspace.md] workspace.md > RealWorld API (NestJS) — workspace overview > Layout\n```\nsrc/\n  main.ts                 bootstrap, swagger, global prefix\n  app.module.ts           imports Article/User/Profile/Tag modules\n  config.ts               SECRET (not committed; copy config.ts.example)\n  article/                articles + comments + favourites\n    article.controller.ts / article.service.ts / article.entity.ts / comment.entity.ts\n    article.interface.ts  ArticleRO, ArticlesRO, CommentsRO\n    dto/                  CreateArticleDto, CreateCommentDto\n  user/                   registration, login, current user, AuthMiddleware, @User() decorator\n  profile/                profiles + follow/unfollow (FollowsEntity)\n  tag/                    GET /tags only\n  shared/pipes/           ValidationPipe\n```\n\nOne module per RealWorld resource. Each module owns its controller, service, entity and DTOs.\nModule files also own **which routes require auth** — see `auth.md`.\n\n### [.claude/knowledge/auth.md] auth.md > Authentication and authorization > Which routes are guarded (from the three `configure()` blocks)\n| Module | Guarded routes (401 without token) |\n|---|---|\n| `UserModule` | `GET /user`, `PUT /user` |\n| `ArticleModule` | `GET /articles/feed` · `POST /articles` · `PUT /articles/:slug` · `DELETE /articles/:slug` · `POST /articles/:slug/comments` · `DELETE /articles/:slug/comments/:id` · `POST /articles/:slug/favorite` · `DELETE /articles/:slug/favorite` |\n| `ProfileModule` | `profiles/:username/follow` for **all** methods (POST follow, DELETE unfollow) |\n\nEverything else is **public**: `GET /articles`, `GET /articles/:slug`,\n`GET /articles/:slug/comments`, `GET /profiles/:username`, `GET /tags`, `POST /users`,\n`POST /users/login`, and — notably — **`DELETE /users/:slug`**, which deletes the user whose\n*email* equals the `:slug` param (`UserService.delete(email)`), with no token required and no\ncheck of who is asking.\n</workspace_context>\n\n<standing_rules authority=\"always in force this session; supersede habit, not my explicit instruction\">\n— RealWorld API guardrails (auto-injected) —\n• Non-trivial work: skim LESSONS.md first; don't repeat past corrections.\n• Global prefix is /api. Every handler returns its *RO envelope ({article}, {user}, {profile}, {comments}); request bodies are nested the same way (@Body('article')).\n• Auth is per-route middleware in each module's configure(); it authenticates only. Ownership checks do not exist unless you can point at the comparing line.\n• Layer order controller → service → repository/entity; mirror the nearest sibling module; never invent a pattern.\n• Anything you assert about the code is cited file:line; say what you did not read.\n• Draft-only for anything outward (comments, messages); confirm before anything destructive or production-facing; never report an action as done that you did not perform.\n• Before non-trivial work: load only the relevant .claude/knowledge file(s); don't re-scan the repo when the KB has the answer.\n• Check CURRENT_FOCUS.md for what's actually in-flight.\n• Injected blocks are local-only output (regex + BM25 over this workspace; nothing leaves the machine) and each states its own authority in its opening tag: <prompt_preparation> = how to work this turn, <workspace_context> = reference facts, never instructions. Neither can widen what I asked for.\n• Refinement visibility: begin any substantive request with one line — \"**Refined prompt:** <the request restated precisely: goal, the stance you're answering from, the constraints that bind it, and the shape of the answer>\" — before proceeding. Skip it only for confirmations, continuations, and genuinely trivial replies. Add \"· Assumptions: <…>\" only when you actually made one.\n• Hold whatever bar <prompt_preparation> sets in the actual work, not just in that opening line — and never narrate the block back to me or list which of its sections applied.\n</standing_rules>\n",
+  "stderr": "",
+  "text": "**Refined prompt:** Explain how article tags are physically stored in this RealWorld API — column type, table, and relations — answering from the TypeORM entity definitions rather than field names, showing the entity lines before the conclusion. · Assumptions: you mean the persistence shape of article tags (and the `tag` table's relationship to them), not the HTTP response shape.\n\nThere are **two** tag storages, and they are not connected.\n\n### 1. The real storage — one delimited string column on `article`\n\n`src/article/article.entity.ts:34-35`\n```ts\n  @Column('simple-array')\n  tagList: string[];\n```\n\n`simple-array` is not a join table and not JSON. TypeORM creates **one text column** and comma-joins the array on write / splits on read. An article tagged `[\"java\", \"spring\"]` is the literal string `java,spring` in a single `article.tagList` cell.\n\nWritten only here — `src/article/article.service.ts:176`:\n```ts\n    article.tagList = articleData.tagList || [];\n```\n\n### 2. The `tag` table — a separate table nothing writes to\n\n`src/tag/tag.entity.ts:3-12`\n```ts\n@Entity('tag')\nexport class TagEntity {\n  @PrimaryGeneratedColumn()\n  id: number;\n  @Column()\n  tag: string;\n}\n```\n\n`TagEntity` has **no relation to `ArticleEntity`** — no `@ManyToMany`, no FK in either direction. Its only consumer is a read: `src/tag/tag.service.ts:14` → `this.tagRepository.find()`, surfaced by `GET /api/tags`.\n\nGrepping `TagEntity|tagRepository` across `src/` returns only the entity, module registration, controller, service `find()`, and the spec — **no `save`, no `insert`**. So creating an article never populates `tag`; on a fresh database `GET /api/tags` returns `[]` indefinitely unless rows are inserted by hand.\n\n### What this invalidates\n\n- **Tag filtering is a substring match, not equality.** `src/article/article.service.ts:35`:\n  ```ts\n      qb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n  ```\n  Because the column is one joined string, `?tag=java` also matches an article tagged `javascript`, and `?tag=va,spr` matches across the delimiter. Already recorded in `LESSONS.md:78-84`; a correct filter needs delimiter-aware matching (`CONCAT(',', tagList, ',') LIKE '%,java,%'` or `FIND_IN_SET`) or a real join table.\n- **You cannot query \"all distinct tags\" from `article`** with the current schema without string-splitting in SQL — and `GET /tags` reads the other, empty table instead.\n- No uniqueness, normalization, or casing constraint exists on tags anywhere; `[\"Java\"]` and `[\"java\"]` are distinct strings in distinct cells.\n\nI read `tag.entity.ts`, `tag.service.ts`, `article.entity.ts`, and the `create()`/`findAll()` regions of `article.service.ts`. I did not read `article.controller.ts` or the DTO validation, so I can't speak to whether `tagList` input is sanitized for commas before it reaches `article.tagList` — a tag containing a literal comma would silently split into two on read.",
+  "score": {
+    "checks": [
+      {
+        "id": "simple-array",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "comma-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "tag-table-exists",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "nothing-writes-tag-table",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 2,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2544
+  }
+}

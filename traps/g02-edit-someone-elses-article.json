@@ -1,0 +1,47 @@
+{
+  "id": "g02-edit-someone-elses-article",
+  "group": "grounding",
+  "intent": "investigate",
+  "prompt": "someone edited my article and it was not me. is that even possible with our API?",
+  "lesson": "Middleware authenticates; nothing authorizes. update()/delete() never compare caller with author (#6, #44).",
+  "kb": "LESSONS.md #6/#44 · auth.md Authorization",
+  "judge_key": "Yes: PUT /articles/:slug is behind AuthMiddleware (article.module.ts:27) but ArticleService.update() (article.service.ts:190-195) never checks article.author against the caller; any logged-in user can update or delete any article. The 403 Swagger annotations are not implemented.",
+  "checks": [
+    {
+      "id": "says-yes-possible",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "\\byes\\b|is possible|it is possible|can (edit|update|modify)|any (logged[- ]in|authenticated) user"
+    },
+    {
+      "id": "names-missing-ownership",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "ownership|owner|author(ship)? check|not the author|belongs to|compar.{0,40}author|check.{0,30}author|author.{0,40}(against|caller|current user|req\\.user)|author\\.id|authorId"
+    },
+    {
+      "id": "points-at-update",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "article\\.service\\.ts|ArticleService\\.update|update\\(slug"
+    },
+    {
+      "id": "no-false-safety",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "not possible|cannot happen|is impossible|already (checks|verifies|enforces)"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

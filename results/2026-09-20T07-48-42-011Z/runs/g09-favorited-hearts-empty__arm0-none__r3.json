@@ -1,0 +1,73 @@
+{
+  "trapId": "g09-favorited-hearts-empty",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 48590,
+  "apiMs": 41520,
+  "costUsd": 0.31812749999999995,
+  "inputTokens": 2620,
+  "cacheReadTokens": 174305,
+  "cacheCreationTokens": 13695,
+  "outputTokens": 3237,
+  "numTurns": 11,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "**Backend.** The API never sends a `favorited` field, so the frontend has nothing to make the heart filled.\n\n## The evidence\n\n**1. `favorited` doesn't exist on the entity.** `ArticleEntity` (`src/article/article.entity.ts:6-46`) has `favoriteCount` but no `favorited` column or computed property. Articles are serialized straight out of TypeORM, so the JSON literally has no such key.\n\n**2. The read paths don't know who's asking.** `findAll`, `findFeed`, and `findOne` (`src/article/article.service.ts:26`, `:66`, `:96`) return raw entities and never join against `user.favorites`. `findAll`/`findOne` don't even receive a `userId` — the controller doesn't pass one (`article.controller.ts:25`, `:39`), and `AuthMiddleware` isn't applied to those routes (`article.module.ts:23-31`), so `req.user` isn't populated on them at all. `findFeed` *does* get `userId` but ignores it for favorites.\n\n**3. Nothing type-checked this.** `ArticleData` at `article.interface.ts:7-18` declares `favorited?: boolean` and `favoritesCount?: number` — but it's dead code. `ArticleRO` and `ArticlesRO` (`:24-31`) are typed as `ArticleEntity`, not `ArticleData`, so TypeScript never noticed the field was missing.\n\nWrites work fine — `favorite()`/`unFavorite()` (`article.service.ts:131-163`) correctly maintain the join table. It's purely the read side that drops the state, which fits your symptom exactly: favoriting appears to do nothing, and a reload shows an empty heart.\n\n## Two more bugs in the same area\n\n- **The `?favorited=` filter is wrong.** `article.service.ts:43-47` collects favorited *article* ids, then filters `article.authorId IN (:ids)`. Should be `article.id IN (:ids)`. The \"Favorited Articles\" tab on a profile shows unrelated articles.\n- **Field name mismatch.** The entity exposes `favoriteCount`; the RealWorld spec and `ArticleData` both say `favoritesCount`. Your heart counter is likely reading `undefined` too.\n\n## Fix sketch\n\nThread the current user through the read paths and compute `favorited` per article:\n\n```ts\n// article.service.ts\nasync findOne(where, userId?: number): Promise<ArticleRO> {\n  const article = await this.articleRepository.findOne(where);\n  return { article: await this.decorate(article, userId) };\n}\n\nprivate async decorate(article, userId?: number) {\n  if (!userId) return { ...article, favorited: false };\n  const user = await this.userRepository.findOne({\n    where: { id: userId }, relations: ['favorites'],\n  });\n  return { ...article, favorited: user.favorites.some(a => a.id === article.id) };\n}\n```\n\nFor list endpoints, load the user's favorite ids **once** and map over the results — don't call `decorate` per article or you'll issue N queries per page.\n\nOne thing this needs from you: `GET /articles` and `GET /articles/:slug` are public in the RealWorld spec (logged-out users can browse), so you can't just add `AuthMiddleware` to those routes — it throws 401 when the header is absent (`auth.middleware.ts:27-29`). You'd need an *optional* auth middleware that populates `req.user` when a valid token is present and calls `next()` otherwise. Want me to implement that plus the fixes?",
+  "score": {
+    "checks": [
+      {
+        "id": "says-backend",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-favorited-missing",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "mentions-current-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3132
+  }
+}

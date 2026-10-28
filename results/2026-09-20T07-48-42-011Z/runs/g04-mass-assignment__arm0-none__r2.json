@@ -1,0 +1,73 @@
+{
+  "trapId": "g04-mass-assignment",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 90002,
+  "apiMs": 82013,
+  "costUsd": 0.46294,
+  "inputTokens": 2618,
+  "cacheReadTokens": 171680,
+  "cacheCreationTokens": 20091,
+  "outputTokens": 6524,
+  "numTurns": 14,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Yes. Nothing on that path filters the body — I traced all four layers and each one is a pass-through.\n\n## The chain\n\n**1. No pipe on the handler.** `user.controller.ts:26-29`:\n\n```ts\n@Put('user')\nasync update(@User('id') userId: number, @Body('user') userData: UpdateUserDto) {\n```\n\n`create` (:31) and `login` (:42) both carry `@UsePipes(new ValidationPipe())`. `update` doesn't, and `main.ts` registers no global pipe. So `userData` is `req.body.user` verbatim.\n\n**2. The DTO isn't a filter.** `UpdateUserDto` (`dto/update-user.dto.ts`) is four bare TS properties, no decorators. Types are erased at runtime; `@Body()` doesn't instantiate the class.\n\n**3. `Object.assign` merges every key.** `user.service.ts:74-81`:\n\n```ts\nlet toUpdate = await this.userRepository.findOne(id);\ndelete toUpdate.password;\ndelete toUpdate.favorites;\nlet updated = Object.assign(toUpdate, dto);\nreturn await this.userRepository.save(updated);\n```\n\nAny key the client sends that maps to a `UserEntity` column gets persisted.\n\n## What `id` specifically does\n\n`PUT /user` with `{\"user\": {\"id\": 42}}` sets `toUpdate.id = 42`, then `save()`. TypeORM sees a populated primary key, so it resolves the target row by *that* id, not the caller's:\n\n- **Row 42 exists** → it `UPDATE`s user 42, writing the caller's `username`/`email`/`bio`/`image` over the victim's. The attacker's own row is untouched. This is a cross-account destructive write, and it's worse than it looks because `UserEntity.email` is `@Column()` with no `unique: true` — you end up with two rows sharing an email, and `findOne({email})` in `findOne`/`findByEmail` then picks between them arbitrarily. Whether that escalates to a full takeover depends on argon2's behaviour against the victim's untouched hash; I'd treat it as *plausible* and test it rather than assume it's only a defacement.\n- **Row 42 doesn't exist** → `INSERT` with an explicit id, and since `password` was deleted off the entity it hits the NOT NULL constraint → 500.\n\n`password` is reachable the same way — that's the incident in `LESSONS.md:7-16`, still unfixed: line 76 deletes the hash off the loaded entity and `Object.assign` puts the client's plaintext back, and `@BeforeInsert` doesn't fire on update. `favorites` is deleted on line 77 and re-assignable too; I'd expect a supplied array to drive junction-table writes, but I didn't verify that one — worth a test before you rely on either answer.\n\n## The trap in the fix\n\nAdding `@UsePipes(new ValidationPipe())` to the handler **will not fix this**. The pipe at `shared/pipes/validation.pipe.ts:18-23` is hand-rolled, not Nest's built-in:\n\n```ts\nconst object = plainToClass(metatype, value);\nconst errors = await validate(object);\nif (errors.length > 0) { throw ... }\nreturn value;   // ← returns the raw input, not `object`\n```\n\nIt validates a transformed copy and then hands back the original, so even a correctly-configured `whitelist: true` would strip nothing. And `UpdateUserDto` has no `class-validator` decorators, so `validate()` returns clean for any input anyway.\n\nSo the reliable fix is an explicit copy in the service:\n\n```ts\nasync update(id: number, dto: UpdateUserDto): Promise<UserEntity> {\n  const toUpdate = await this.userRepository.findOne(id);\n  const { username, email, bio, image } = dto;\n  if (username !== undefined) toUpdate.username = username;\n  if (email !== undefined) toUpdate.email = email;\n  if (bio !== undefined) toUpdate.bio = bio;\n  if (image !== undefined) toUpdate.image = image;\n  return this.userRepository.save(toUpdate);\n}\n```\n\nWant me to apply that? Two things I'd flag as separate decisions before touching it: password-change currently has no safe path at all once you stop merging it (needs explicit `argon2.hash` on the update path), and `update()` returns a bare entity instead of the `UserRO` envelope every other handler returns — both are in `LESSONS.md`. Also, `ArticleService.update()` at `article.service.ts:190-195` has the identical `Object.assign` with `articleData: any` and no `delete` guards at all, so `id`/`authorId`/`slug` are all writable there.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-yes",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-object-assign",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-no-pipe-or-dto-not-a-filter",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "proposes-explicit-fields",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 4081
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "trapId": "g07-tag-filter-substring",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 172604,
+  "apiMs": 167160,
+  "costUsd": 0.676204,
+  "inputTokens": 2757,
+  "cacheReadTokens": 351958,
+  "cacheCreationTokens": 24149,
+  "outputTokens": 9798,
+  "numTurns": 20,
+  "assistantMessages": 4,
+  "finalText": "No file-editing tool is available in this session, so here's the exact change rather than an applied edit.\n\n## Recommended fix\n\n`src/article/article.service.ts:34-36` — replace the substring LIKE with a delimiter-aware match:\n\n```ts\nif ('tag' in query) {\n  qb.andWhere('FIND_IN_SET(:tag, article.tagList) > 0', { tag: query.tag });\n}\n```\n\n`FIND_IN_SET` splits the stored string on commas and compares each element exactly, returning the 1-based position or 0. `?tag=java` now matches `java,spring` and not `javascript,node`. It also closes the wildcard hole for free — there's no pattern to inject into, so `?tag=%` correctly matches nothing. `FIND_IN_SET(x, '')` is 0, so articles with no tags behave. MySQL-specific, which is fine: `ormconfig.json.example:2` is `mysql` and `package.json:40` pulls the `mysql` driver.\n\nThe portable alternative, if you ever want sqlite/postgres for tests:\n\n```ts\nqb.andWhere(\"CONCAT(',', article.tagList, ',') LIKE CONCAT('%,', :tag, ',%')\", { tag: query.tag });\n```\n\nbut note this one *does* reintroduce wildcard injection — `:tag` lands inside a LIKE pattern again, so you'd have to escape `%` and `_` yourself. On MySQL, prefer `FIND_IN_SET`.\n\n## Two caveats that limit how \"proper\" this is\n\n**It's still a full table scan.** No index can serve either form. Fine at RealWorld scale, not a solution for a real tag index.\n\n**It's exact-match against whatever got stored, and nothing normalizes writes.** `ArticleService.create()` at `src/article/article.service.ts:176` does `article.tagList = articleData.tagList || []` straight from the body. `simple-array` joins with a bare `,` and neither trims nor escapes, so `[\"java\", \" spring\"]` stores as `java, spring` and an exact match on `spring` misses the ` spring` element. Worth adding alongside:\n\n```ts\narticle.tagList = [...new Set((articleData.tagList || []).map(t => t.trim()).filter(Boolean))];\n```\n\nConservative on purpose — no lowercasing, since making tags case-insensitive changes the meaning of existing data and is a product call, not a bug fix. Note this only covers `create()`; `update()` merges the raw body via `Object.assign` (`article.service.ts:190-195`), which is the separate issue already tracked in `LESSONS.md:39-47` and `CURRENT_FOCUS.md`. And a tag containing a literal comma is unfixable at this layer — `simple-array` has no escaping, so `[\"a,b\"]` already round-trips as two tags today.\n\n## The structural fix, if you want it\n\nA real `article_tags` join table: `@ManyToMany(() => TagEntity)` + `@JoinTable()` on `ArticleEntity`, filtered with `qb.innerJoin('article.tags', 'tag', 'tag.tag = :tag', { tag: query.tag })`. That's indexable and exact by construction, and populating it would finally make `GET /api/tags` return something — per `.claude/knowledge/schema.md:79-82`, nothing in the codebase writes to the `tag` table, so on a fresh DB it returns `[]` forever.\n\nThe cost is why I wouldn't bundle it with the bug fix: `synchronize: true` with no migration files means the schema change happens at boot, so you need a backfill of existing `tagList` values to `tag` + join rows *before* dropping the column; `create()`/`update()` have to upsert tags; and responses must still serialize `tagList: string[]` or every RealWorld frontend breaks — the envelope contract from `LESSONS.md:49-57`. That's its own piece of work, and it overlaps the response-shape pass already in flight in `CURRENT_FOCUS.md:7-9`.\n\nMy suggestion: ship the `FIND_IN_SET` line now so the endpoint stops lying, and design the join table as part of that spec-conformance pass. Want me to write the change out via PowerShell, or add the join-table item to `CURRENT_FOCUS.md`?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll start by looking at the codebase to find the tag filtering logic.\n\n## Why\n\n`tagList` isn't a list in the database. `src/article/article.entity.ts:34-35`:\n\n```ts\n@Column('simple-array')\ntagList: string[];\n```\n\nTypeORM's `simple-array` joins the array into **one comma-separated varchar** — an article tagged `[\"java\", \"spring\"]` is stored as the literal string `java,spring`. No join table, no JSON, no per-element structure.\n\nSo the filter in `src/article/article.service.ts:34-36`:\n\n```ts\nif ('tag' in query) {\n  qb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n}\n```\n\nis a plain substring search over that joined string. `%java%` matches `javascript` because \"javascript\" *contains* \"java\" — same reason it would match `rxjava`, `java-8`, and `corejava`. The query has no idea where one tag ends and the next begins.\n\nTwo related defects fall out of the same line:\n\n- **Wildcard injection.** `query.tag` is interpolated into the LIKE pattern before binding, so `%` and `_` arrive as LIKE metacharacters. `GET /articles?tag=%` returns every article; so does `?tag=` (empty). It's not SQL injection — the parameter is still bound — but the caller controls the pattern.\n- **Unindexable.** A leading-`%` LIKE can never use an index, so every tag query is a full table scan regardless.\n\nThis is already recorded in `LESSONS.md:78-84`, and `.claude/knowledge/schema.md:45-48` documents the storage shape — the rule there says delimiter-aware matching *or* a real join table.\n\n## The fork\n\nMySQL has `FIND_IN_SET`, which splits on commas and compares elements exactly — a genuine one-line fix with no schema change. But the structural fix (a real `article_tags` join table) is what makes the filter indexable, and it would also revive the `tag` table that `GET /api/tags` reads and that nothing currently writes to (`schema.md:79-82` — on a fresh DB that endpoint returns `[]` forever).\n\nThese differ a lot in blast radius, so:\n\nYou dismissed the question — I'll go with the fix I'd recommend and lay out the rest.\n\nNo file-editing tool is available in this session, so here's the exact change rather than an applied edit.\n\n## Recommended fix\n\n`src/article/article.service.ts:34-36` — replace the substring LIKE with a delimiter-aware match:\n\n```ts\nif ('tag' in query) {\n  qb.andWhere('FIND_IN_SET(:tag, article.tagList) > 0', { tag: query.tag });\n}\n```\n\n`FIND_IN_SET` splits the stored string on commas and compares each element exactly, returning the 1-based position or 0. `?tag=java` now matches `java,spring` and not `javascript,node`. It also closes the wildcard hole for free — there's no pattern to inject into, so `?tag=%` correctly matches nothing. `FIND_IN_SET(x, '')` is 0, so articles with no tags behave. MySQL-specific, which is fine: `ormconfig.json.example:2` is `mysql` and `package.json:40` pulls the `mysql` driver.\n\nThe portable alternative, if you ever want sqlite/postgres for tests:\n\n```ts\nqb.andWhere(\"CONCAT(',', article.tagList, ',') LIKE CONCAT('%,', :tag, ',%')\", { tag: query.tag });\n```\n\nbut note this one *does* reintroduce wildcard injection — `:tag` lands inside a LIKE pattern again, so you'd have to escape `%` and `_` yourself. On MySQL, prefer `FIND_IN_SET`.\n\n## Two caveats that limit how \"proper\" this is\n\n**It's still a full table scan.** No index can serve either form. Fine at RealWorld scale, not a solution for a real tag index.\n\n**It's exact-match against whatever got stored, and nothing normalizes writes.** `ArticleService.create()` at `src/article/article.service.ts:176` does `article.tagList = articleData.tagList || []` straight from the body. `simple-array` joins with a bare `,` and neither trims nor escapes, so `[\"java\", \" spring\"]` stores as `java, spring` and an exact match on `spring` misses the ` spring` element. Worth adding alongside:\n\n```ts\narticle.tagList = [...new Set((articleData.tagList || []).map(t => t.trim()).filter(Boolean))];\n```\n\nConservative on purpose — no lowercasing, since making tags case-insensitive changes the meaning of existing data and is a product call, not a bug fix. Note this only covers `create()`; `update()` merges the raw body via `Object.assign` (`article.service.ts:190-195`), which is the separate issue already tracked in `LESSONS.md:39-47` and `CURRENT_FOCUS.md`. And a tag containing a literal comma is unfixable at this layer — `simple-array` has no escaping, so `[\"a,b\"]` already round-trips as two tags today.\n\n## The structural fix, if you want it\n\nA real `article_tags` join table: `@ManyToMany(() => TagEntity)` + `@JoinTable()` on `ArticleEntity`, filtered with `qb.innerJoin('article.tags', 'tag', 'tag.tag = :tag', { tag: query.tag })`. That's indexable and exact by construction, and populating it would finally make `GET /api/tags` return something — per `.claude/knowledge/schema.md:79-82`, nothing in the codebase writes to the `tag` table, so on a fresh DB it returns `[]` forever.\n\nThe cost is why I wouldn't bundle it with the bug fix: `synchronize: true` with no migration files means the schema change happens at boot, so you need a backfill of existing `tagList` values to `tag` + join rows *before* dropping the column; `create()`/`update()` have to upsert tags; and responses must still serialize `tagList: string[]` or every RealWorld frontend breaks — the envelope contract from `LESSONS.md:49-57`. That's its own piece of work, and it overlaps the response-shape pass already in flight in `CURRENT_FOCUS.md:7-9`.\n\nMy suggestion: ship the `FIND_IN_SET` line now so the endpoint stops lying, and design the join table as part of that spec-conformance pass. Want me to write the change out via PowerShell, or add the join-table item to `CURRENT_FOCUS.md`?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-simple-array-or-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-like",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "proper-fix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "not-just-escaping",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 5700
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "g03-stale-token-500",
+  "group": "grounding",
+  "intent": "bugfix",
+  "prompt": "when the mobile app sends an expired token we get a 500 back instead of a 401. why, and what is the fix?",
+  "lesson": "jwt.verify throws; nothing catches it (#79).",
+  "kb": "LESSONS.md #79 · auth.md AuthMiddleware",
+  "judge_key": "jwt.verify(token, SECRET) at auth.middleware.ts:17 (and user.decorator.ts:15) throws TokenExpiredError; nothing catches it so Nest returns 500. Fix: try/catch around verify and throw HttpException(..., 401).",
+  "checks": [
+    {
+      "id": "names-jwt-verify",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "jwt\\.verify"
+    },
+    {
+      "id": "names-uncaught",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "throw|uncaught|not caught|no try|catch"
+    },
+    {
+      "id": "fix-is-401",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "401|UNAUTHORIZED|Unauthorized"
+    },
+    {
+      "id": "names-middleware-file",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "auth\\.middleware\\.ts|AuthMiddleware"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

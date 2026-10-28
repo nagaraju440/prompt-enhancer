@@ -1,0 +1,73 @@
+{
+  "trapId": "s09-tags-stored",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 35704,
+  "apiMs": 24748,
+  "costUsd": 0.20915050000000002,
+  "inputTokens": 2487,
+  "cacheReadTokens": 118391,
+  "cacheCreationTokens": 8922,
+  "outputTokens": 1932,
+  "numTurns": 9,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Tags are stored **two separate ways, and they're not connected to each other.**\n\n## 1. An article's tags — `article.tagList`, a `simple-array` column\n\n`src/article/article.entity.ts:34`\n```ts\n@Column('simple-array')\ntagList: string[];\n```\n\nTypeORM's `simple-array` is **not** a join table and not JSON — it's a single varchar holding the values comma-joined, e.g. `java,spring`. Set on create at `src/article/article.service.ts:176` (`article.tagList = articleData.tagList || []`).\n\nTwo consequences worth knowing:\n\n- **Filtering is a substring match.** `src/article/article.service.ts:35`:\n  ```ts\n  qb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n  ```\n  So `?tag=java` also matches an article tagged `javascript`, and `?tag=va,spr` matches `java,spring` across the delimiter.\n- **A comma in a tag name corrupts the row** — it becomes two tags on read.\n\n## 2. The tag directory — the `tag` table\n\n`src/tag/tag.entity.ts` — `id` PK + `tag` varchar. Read by `GET /api/tags` via `TagService.findAll()` (`src/tag/tag.service.ts:13`), which is a bare `find()`.\n\n**Nothing in the codebase ever writes to this table.** The only `tagRepository` reference is the injected repo and the `find()` call; article creation touches only `article.tagList`. So on a fresh database `GET /api/tags` returns `[]` indefinitely unless you insert rows by hand.\n\n## Schema origin\n\nThere are no migrations — `prisma/` contains only a `.env`, no schema. Tables are generated from the entity classes at boot with TypeORM `synchronize: true`, so a column change *is* an entity change.\n\n---\n\nIf the goal is to make `GET /api/tags` actually work, the two realistic options are: upsert into `tag` during `ArticleService.create()`, or drop the `tag` table and derive the list from distinct `tagList` values. Say the word and I'll dig into which fits better here.",
+  "score": {
+    "checks": [
+      {
+        "id": "simple-array",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "comma-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "tag-table-exists",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "nothing-writes-tag-table",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1852
+  }
+}

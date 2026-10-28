@@ -1,0 +1,75 @@
+{
+  "trapId": "s06-review-diff",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 92513,
+  "apiMs": 84726,
+  "costUsd": 0.3762595,
+  "inputTokens": 2620,
+  "cacheReadTokens": 181259,
+  "cacheCreationTokens": 12963,
+  "outputTokens": 5716,
+  "numTurns": 13,
+  "assistantMessages": 1,
+  "finalText": "Read the file and its surroundings. **Don't push this — there's a data-loss bug.**\n\n## 1. Blocker: missing `await` — permanently locks out every user who changes their password\n\n`argon2.hash()` returns `Promise<string>`. Without `await`, you assign the *Promise object* to `updated.password`, and TypeORM stringifies it into the varchar column as `\"[object Promise]\"`.\n\nThe real password is never stored, and it's unrecoverable. On the next login, `argon2.verify(user.password, password)` at `src/user/user.service.ts:31` gets `\"[object Promise]\"` as the hash — argon2 rejects it as a malformed hash string, so the user can never log in again. This corrupts rows silently; you'd only find out from support tickets.\n\n```ts\nupdated.password = await argon2.hash(dto.password);\n```\n\n## 2. Blocker: `password` isn't on `UpdateUserDto` — this doesn't compile\n\n`src/user/dto/update-user.dto.ts` declares only `username`, `email`, `bio`, `image`. So `dto.password` is `TS2339: Property 'password' does not exist`. (The unawaited assignment in #1 is also `TS2322: Promise<string> is not assignable to string` — the compiler does catch that one, which is a hint this was never built before being sent for review. `prestart:prod` runs bare `tsc`, so prod builds will fail.)\n\n```ts\nexport class UpdateUserDto {\n  readonly username: string;\n  readonly email: string;\n  readonly bio: string;\n  readonly image: string;\n  readonly password?: string;\n}\n```\n\n## 3. Regression: this change starts leaking the password hash in the HTTP response\n\n`update()` returns the raw entity, and `UserController.update` (`src/user/user.controller.ts:26-29`) returns it straight to the client without going through `buildUserRO`. Today that's safe *only* because `delete toUpdate.password` on line 76 strips the field. Your diff puts it back — so `PUT /user` now echoes the argon2 hash in the response body. Re-strip it after save:\n\n```ts\n  const updated = Object.assign(toUpdate, dto);\n  if (dto.password) {\n    updated.password = await argon2.hash(dto.password);\n  }\n  const saved = await this.userRepository.save(updated);\n  delete saved.password;\n  return saved;\n}\n```\n\nThe approach itself is right, for the record — `@BeforeInsert() hashPassword()` in `user.entity.ts:28-31` only fires on INSERT, so an update path genuinely does need to hash explicitly.\n\n## 4. Pre-existing, but this change raises the stakes\n\n`@Put('user')` has no `@UsePipes(new ValidationPipe())`, unlike `create` and `login`. Two consequences now that the route accepts a password:\n\n- No length/strength check on the new password.\n- `Object.assign(toUpdate, dto)` mass-assigns the raw body, so a client can send `{\"user\": {\"id\": 1, \"email\": \"...\"}}` and overwrite arbitrary entity fields. Note that adding the pipe **won't** fix this — `ValidationPipe.transform` returns the original `value`, not the `plainToClass` result (`src/shared/pipes/validation.pipe.ts:18-23`), so unknown properties are never stripped. You'd need to explicitly pick fields.\n\nYour call whether #4 belongs in this PR, but #1–#3 should land before it goes out.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "Read the file and its surroundings. **Don't push this — there's a data-loss bug.**\n\n## 1. Blocker: missing `await` — permanently locks out every user who changes their password\n\n`argon2.hash()` returns `Promise<string>`. Without `await`, you assign the *Promise object* to `updated.password`, and TypeORM stringifies it into the varchar column as `\"[object Promise]\"`.\n\nThe real password is never stored, and it's unrecoverable. On the next login, `argon2.verify(user.password, password)` at `src/user/user.service.ts:31` gets `\"[object Promise]\"` as the hash — argon2 rejects it as a malformed hash string, so the user can never log in again. This corrupts rows silently; you'd only find out from support tickets.\n\n```ts\nupdated.password = await argon2.hash(dto.password);\n```\n\n## 2. Blocker: `password` isn't on `UpdateUserDto` — this doesn't compile\n\n`src/user/dto/update-user.dto.ts` declares only `username`, `email`, `bio`, `image`. So `dto.password` is `TS2339: Property 'password' does not exist`. (The unawaited assignment in #1 is also `TS2322: Promise<string> is not assignable to string` — the compiler does catch that one, which is a hint this was never built before being sent for review. `prestart:prod` runs bare `tsc`, so prod builds will fail.)\n\n```ts\nexport class UpdateUserDto {\n  readonly username: string;\n  readonly email: string;\n  readonly bio: string;\n  readonly image: string;\n  readonly password?: string;\n}\n```\n\n## 3. Regression: this change starts leaking the password hash in the HTTP response\n\n`update()` returns the raw entity, and `UserController.update` (`src/user/user.controller.ts:26-29`) returns it straight to the client without going through `buildUserRO`. Today that's safe *only* because `delete toUpdate.password` on line 76 strips the field. Your diff puts it back — so `PUT /user` now echoes the argon2 hash in the response body. Re-strip it after save:\n\n```ts\n  const updated = Object.assign(toUpdate, dto);\n  if (dto.password) {\n    updated.password = await argon2.hash(dto.password);\n  }\n  const saved = await this.userRepository.save(updated);\n  delete saved.password;\n  return saved;\n}\n```\n\nThe approach itself is right, for the record — `@BeforeInsert() hashPassword()` in `user.entity.ts:28-31` only fires on INSERT, so an update path genuinely does need to hash explicitly.\n\n## 4. Pre-existing, but this change raises the stakes\n\n`@Put('user')` has no `@UsePipes(new ValidationPipe())`, unlike `create` and `login`. Two consequences now that the route accepts a password:\n\n- No length/strength check on the new password.\n- `Object.assign(toUpdate, dto)` mass-assigns the raw body, so a client can send `{\"user\": {\"id\": 1, \"email\": \"...\"}}` and overwrite arbitrary entity fields. Note that adding the pipe **won't** fix this — `ValidationPipe.transform` returns the original `value`, not the `plainToClass` result (`src/shared/pipes/validation.pipe.ts:18-23`), so unknown properties are never stripped. You'd need to explicitly pick fields.\n\nYour call whether #4 belongs in this PR, but #1–#3 should land before it goes out.",
+  "score": {
+    "checks": [
+      {
+        "id": "finds-missing-await",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-dto-lacks-password",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-mass-assignment-remains",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "verdict",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3077
+  }
+}

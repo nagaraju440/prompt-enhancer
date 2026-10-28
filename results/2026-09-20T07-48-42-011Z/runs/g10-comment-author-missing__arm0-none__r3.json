@@ -1,0 +1,75 @@
+{
+  "trapId": "g10-comment-author-missing",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 51972,
+  "apiMs": 44607,
+  "costUsd": 0.31387849999999995,
+  "inputTokens": 2616,
+  "cacheReadTokens": 123737,
+  "cacheCreationTokens": 15953,
+  "outputTokens": 3176,
+  "numTurns": 13,
+  "assistantMessages": 2,
+  "finalText": "Traced it end to end. You don't lose it at one point — it's never captured at all. The author is absent at every layer of the comment path:\n\n| Layer | What happens | File |\n|---|---|---|\n| Middleware | `AuthMiddleware` **does** run on `POST /articles/:slug/comments` and sets `req.user` — identity is available | `article.module.ts:28` |\n| Controller | `createComment(@Param('slug'), @Body('comment'))` — **no `@User('id')` param**, so `req.user` is never read | `article.controller.ts:77` |\n| DTO | `CreateCommentDto` declares only `body` | `dto/create-comment.ts:2` |\n| Service | `addComment()` does `comment.body = commentData.body` and nothing else | `article.service.ts:104-105` |\n| Entity | `Comment` has `id`, `body`, `article` — **no `author` relation**, so the table has no `authorId` column | `comment.entity.ts:5-15` |\n| Response | `findComments()` returns `article.comments` raw; the `Comment` interface behind `CommentsRO` only declares `body` | `article.interface.ts:3-5`, `article.service.ts:167` |\n\nThe first concrete drop is `article.controller.ts:77` — that's where known identity gets thrown away, and it's the odd one out: `create()` (line 52) and `favorite()` (line 94) both take `@User('id') userId`. But fixing only that gets you nothing, because `addComment` has nowhere to put the value.\n\nTwo knock-on effects worth knowing:\n\n- **Existing rows can't be backfilled.** There's no `authorId` column, so every comment already in the DB has no recoverable author — the data was never written, not just never returned.\n- **This blocks the ownership work.** `CURRENT_FOCUS.md:11-13` lists 403s on `DELETE /articles/:slug/comments/:id` and already notes the missing relation; `auth.md:60` confirms there's no author to compare the caller against.\n\nThe fix is a four-layer change: `@ManyToOne(() => UserEntity)` on the entity, `@User('id')` on the controller, a `userId` arg through `addComment`, and adding `author` to the response shape. Since the DB runs `synchronize: true` (`schema.md:6-9`), the column appears on boot — no migration file. One design question you'd need to settle: whether the relation is eager, since `article.comments` is already `{eager: true}`, so eager-loading authors adds a join to every single article load.\n\nWant me to implement it?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll trace the comment author field through the codebase.\n\nTraced it end to end. You don't lose it at one point — it's never captured at all. The author is absent at every layer of the comment path:\n\n| Layer | What happens | File |\n|---|---|---|\n| Middleware | `AuthMiddleware` **does** run on `POST /articles/:slug/comments` and sets `req.user` — identity is available | `article.module.ts:28` |\n| Controller | `createComment(@Param('slug'), @Body('comment'))` — **no `@User('id')` param**, so `req.user` is never read | `article.controller.ts:77` |\n| DTO | `CreateCommentDto` declares only `body` | `dto/create-comment.ts:2` |\n| Service | `addComment()` does `comment.body = commentData.body` and nothing else | `article.service.ts:104-105` |\n| Entity | `Comment` has `id`, `body`, `article` — **no `author` relation**, so the table has no `authorId` column | `comment.entity.ts:5-15` |\n| Response | `findComments()` returns `article.comments` raw; the `Comment` interface behind `CommentsRO` only declares `body` | `article.interface.ts:3-5`, `article.service.ts:167` |\n\nThe first concrete drop is `article.controller.ts:77` — that's where known identity gets thrown away, and it's the odd one out: `create()` (line 52) and `favorite()` (line 94) both take `@User('id') userId`. But fixing only that gets you nothing, because `addComment` has nowhere to put the value.\n\nTwo knock-on effects worth knowing:\n\n- **Existing rows can't be backfilled.** There's no `authorId` column, so every comment already in the DB has no recoverable author — the data was never written, not just never returned.\n- **This blocks the ownership work.** `CURRENT_FOCUS.md:11-13` lists 403s on `DELETE /articles/:slug/comments/:id` and already notes the missing relation; `auth.md:60` confirms there's no author to compare the caller against.\n\nThe fix is a four-layer change: `@ManyToOne(() => UserEntity)` on the entity, `@User('id')` on the controller, a `userId` arg through `addComment`, and adding `author` to the response shape. Since the DB runs `synchronize: true` (`schema.md:6-9`), the column appears on boot — no migration file. One design question you'd need to settle: whether the relation is eager, since `article.comments` is already `{eager: true}`, so eager-loading authors adds a join to every single article load.\n\nWant me to implement it?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-no-author-on-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-addcomment",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "fix-relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-frontend-blame",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2338
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "trapId": "s07-optional-auth-trace",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 62506,
+  "apiMs": 57394,
+  "costUsd": 0.2239035,
+  "inputTokens": 2616,
+  "cacheReadTokens": 115847,
+  "cacheCreationTokens": 8830,
+  "outputTokens": 2584,
+  "numTurns": 10,
+  "assistantMessages": 2,
+  "finalText": "**The `@User()` param decorator decodes the JWT itself.** It doesn't depend on the middleware.\n\n`src/profile/profile.module.ts:22` scopes `AuthMiddleware` to `profiles/:username/follow` only, so `GET /profiles/:username` never runs it and `req.user` is unset. But `src/user/user.decorator.ts` has a second branch for exactly this case:\n\n```ts\n// in case a route is not protected, we still want to get the optional auth user from jwt\nconst token = req.headers.authorization ? (...).split(' ') : null;\nif (token && token[1]) {\n  const decoded: any = jwt.verify(token[1], SECRET);\n  return !!data ? decoded[data] : decoded.user;\n}\n```\n\nSo `@User('id')` at `profile.controller.ts:19` resolves as:\n\n| Request | `userId` | Result |\n|---|---|---|\n| No `Authorization` header | `undefined` | `findProfile` skips `profile.following` (`profile.service.ts:43`) — anonymous view |\n| Valid bearer token | `decoded.id` from the token payload | `following` computed from the follows table |\n\nThat's the intended \"optional auth\" pattern for this endpoint — the RealWorld spec says `following` is only meaningful when authenticated.\n\nTwo consequences of the fallback path worth knowing, since it is **not** equivalent to the middleware:\n\n1. **No DB lookup.** `AuthMiddleware` (`auth.middleware.ts:18-22`) calls `userService.findById` and 401s if the user is gone. The decorator trusts the token claim directly, so a token belonging to a since-deleted user still yields an `id` here. Harmless for this read-only route (the follows query just misses), but don't reuse this decorator as the sole auth source for a write.\n\n2. **A bad token throws, and it throws in the wrong place.** `jwt.verify` raises on a malformed/expired/wrong-signature token. Inside the middleware that's arguably still a 500 too, but on this route it happens during param resolution with no exception filter registered (`main.ts` sets up nothing) — so a garbage `Authorization` header on a public endpoint returns **500 rather than 401**. Wrapping the `verify` in a try/catch that returns `undefined` would degrade to the anonymous path instead, which is probably what you want for an optional-auth route.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at how that route is set up.\n\n**The `@User()` param decorator decodes the JWT itself.** It doesn't depend on the middleware.\n\n`src/profile/profile.module.ts:22` scopes `AuthMiddleware` to `profiles/:username/follow` only, so `GET /profiles/:username` never runs it and `req.user` is unset. But `src/user/user.decorator.ts` has a second branch for exactly this case:\n\n```ts\n// in case a route is not protected, we still want to get the optional auth user from jwt\nconst token = req.headers.authorization ? (...).split(' ') : null;\nif (token && token[1]) {\n  const decoded: any = jwt.verify(token[1], SECRET);\n  return !!data ? decoded[data] : decoded.user;\n}\n```\n\nSo `@User('id')` at `profile.controller.ts:19` resolves as:\n\n| Request | `userId` | Result |\n|---|---|---|\n| No `Authorization` header | `undefined` | `findProfile` skips `profile.following` (`profile.service.ts:43`) — anonymous view |\n| Valid bearer token | `decoded.id` from the token payload | `following` computed from the follows table |\n\nThat's the intended \"optional auth\" pattern for this endpoint — the RealWorld spec says `following` is only meaningful when authenticated.\n\nTwo consequences of the fallback path worth knowing, since it is **not** equivalent to the middleware:\n\n1. **No DB lookup.** `AuthMiddleware` (`auth.middleware.ts:18-22`) calls `userService.findById` and 401s if the user is gone. The decorator trusts the token claim directly, so a token belonging to a since-deleted user still yields an `id` here. Harmless for this read-only route (the follows query just misses), but don't reuse this decorator as the sole auth source for a write.\n\n2. **A bad token throws, and it throws in the wrong place.** `jwt.verify` raises on a malformed/expired/wrong-signature token. Inside the middleware that's arguably still a 500 too, but on this route it happens during param resolution with no exception filter registered (`main.ts` sets up nothing) — so a garbage `Authorization` header on a public endpoint returns **500 rather than 401**. Wrapping the `verify` in a try/catch that returns `undefined` would degrade to the anonymous path instead, which is probably what you want for an optional-auth route.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-decorator-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-jwt-verify-in-decorator",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-undefined-when-no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-passport-guess",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2199
+  }
+}

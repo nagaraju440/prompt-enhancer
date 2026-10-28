@@ -1,0 +1,82 @@
+{
+  "trapId": "s08-qa-follow",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 199716,
+  "apiMs": 184104,
+  "costUsd": 0.62338,
+  "inputTokens": 2751,
+  "cacheReadTokens": 229280,
+  "cacheCreationTokens": 24946,
+  "outputTokens": 9821,
+  "numTurns": 21,
+  "assistantMessages": 3,
+  "finalText": "The plan above stands on its own — no code written yet.\n\nTwo open decisions if you want me to go further:\n\n1. **Test DB for the e2e layer.** sqlite in-memory is fastest to land, but it's the wrong tool for exactly two cases: I2 (`IN (:ids)` array expansion is a MySQL-driver behaviour) and E17 (case-insensitive collation). A disposable MySQL tests the real thing at the cost of docker in CI. The unit layer needs neither.\n\n2. **Whether to write the specs.** I'd write Layer 1 + Layer 2 with the known-defect cases asserting *correct* behaviour, so they fail red until someone fixes `profile.service.ts:58`/`:88` and the anonymous-`following` gap. Say the word and I'll implement.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the codebase to understand what \"follow/unfollow\" involves here before writing a test plan.\n\nRead the module. Here's the plan.\n\n## Surface under test\n\n| Route | Guard | Handler → Service |\n|---|---|---|\n| `POST /profiles/:username/follow` | `AuthMiddleware` (`profiles/:username/follow`, ALL methods) | `follow(@User('email'), username)` |\n| `DELETE /profiles/:username/follow` | same | `unFollow(@User('id'), username)` |\n| `GET /profiles/:username` | **none** (public) | `findProfile(@User('id'), username)` — reads follow state |\n| `GET /articles/feed` | `AuthMiddleware` | `findFeed(userId)` — consumes `follows` rows |\n\nCode: `src/profile/profile.service.ts:50-102`, `profile.controller.ts:23-31`, `follows.entity.ts`, `article.service.ts:66-94`.\n\nNote the identity asymmetry: **follow is keyed on email, unfollow on id** (`profile.controller.ts:24` vs `:29`). Every test must exercise both paths, not assume symmetry.\n\n## Harness prerequisites (currently missing)\n\n- `jest.json` `testRegex` is `/src/.*\\.(test|spec)\\.(ts|tsx|js)$` → tests must live **under `src/`**, and `profile.e2e-spec.ts` would **not** match (`\\.` is escaped). Name it `src/profile/profile.e2e.spec.ts`.\n- The only existing spec (`src/tag/tag.controller.spec.ts:13`) calls `TypeOrmModule.forRoot()`, which needs a live MySQL + a real `ormconfig.json` (repo only ships `.example`). There is no test DB, no seeding, no truncation between tests.\n- Unit layer needs no DB: provide `getRepositoryToken(UserEntity)` / `getRepositoryToken(FollowsEntity)` mocks.\n- E2E layer needs a DB decision (see question at the end).\n\n## Layer 1 — service unit tests (`profile.service.spec.ts`)\n\nMocked `userRepository` / `followsRepository`.\n\n| ID | Case | Expected |\n|---|---|---|\n| U1 | `follow(email, username)`, no existing row | `followsRepository.save` called with `{followerId, followingId}`; returns `{profile:{…, following:true}}` |\n| U2 | `follow` when row already exists | **no** `save` call; still returns `following:true` (idempotent) |\n| U3 | `follow` with own username | `HttpException` 400, no `save` |\n| U4 | `follow('' , username)` / `follow(email, '')` | 400 — guard at `:51` (unreachable via HTTP; unit-only) |\n| U5 | **`follow` with unknown username** | should be **404**; currently `followingUser.email` at `:58` throws `TypeError` on `undefined` → 500 |\n| U6 | `unFollow(id, username)` with existing row | `delete({followerId, followingId})` called; `following:false` |\n| U7 | `unFollow` when not following | 200, `following:false`, delete affects 0 rows (pin idempotence) |\n| U8 | `unFollow` with own id | 400, no delete |\n| U9 | `unFollow(0, …)` | falsy-id guard at `:82` fires 400 — assert no valid user can have id `0` |\n| U10 | **`unFollow` with unknown username** | should be 404; currently `followingUser.id` at `:88` → 500 |\n| U11 | `findProfile(id, username)` following / not following | `following` is exactly `true` / `false`, never `undefined` |\n| U12 | **`findProfile(undefined, username)`** (anonymous) | spec wants `following:false`; `if (id)` at `:43` skips the assignment → key **omitted** |\n| U13 | **`findProfile(id, 'nobody')`** | should be 404; `:33` returns `undefined` → Nest sends 200 empty body |\n\n## Layer 2 — HTTP e2e (`profile.e2e.spec.ts`, supertest)\n\nFixtures: users `alice`, `bob`, tokens for both.\n\n| ID | Request | Expected |\n|---|---|---|\n| E1 | `POST /profiles/bob/follow` as alice | 201, body exactly `{profile:{username,bio,image,following:true}}` — no `id`, no `password`, no `email` |\n| E2 | Repeat E1 | 201, `following:true`, and **exactly one** row in `follows` |\n| E3 | `DELETE /profiles/bob/follow` as alice | 200, `following:false`, zero rows |\n| E4 | Repeat E3 | 200, `following:false` (idempotent) |\n| E5 | follow → unfollow → follow | final state one row, `following:true` |\n| E6 | `POST /profiles/alice/follow` as alice | 400 |\n| E7 | `DELETE /profiles/alice/follow` as alice | 400 |\n| E8 | follow/unfollow with **no** `Authorization` header | 401 `Not authorized.` |\n| E9 | follow/unfollow with **malformed or expired** token | should be 401; `jwt.verify` at `auth.middleware.ts:17` is uncaught → **500** (LESSONS #79) |\n| E10 | `Bearer <jwt>` instead of `Token <jwt>` | 201 — scheme word is ignored by design; pin it |\n| E11 | follow/unfollow `:username` that does not exist | should be 404; currently 500 (U5/U10 over HTTP) |\n| E12 | `GET /profiles/bob` as alice, while following | 200, `following:true` |\n| E13 | `GET /profiles/bob` **anonymous** | should be `following:false`; currently key absent (U12) |\n| E14 | `GET /profiles/bob` anonymous with a **garbage token** | should be 401 or ignore; `user.decorator.ts:15` `jwt.verify` uncaught → 500 |\n| E15 | `GET /profiles/nobody` | should be 404; currently 200 + empty body |\n| E16 | `GET /profiles/alice` as alice | 200, `following:false` |\n| E17 | Username casing / URL-encoded chars (`GET /profiles/Bob`) | pin whatever collation does — MySQL default is case-insensitive, so `Bob` likely resolves to `bob` |\n\n## Layer 3 — cross-feature integration\n\nFollow state is only meaningful because the feed reads it.\n\n| ID | Case | Expected |\n|---|---|---|\n| I1 | alice follows bob, bob has 2 articles → `GET /articles/feed` | both articles, `articlesCount:2` |\n| I2 | alice follows **two** authors → feed | articles from both. `article.service.ts:77` uses `IN (:ids)` not `IN (:...ids)`; array expansion here is driver-dependent — **this test is the one that proves it** |\n| I3 | alice unfollows bob → feed | `{articles:[], articlesCount:0}` (the early return at `:69`) |\n| I4 | alice follows bob, bob has zero articles → feed | empty list, not an error |\n| I5 | feed with `?limit=1&offset=1` while following | `articlesCount` is the **unpaginated** total |\n| I6 | after follow, `GET /articles` for bob's article | `author.following` — the spec field; check whether the article path produces it at all |\n\n## Data integrity / concurrency\n\n| ID | Case | Expected |\n|---|---|---|\n| C1 | Two simultaneous `POST …/follow` | `follows.entity.ts` has **no unique index** on `(followerId, followingId)`; the check-then-save at `:62-68` is a TOCTOU race → duplicate rows. Assert one row; expect failure |\n| C2 | Follow bob, then `DELETE /users/bob@…` (public, unguarded), then `GET /articles/feed` | `followerId`/`followingId` are plain `int` columns with no FK → orphan rows survive. Pin the behaviour |\n| C3 | Follow bob, then bob changes email via `PUT /user` | follow still works by id; **unfollow-by-id still works, follow-by-email now resolves differently** — worth pinning given the `Object.assign` bug (LESSONS #112) |\n\n## Defects this plan is designed to surface\n\nU5/U10/E11 (404→500), U12/E13 (`following` omitted for anonymous), U13/E15 (404→200-empty), E9/E14 (401→500), C1 (no unique constraint), plus I2 as a verification. Write these as failing tests first and mark them — don't soften the assertion to match current behaviour, or the suite will lock the bugs in.\n\n## Out of scope\n\n`ProfileService.findAll()` and `findOne()` (lines 19-28) are not wired to any route; `findOne` also dereferences `user.id` before its null check. Worth a ticket, not a test.\n\n---\n\nTwo things I need from you:\n\nThe plan above stands on its own — no code written yet.\n\nTwo open decisions if you want me to go further:\n\n1. **Test DB for the e2e layer.** sqlite in-memory is fastest to land, but it's the wrong tool for exactly two cases: I2 (`IN (:ids)` array expansion is a MySQL-driver behaviour) and E17 (case-insensitive collation). A disposable MySQL tests the real thing at the cost of docker in CI. The unit layer needs neither.\n\n2. **Whether to write the specs.** I'd write Layer 1 + Layer 2 with the known-defect cases asserting *correct* behaviour, so they fail red until someone fixes `profile.service.ts:58`/`:88` and the anonymous-`following` gap. Say the word and I'll implement.",
+  "score": {
+    "checks": [
+      {
+        "id": "self-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "double-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "unknown-username",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "following-flag",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 7868
+  }
+}

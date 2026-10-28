@@ -1,0 +1,75 @@
+{
+  "trapId": "g08-envelope-crash-after-create",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 103501,
+  "apiMs": 96348,
+  "costUsd": 0.3299895,
+  "inputTokens": 2616,
+  "cacheReadTokens": 130399,
+  "cacheCreationTokens": 16656,
+  "outputTokens": 3406,
+  "numTurns": 12,
+  "assistantMessages": 2,
+  "finalText": "## The bug\n\n`ArticleController.create()` is the one handler in the codebase that returns a bare entity instead of the RealWorld envelope.\n\n`src/article/article.controller.ts:51-54`:\n```ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.create(userId, articleData);   // ← no ArticleRO\n}\n```\n\n`src/article/article.service.ts:170` declares `Promise<ArticleEntity>` and `src/article/article.service.ts:186` does `return newArticle;`.\n\nSo `POST /api/articles` responds with `{ id, slug, title, ... }` — flat. Every other endpoint responds `{ article: {...} }` (`ArticleRO`, `src/article/article.interface.ts:24`). The React client does `response.article.slug`, gets `undefined.slug`, and throws.\n\n**Why the server logs nothing:** from Nest's side the request fully succeeded — the row was inserted and a 201 went out. The crash is entirely client-side, after the response. Nothing to log.\n\nNote the tell: `create()` is the only handler in that controller with no `Promise<*RO>` return annotation. This exact regression is recorded in `LESSONS.md` under issue #57.\n\n## Fix\n\nKeep it in the service, since that's where every other method builds the envelope:\n\n```ts\n// article.service.ts:170\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  const newArticle = await this.articleRepository.save(article);\n  ...\n  return { article: newArticle };\n}\n```\n\nand annotate the controller handler `: Promise<ArticleRO>` so the compiler catches the next one.\n\n## Two more bugs in those same 18 lines\n\nWhile you're in there — both will bite immediately after the crash is fixed:\n\n1. **`body` is never copied.** `create()` sets `title`, `description`, `slug`, `tagList`, `comments` — but not `article.body`, even though `CreateArticleDto` has it (`dto/create-article.dto.ts:4`) and the column defaults to `''` (`article.entity.ts:20`). Every created article saves with an empty body, so the article page renders blank.\n\n2. **The response has no `author`.** `newArticle` is captured at line 179, *before* the author is linked at lines 181-184. The returned object has no `author` relation, so the frontend's byline (`article.author.username`) is the next `undefined` read waiting to happen. Set `article.author = author` before the save rather than relying on `author.articles.push()` — `ArticleEntity.author` is the owning side of that relation, and `UserEntity.articles` (`user.entity.ts:37`) has no cascade.\n\nWant me to apply all three?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll start by looking at the codebase to understand the structure.\n\n## The bug\n\n`ArticleController.create()` is the one handler in the codebase that returns a bare entity instead of the RealWorld envelope.\n\n`src/article/article.controller.ts:51-54`:\n```ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.create(userId, articleData);   // ← no ArticleRO\n}\n```\n\n`src/article/article.service.ts:170` declares `Promise<ArticleEntity>` and `src/article/article.service.ts:186` does `return newArticle;`.\n\nSo `POST /api/articles` responds with `{ id, slug, title, ... }` — flat. Every other endpoint responds `{ article: {...} }` (`ArticleRO`, `src/article/article.interface.ts:24`). The React client does `response.article.slug`, gets `undefined.slug`, and throws.\n\n**Why the server logs nothing:** from Nest's side the request fully succeeded — the row was inserted and a 201 went out. The crash is entirely client-side, after the response. Nothing to log.\n\nNote the tell: `create()` is the only handler in that controller with no `Promise<*RO>` return annotation. This exact regression is recorded in `LESSONS.md` under issue #57.\n\n## Fix\n\nKeep it in the service, since that's where every other method builds the envelope:\n\n```ts\n// article.service.ts:170\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  const newArticle = await this.articleRepository.save(article);\n  ...\n  return { article: newArticle };\n}\n```\n\nand annotate the controller handler `: Promise<ArticleRO>` so the compiler catches the next one.\n\n## Two more bugs in those same 18 lines\n\nWhile you're in there — both will bite immediately after the crash is fixed:\n\n1. **`body` is never copied.** `create()` sets `title`, `description`, `slug`, `tagList`, `comments` — but not `article.body`, even though `CreateArticleDto` has it (`dto/create-article.dto.ts:4`) and the column defaults to `''` (`article.entity.ts:20`). Every created article saves with an empty body, so the article page renders blank.\n\n2. **The response has no `author`.** `newArticle` is captured at line 179, *before* the author is linked at lines 181-184. The returned object has no `author` relation, so the frontend's byline (`article.author.username`) is the next `undefined` read waiting to happen. Set `article.author = author` before the save rather than relying on `author.articles.push()` — `ArticleEntity.author` is the owning side of that relation, and `UserEntity.articles` (`user.entity.ts:37`) has no cascade.\n\nWant me to apply all three?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-envelope",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-create",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-bare-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2607
+  }
+}

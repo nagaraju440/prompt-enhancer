@@ -1,0 +1,73 @@
+{
+  "trapId": "g12-slug-collision",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 67532,
+  "apiMs": 61985,
+  "costUsd": 0.3789675,
+  "inputTokens": 2487,
+  "cacheReadTokens": 130825,
+  "cacheCreationTokens": 17867,
+  "outputTokens": 4898,
+  "numTurns": 8,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "No — they don't collide, because the title isn't the whole slug. `ArticleService.slugify()` appends a random suffix:\n\n```ts\n// src/article/article.service.ts:201-203\nslugify(title: string) {\n  return slug(title, {lower: true}) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36)\n}\n```\n\nSo two \"How I Learned Rust\" articles become `how-i-learned-rust-1kf3zq` and `how-i-learned-rust-9x2ab0`. Uniqueness comes from ~2.18 billion random values, not from the title.\n\nThat said, three things are worth knowing:\n\n**Nothing actually enforces uniqueness.** `slug` is a plain `@Column()` with no unique index (`src/article/article.entity.ts:11-12`). A random draw over 36⁶ makes accidental collisions unlikely — roughly 0.02% at 1,000 same-titled articles, ~2% at 10,000 — but if one happens the DB accepts it silently. Then `findOne({slug})` (`article.service.ts:166`, `:191`) returns whichever row the DB hands back first, and `delete()` at `:198` does `DELETE FROM article WHERE slug = ?`, which removes **every** matching row, not just one.\n\n**The likelier collision isn't random, it's deliberate.** `update()` does `Object.assign(toUpdate, articleData)` (`:192`) with no field whitelist, and the controller's `@Put(':slug')` has no `ValidationPipe` (`article.controller.ts:59-63`). A client can `PUT` an `article.slug` field and set their slug to any string — including one that already belongs to someone else. Same for `id`, `author`, and `favoriteCount`.\n\nRelated: that's also why the `// Todo: update slug also when title gets changed` on line 61 lingers — renaming an article leaves the old title in the URL.\n\n**Minor bug in the suffix itself.** `36^6 = 2,176,782,336` exceeds the 32-bit signed max (`2,147,483,647`), and `| 0` coerces to int32. About 1.3% of the time the value wraps negative, so the slug gets a double dash: `how-i-learned-rust--4kz9`. Ugly rather than dangerous, but it's unintended.\n\nWorth flagging separately: neither `update` nor `delete` checks that the caller owns the article — the controller never reads the user id on those routes. Any authenticated user can edit or delete any article by slug, collision or not. That's a bigger problem than the slug question.\n\nWant me to fix any of these — a unique index plus retry-on-collision, the mass-assignment hole, or the ownership check?",
+  "score": {
+    "checks": [
+      {
+        "id": "says-no",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-random-suffix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-slugify",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-collision",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2317
+  }
+}

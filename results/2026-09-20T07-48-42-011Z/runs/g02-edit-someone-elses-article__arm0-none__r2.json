@@ -1,0 +1,73 @@
+{
+  "trapId": "g02-edit-someone-elses-article",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 76287,
+  "apiMs": 69333,
+  "costUsd": 0.3276245,
+  "inputTokens": 2616,
+  "cacheReadTokens": 125829,
+  "cacheCreationTokens": 14873,
+  "outputTokens": 4116,
+  "numTurns": 11,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Yes. It's not just possible — it's expected behavior given the current code. Any logged-in user can edit anyone's article.\n\n## The code path\n\n`PUT /articles/:slug` **is** behind auth, so it wasn't an anonymous request:\n\n`src/article/article.module.ts:27` — the route is in the `AuthMiddleware` list, so a request with no token gets a 401.\n\nBut the middleware only answers *\"is this a valid user?\"*, never *\"is this **the** user?\"* — and the handler never even asks who's calling:\n\n```ts\n// src/article/article.controller.ts:59\n@Put(':slug')\nasync update(@Param() params, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.update(params.slug, articleData);\n}\n```\n\nNote there's no `@User('id')` parameter at all — unlike `create`, `favorite`, and `unFavorite` right below it, which all take one. The caller's identity is discarded before the service is reached, so the service couldn't check ownership even if it wanted to:\n\n```ts\n// src/article/article.service.ts:190\nasync update(slug: string, articleData: any): Promise<ArticleRO> {\n  let toUpdate = await this.articleRepository.findOne({ slug: slug});\n  let updated = Object.assign(toUpdate, articleData);\n  const article = await this.articleRepository.save(updated);\n  return {article};\n}\n```\n\nLook up slug → overwrite → save. `ArticleEntity` has an `author` relation (`article.entity.ts:37`), and it is never compared against anything.\n\nSo: **any valid token + your slug = edit.** Your slug is public, from `GET /articles`.\n\n## It's worse than just the title and body\n\nThere's no `ValidationPipe` on `ArticleController` — the app has one (`src/shared/pipes/validation.pipe.ts`) but it's applied per handler, and only `UserController` uses it (lines 31, 42). Nothing is registered globally in `main.ts`. Combined with `Object.assign` and the service signature being `articleData: any`, every key in the request body's `article` object lands on the entity. That includes `id`, `author`, `slug`, `created`, and `favoriteCount` — so a caller could reassign authorship of your article to themselves, or change the slug to break inbound links.\n\nThe `@ApiResponse({ status: 403 })` decorators on these handlers describe intent, not implementation. Nothing in the article module returns 403.\n\nTwo adjacent holes with the same root cause, worth knowing about while you're triaging:\n\n- `DELETE /articles/:slug` (`controller.ts:68`) — same missing check. Whoever edited it could have deleted it.\n- `DELETE /users/:slug` — not in any middleware list, so it needs **no token at all**, and deletes the user whose email matches the param.\n\n## On finding out who did it\n\nThe database can't tell you. `@BeforeUpdate()` (`article.entity.ts:29`) stamps `updated`, so you have a *when*, but nothing records *who* performed an update — there's no audit table and the author column is only written at creation. If you have a reverse proxy or hosting platform retaining HTTP access logs, correlating the request to `PUT /api/articles/<your-slug>` against that `updated` timestamp is the only trail that exists. The JWTs are signed with `SECRET` from `src/config.ts` and last 60 days, which also matters here: if that secret has ever been committed or shared, forged tokens are on the table too, and the attacker wouldn't need a real account.\n\nI'd treat this as an active vulnerability rather than a one-off incident.\n\nWant me to fix it? The minimal change is to thread `@User('id')` into `update` and `delete`, load the article with `relations: ['author']`, and throw a 403 on mismatch — plus whitelisting the update to `title`/`description`/`body`/`tagList` instead of the bare `Object.assign`. I'd do the article routes and the unauthenticated `DELETE /users/:slug` in one pass, since they're the same class of bug.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-yes-possible",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-missing-ownership",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "points-at-update",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-safety",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3776
+  }
+}

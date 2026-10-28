@@ -1,0 +1,73 @@
+{
+  "trapId": "g05-add-popular-route",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 99766,
+  "apiMs": 94146,
+  "costUsd": 0.543685,
+  "inputTokens": 2620,
+  "cacheReadTokens": 196530,
+  "cacheCreationTokens": 23047,
+  "outputTokens": 8074,
+  "numTurns": 16,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "## Where it goes\n\n`src/article/article.controller.ts:37` — between `getFeed()` and `@Get(':slug')`. It **must** be above the `:slug` handler:\n\n```ts\n  @ApiOperation({ summary: 'Get most favorited articles' })\n  @ApiResponse({ status: 200, description: 'Return the 10 most favorited articles.'})\n  @Get('popular')\n  async findPopular(): Promise<ArticlesRO> {\n    return await this.articleService.findPopular();\n  }\n```\n\nwith the query in `ArticleService` (controllers never touch a repository here):\n\n```ts\n  async findPopular(): Promise<ArticlesRO> {\n    const qb = getRepository(ArticleEntity)\n      .createQueryBuilder('article')\n      .leftJoin('article.author', 'author')\n      .addSelect(['author.username', 'author.bio', 'author.image'])\n      .orderBy('article.favoriteCount', 'DESC')\n      .addOrderBy('article.created', 'DESC')\n      .limit(10);\n\n    const articles = await qb.getMany();\n    return { articles, articlesCount: articles.length };\n  }\n```\n\n## What to watch out for\n\n**1. Route order — `LESSONS.md` names `popular` by name.** This bit the project already with `feed` (#7). Below `@Get(':slug')`, Nest matches `popular` as a slug and you get `200 {article: undefined}` — not a 404, so it looks like it half-works.\n\n**2. `favoriteCount` is almost certainly 0 for every row.** This is the one that will waste your afternoon. `favorite()` (`article.service.ts:133-138`) does `user.favorites.findIndex(...)`, but `UserEntity.favorites` is a plain `@ManyToMany` with no `eager: true` (`user.entity.ts:33-35`) → `undefined` → TypeError → 500 before line 138's `article.favoriteCount++` ever runs. Nothing in the running app increments the counter. Your endpoint will sort by a uniformly-zero column and return 10 arbitrary articles, with no error anywhere. Sorting by `article.created DESC` as a tiebreak at least makes the output deterministic, but it's still not \"popular.\"\n\nSo this endpoint is effectively blocked on fixing `favorite()` first (`findOne(id, {relations: ['favorites']})`). Deriving the count from the `@JoinTable()` (`user_favorites_article`) instead of the denormalized column is more correct long-term — but that table is empty for the same reason, so either way there's no historical data to rank.\n\n**3. The author join leaks the password hash.** `leftJoinAndSelect('article.author', 'author')` — the pattern in `findAll()` — selects every `UserEntity` column including the argon2 `password`. There's no `ClassSerializerInterceptor` in `main.ts`, no `@Exclude()`, and `ArticlesRO.articles` is raw `ArticleEntity[]`. `GET /articles` leaks this today; copy-pasting the join gives you a second leak. Hence `leftJoin` + explicit `addSelect` above. (You still need *some* author join — `author` is non-eager, so without it the byline is `undefined`.)\n\n**4. Keep it public, and don't add `@User('id')`.** Leave it out of `article.module.ts`'s `forRoutes()` — it's discovery, like `GET /articles`. And resist adding `@User('id')` for a per-user `favorited` flag: the decorator calls `jwt.verify` with nothing catching it (`user.decorator.ts:15`), so an expired token turns a public endpoint into a 500 (`LESSONS.md` #79).\n\n**5. Envelope, and what `articlesCount` means.** Return `ArticlesRO`, never a bare array (#57). For a capped set, `articles.length` is the honest value — don't use `qb.getCount()`, which would report the whole table and tell clients to paginate into nothing.\n\n**6. It'll ship with the wrong field names.** `CURRENT_FOCUS.md` has an active pass renaming `favoriteCount` → `favoritesCount` and `created/updated` → `createdAt/updatedAt` at the response boundary. Returning raw entities inherits the non-spec names — and this is the worst endpoint to get `favoritesCount` wrong on, since that's the whole point of it. Either land it after that pass or route it through the same serialization.\n\nOne minor design call: everything else in the controller takes `@Query()`. Hardcoding 10 is fine, but `?limit=` defaulting to 10 would match the house style — and it's worth asking whether this should just be `GET /articles?sort=favorites` instead of a new route.\n\nWant me to implement it, including the `favorite()` relation fix it depends on?",
+  "score": {
+    "checks": [
+      {
+        "id": "route-order",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-slug-conflict",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "envelope",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "favorite-count",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 4186
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "g05-add-popular-route",
+  "group": "grounding",
+  "intent": "implement",
+  "prompt": "I want to add GET /articles/popular that returns the 10 most favorited articles. where does it go in the controller and what should I watch out for?",
+  "lesson": "Literal paths go above :slug; order in the class is match order (#7).",
+  "kb": "LESSONS.md #7 · workspace.md conventions",
+  "judge_key": "Must say the handler goes ABOVE findOne(@Get(\":slug\")) in article.controller.ts because Nest matches in declaration order (feed had this bug, #7); should return the ArticlesRO envelope {articles, articlesCount}; order by favoriteCount DESC limit 10; add to the middleware list only if it needs auth (it does not).",
+  "checks": [
+    {
+      "id": "route-order",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "before|above|order|precede|declar.*(:slug|findOne)|(:slug|findOne).*(after|below)"
+    },
+    {
+      "id": "names-slug-conflict",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": ":slug|findOne|matched as a slug|treated as a slug|catch"
+    },
+    {
+      "id": "envelope",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "ArticlesRO|articlesCount|\\{\\s*articles"
+    },
+    {
+      "id": "favorite-count",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "favoriteCount"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

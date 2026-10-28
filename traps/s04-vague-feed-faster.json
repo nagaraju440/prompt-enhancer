@@ -1,0 +1,53 @@
+{
+  "id": "s04-vague-feed-faster",
+  "group": "stance",
+  "intent": "perf",
+  "prompt": "make the feed faster",
+  "lesson": "Vague ask: quantify the cost from the real code before optimizing, state the interpretation.",
+  "kb": "(stance) — findFeed at article.service.ts:66-94",
+  "judge_key": "Should read findFeed: two round trips (follows.find then a query), a getCount plus getMany (two queries), IN (:ids) with no index on follows.followerId or article.authorId, no author join. A good answer quantifies (N queries, missing indexes) before proposing, and states its interpretation of \"faster\".",
+  "checks": [
+    {
+      "id": "names-findfeed",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "findFeed"
+    },
+    {
+      "id": "names-follows-lookup",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "follows|followingId|followerId"
+    },
+    {
+      "id": "quantifies",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "getCount|two (queries|round[- ]trips)|\\b\\d+ (queries|round[- ]trips)|index|IN \\(:ids\\)"
+    },
+    {
+      "id": "no-cache-first",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "^[^\\n]*\\bcache\\b"
+    },
+    {
+      "id": "states-interpretation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "Assumptions:|interpret|I (will|am going to) (treat|read|take)"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

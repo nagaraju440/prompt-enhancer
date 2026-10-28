@@ -1,0 +1,73 @@
+{
+  "trapId": "s07-optional-auth-trace",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 86385,
+  "apiMs": 79701,
+  "costUsd": 0.2630085,
+  "inputTokens": 2489,
+  "cacheReadTokens": 143037,
+  "cacheCreationTokens": 9937,
+  "outputTokens": 3187,
+  "numTurns": 9,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "It's \"optional auth\" via the `@User()` param decorator, which does its own JWT decode when no middleware ran.\n\n## The mechanism\n\n`ProfileModule` only guards the follow routes — `GET /profiles/:username` is deliberately left out:\n\n```ts\n// src/profile/profile.module.ts:20-22\nconsumer.apply(AuthMiddleware)\n  .forRoutes({path: 'profiles/:username/follow', method: RequestMethod.ALL});\n```\n\nSo on a `GET /profiles/:username` request, `req.user` is never set. The identity comes from `@User('id')` (`src/profile/profile.controller.ts:19`), whose decorator has a two-branch fallback:\n\n```ts\n// src/user/user.decorator.ts:8-18\nif (!!req.user) {                       // middleware ran → use what it stored\n  return !!data ? req.user[data] : req.user;\n}\n// otherwise decode the token ourselves\nconst token = req.headers.authorization ? (...).split(' ') : null;\nif (token && token[1]) {\n  const decoded: any = jwt.verify(token[1], SECRET);\n  return !!data ? decoded[data] : decoded.user;\n}\n                                        // no header → falls off the end → undefined\n```\n\n`generateJWT` puts `id` in the payload, so `@User('id')` resolves to `decoded.id`. Token sent → real user id; no token → `undefined`.\n\n`findProfile` then branches on that to decide whether the response carries a `following` flag:\n\n```ts\n// src/profile/profile.service.ts:43-45\nif (id) {\n  profile.following = !!follows;\n}\n```\n\nAnonymous callers get `{username, bio, image}` with no `following` key; authenticated callers get the flag. That's the RealWorld spec behavior.\n\n## Three things to be aware of\n\n**Unguarded routes trust the signature only.** `AuthMiddleware` verifies the token *and* hits the DB (`userService.findById(decoded.id)`, `auth.middleware.ts:18`), rejecting ids that no longer exist. The decorator's fallback path skips that — a still-unexpired token for a deleted user yields a live-looking `id`. Here it's harmless (the follows lookup just misses → `following: false`), but any unguarded route using `@User()` inherits the weaker check.\n\n**A bad token 500s instead of being treated as anonymous.** `jwt.verify` throws on expired/malformed/wrong-signature tokens, and nothing in the decorator catches it (`user.decorator.ts:15`). On a *public* route the intuitive behavior would be to fall back to anonymous; instead the request dies with a 500. Same untrapped-throw issue exists in the middleware.\n\n**The follows query runs even when `id` is `undefined`** (`profile.service.ts:41`, before the `if (id)` guard). In TypeORM's object-literal `where`, an `undefined` value is dropped from the criteria, so this degenerates to `WHERE followingId = X` and can match an arbitrary follower row. The `if (id)` guard means the result is never read for anonymous callers, so nothing leaks today — but the guard is what's saving it, not the query. Moving the lookup inside the `if (id)` block would make that intent explicit and skip a pointless query.\n\nOne naming note: `@User('id')` works because the payload key is `id`. Bare `@User()` on an unguarded route returns `decoded.user`, which isn't in the payload — so it silently yields `undefined` rather than the user object you'd get on a guarded route. The two branches aren't symmetric.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-decorator-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-jwt-verify-in-decorator",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-undefined-when-no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-passport-guess",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3223
+  }
+}

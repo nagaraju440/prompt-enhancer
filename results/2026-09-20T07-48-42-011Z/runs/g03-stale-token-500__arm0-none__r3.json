@@ -1,0 +1,73 @@
+{
+  "trapId": "g03-stale-token-500",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 59394,
+  "apiMs": 54658,
+  "costUsd": 0.32053099999999995,
+  "inputTokens": 2618,
+  "cacheReadTokens": 151582,
+  "cacheCreationTokens": 12570,
+  "outputTokens": 4238,
+  "numTurns": 11,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "## Why\n\n`jwt.verify()` **throws** on an expired token (`TokenExpiredError`), and nothing catches it.\n\n`src/user/auth.middleware.ts:17`:\n\n```ts\nconst decoded: any = jwt.verify(token, SECRET);   // ← throws, uncaught\nconst user = await this.userService.findById(decoded.id);\n```\n\nEvery other failure path in that file throws `HttpException(..., HttpStatus.UNAUTHORIZED)`, which Nest maps to a 401. `TokenExpiredError` is not an `HttpException`, and there's no global exception filter registered anywhere in the project (no `useGlobalFilters` / `APP_FILTER` match), so Nest's default handler treats it as an unhandled error → **500 Internal Server Error**. The middleware's own `if (!user)` guard never fires either — execution never reaches it.\n\nThis is a known, recorded regression: `LESSONS.md:29` (\"An invalid token must be a 401, not a 500\", upstream #79) describes exactly this symptom, including the mobile app treating it as an outage instead of logging the user out.\n\n**Second, easily-missed crash site:** `src/user/user.decorator.ts:15` calls `jwt.verify` again, unguarded, for optional auth on *unprotected* routes. So an expired token 500s on public routes too (`GET /articles`, `GET /profiles/:username`, …) — anywhere `@User()` is a handler param. Fixing only the middleware leaves half the bug.\n\nWorth noting on timing: `generateJWT` sets a **60-day** expiry (`user.service.ts:103-114`), so tokens are only now reaching expiry in the field — which is likely why this is surfacing as a new report rather than a day-one bug.\n\n## The fix\n\n**1. `src/user/auth.middleware.ts`** — wrap *only* the `verify` call:\n\n```ts\nconst token = (authHeaders as string).split(' ')[1];\n\nlet decoded: any;\ntry {\n  decoded = jwt.verify(token, SECRET);\n} catch (err) {\n  throw new HttpException('Not authorized.', HttpStatus.UNAUTHORIZED);\n}\n\nconst user = await this.userService.findById(decoded.id);\nreq.user = user.user;\nnext();\n```\n\nThe scope of the `try` matters. Don't wrap `findById`/`next()` — that would swallow genuine downstream failures (DB errors, handler exceptions) and relabel them as 401s, turning a server outage into a silent forced-logout for every user. Catch the one call that's expected to throw.\n\n**2. `src/user/user.decorator.ts`** — on an unguarded route auth is *optional*, so degrade to anonymous rather than 401:\n\n```ts\nif (token && token[1]) {\n  try {\n    const decoded: any = jwt.verify(token[1], SECRET);\n    return !!data ? decoded[data] : decoded.user;\n  } catch (err) {\n    return undefined;   // bad/expired token on a public route → treat as anonymous\n  }\n}\n```\n\nThis matches the existing no-token-at-all behaviour (falls through, returns `undefined`). It's safe for protected routes because those take the `req.user` branch at line 8 — the middleware has already rejected the expired token before the decorator runs.\n\n## Client-side note\n\nThe 401 alone won't fix the mobile app if it only distinguishes \"network error\" from \"success\". Once this ships, an expired token returns `401 {\"message\":\"Not authorized.\"}` — the app needs to treat 401 on any authenticated call as *log out and re-auth*, not as a retryable failure. Given the 60-day expiry, this path will now be hit routinely rather than never.\n\nWant me to apply both edits?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-jwt-verify",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-uncaught",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "fix-is-401",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-middleware-file",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3257
+  }
+}

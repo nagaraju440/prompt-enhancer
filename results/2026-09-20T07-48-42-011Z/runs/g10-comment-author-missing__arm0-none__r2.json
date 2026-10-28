@@ -1,0 +1,75 @@
+{
+  "trapId": "g10-comment-author-missing",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 51683,
+  "apiMs": 44322,
+  "costUsd": 0.3005065,
+  "inputTokens": 2616,
+  "cacheReadTokens": 124653,
+  "cacheCreationTokens": 15885,
+  "outputTokens": 2650,
+  "numTurns": 12,
+  "assistantMessages": 2,
+  "finalText": "You don't lose it anywhere — it's never captured in the first place. There's no point in the chain where an author exists and then gets dropped; all four layers are missing the field.\n\n**The trace, `POST /articles/:slug/comments`:**\n\n1. **Middleware does its job.** `articles/:slug/comments` POST *is* in the guard list (`article.module.ts:28`), so `AuthMiddleware` runs and sets `req.user`. The identity is sitting right there on the request.\n\n2. **The controller never reads it.** `article.controller.ts:77`:\n   ```ts\n   async createComment(@Param('slug') slug, @Body('comment') commentData: CreateCommentDto)\n   ```\n   No `@User('id') userId` param — compare `create()` at `article.controller.ts:52` and `favorite()` at `:94`, which both take it. This is the first place the name goes missing.\n\n3. **The DTO has no room for it.** `dto/create-comment.ts` is `{ body: string }` only — correct, since author should come from the token, not the body.\n\n4. **The service only sets body.** `article.service.ts:104-106`:\n   ```ts\n   const comment = new Comment();\n   comment.body = commentData.body;\n   ```\n\n5. **The entity has no column to store it.** `comment.entity.ts` declares `id`, `body`, and `@ManyToOne article` — no relation to `UserEntity`. With `synchronize: true`, the `comment` table is generated from this class, so there is **no `authorId` column in the database at all**.\n\n6. **The response type doesn't declare it either.** `article.interface.ts:3-5` — `interface Comment { body: string }`.\n\nSo `GET /articles/:slug/comments` renders blank authors because the rows have never had one. This also explains the related gap in `auth.md`: `DELETE /articles/:slug/comments/:id` has no ownership check partly because there's no author to compare the caller against.\n\n**What a fix requires** (all four, in order — any subset leaves it broken):\n- `@ManyToOne(type => UserEntity)` `author` on `Comment`\n- `@User('id') userId` on the controller handler, passed through to the service\n- `addComment(slug, userId, commentData)` loading the user and setting `comment.author`\n- widen the `Comment` interface, and decide what to do about **existing rows** — the new column will be `NULL` for every comment already in the DB, so the app needs to tolerate a missing author regardless\n\nOne caveat worth flagging: `synchronize: true` will add the column automatically on next boot, but it won't backfill. Want me to implement it?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll trace where the author name gets lost. Let me look at the codebase first.\n\nYou don't lose it anywhere — it's never captured in the first place. There's no point in the chain where an author exists and then gets dropped; all four layers are missing the field.\n\n**The trace, `POST /articles/:slug/comments`:**\n\n1. **Middleware does its job.** `articles/:slug/comments` POST *is* in the guard list (`article.module.ts:28`), so `AuthMiddleware` runs and sets `req.user`. The identity is sitting right there on the request.\n\n2. **The controller never reads it.** `article.controller.ts:77`:\n   ```ts\n   async createComment(@Param('slug') slug, @Body('comment') commentData: CreateCommentDto)\n   ```\n   No `@User('id') userId` param — compare `create()` at `article.controller.ts:52` and `favorite()` at `:94`, which both take it. This is the first place the name goes missing.\n\n3. **The DTO has no room for it.** `dto/create-comment.ts` is `{ body: string }` only — correct, since author should come from the token, not the body.\n\n4. **The service only sets body.** `article.service.ts:104-106`:\n   ```ts\n   const comment = new Comment();\n   comment.body = commentData.body;\n   ```\n\n5. **The entity has no column to store it.** `comment.entity.ts` declares `id`, `body`, and `@ManyToOne article` — no relation to `UserEntity`. With `synchronize: true`, the `comment` table is generated from this class, so there is **no `authorId` column in the database at all**.\n\n6. **The response type doesn't declare it either.** `article.interface.ts:3-5` — `interface Comment { body: string }`.\n\nSo `GET /articles/:slug/comments` renders blank authors because the rows have never had one. This also explains the related gap in `auth.md`: `DELETE /articles/:slug/comments/:id` has no ownership check partly because there's no author to compare the caller against.\n\n**What a fix requires** (all four, in order — any subset leaves it broken):\n- `@ManyToOne(type => UserEntity)` `author` on `Comment`\n- `@User('id') userId` on the controller handler, passed through to the service\n- `addComment(slug, userId, commentData)` loading the user and setting `comment.author`\n- widen the `Comment` interface, and decide what to do about **existing rows** — the new column will be `NULL` for every comment already in the DB, so the app needs to tolerate a missing author regardless\n\nOne caveat worth flagging: `synchronize: true` will add the column automatically on next boot, but it won't backfill. Want me to implement it?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-no-author-on-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-addcomment",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "fix-relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-frontend-blame",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 2502
+  }
+}

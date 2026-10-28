@@ -1,0 +1,53 @@
+{
+  "id": "s03-three-parts",
+  "group": "stance",
+  "intent": "investigate",
+  "prompt": "check whether deleteComment verifies who wrote the comment, list which profile routes have the auth middleware, and tell me what the RO suffix on the interfaces means",
+  "lesson": "Multi-part asks lose a part silently.",
+  "kb": "auth.md · workspace.md RO suffix · schema.md comment",
+  "judge_key": "Three parts: (1) deleteComment (article.service.ts:114-129) verifies nothing — and Comment has no author to compare; (2) ProfileModule guards only profiles/:username/follow for all methods (profile.module.ts:22); GET /profiles/:username is public; (3) RO = Response Object, the envelope interfaces (ArticleRO, UserRO, ProfileRO…).",
+  "checks": [
+    {
+      "id": "part1-no-verification",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "deleteComment.{0,300}(no|not|never|does not|doesn't|nothing)|(no|not|never|nothing).{0,120}deleteComment"
+    },
+    {
+      "id": "part1-comment-has-no-author",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "no author|has no author|author.{0,40}(not|never) (stored|exist)|Comment.{0,80}no.{0,20}author|(only|just).{0,30}body|has `?id`?, `?body`?|couldn.t check even|nothing to (compare|check)"
+    },
+    {
+      "id": "part2-follow-route",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "follow"
+    },
+    {
+      "id": "part2-get-profile-public",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "(GET.{0,30}profiles|getProfile).{0,100}(public|unguarded|unprotected|not (guarded|protected)|no (auth|middleware|token)|❌|\\|\\s*no\\s*\\|)|(public|unguarded|unprotected).{0,60}(GET.{0,20}profiles|getProfile)|only.{0,40}follow"
+    },
+    {
+      "id": "part3-response-object",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "Response Object"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

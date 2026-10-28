@@ -1,0 +1,47 @@
+{
+  "id": "g04-mass-assignment",
+  "group": "grounding",
+  "intent": "security",
+  "prompt": "can a client set fields we do not expose through PUT /user? for example could they change their id or something we did not intend",
+  "lesson": "Object.assign(entity, body); DTO strips nothing; no pipe on PUT /user (#112).",
+  "kb": "LESSONS.md #112 · auth.md Passwords · workspace.md DTOs",
+  "judge_key": "Yes. UserService.update() (user.service.ts:79) does Object.assign(toUpdate, dto) with the raw body; UpdateUserDto is a type only; PUT /user has no @UsePipes. Any field the client sends is persisted (id, password, etc.). Fix: pick fields explicitly or whitelist via a validation pipe.",
+  "checks": [
+    {
+      "id": "says-yes",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "\\byes\\b|they can|can set|is possible|will be (saved|persisted|merged)"
+    },
+    {
+      "id": "names-object-assign",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "Object\\.assign"
+    },
+    {
+      "id": "names-no-pipe-or-dto-not-a-filter",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "no validation|not validated|ValidationPipe|whitelist|DTO (is|does|are|only)|type[- ]only|compile[- ]time|runtime"
+    },
+    {
+      "id": "proposes-explicit-fields",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "whitelist|pick|explicit|allowed fields|forbidNonWhitelisted|only copy|destructur"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

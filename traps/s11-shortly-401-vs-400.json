@@ -1,0 +1,41 @@
+{
+  "id": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "intent": "explain",
+  "prompt": "shortly, why does login return 401 for an unknown email but registering a duplicate returns 400?",
+  "lesson": "\"shortly\" is the requirement; answer first, cite, stop.",
+  "kb": "auth.md Passwords",
+  "judge_key": "Login: UserService.findOne returns null for unknown email/wrong password and the controller throws HttpException({errors}, 401) (user.controller.ts:47-48). Register: create() runs a username/email query first and throws 400 \"Input data validation failed\" on a hit (user.service.ts:49-52). Different handlers chose different codes; the spec says 422 for both. Must be SHORT.",
+  "checks": [
+    {
+      "id": "login-401-source",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "user\\.controller|findOne|null"
+    },
+    {
+      "id": "register-400-source",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "user\\.service|create\\(|unique"
+    },
+    {
+      "id": "is-short",
+      "class": "outcome",
+      "type": "max_chars",
+      "max": 1400
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

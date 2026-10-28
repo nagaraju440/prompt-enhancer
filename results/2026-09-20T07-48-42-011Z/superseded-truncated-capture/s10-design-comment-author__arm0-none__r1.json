@@ -1,0 +1,80 @@
+{
+  "trapId": "s10-design-comment-author",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 234295,
+  "apiMs": 227935,
+  "costUsd": 1.6720084999999998,
+  "inputTokens": 4371,
+  "cacheReadTokens": 969937,
+  "cacheCreationTokens": 72376,
+  "outputTokens": 17657,
+  "numTurns": 25,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "The design is above — I stayed read-only, so nothing has been changed.\n\nTwo open choices I'd flag before any implementation: whether `POST /articles/:slug/comments` should switch to returning `{comment}` (my recommendation — the leak forces the return to change anyway) or keep `{article}` with the author stripped; and whether to fold in the delete-comment 403 now, since this relation is the thing `CURRENT_FOCUS.md` says it's blocked on.",
+  "score": {
+    "checks": [
+      {
+        "id": "relation",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "write-path",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "delete-ownership",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "existing-rows",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "response-shape",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      }
+    ],
+    "outcomePassed": 0,
+    "outcomeTotal": 5,
+    "compliancePassed": 0,
+    "complianceTotal": 2,
+    "passed": false,
+    "chars": 440
+  }
+}

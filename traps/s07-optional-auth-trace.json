@@ -1,0 +1,47 @@
+{
+  "id": "s07-optional-auth-trace",
+  "group": "stance",
+  "intent": "investigate",
+  "prompt": "how does GET /profiles/:username know who is asking when the route is not behind the auth middleware?",
+  "lesson": "Cite the decorator path, not a guess about passport.",
+  "kb": "auth.md @User decorator",
+  "judge_key": "Via the @User(\"id\") param decorator (user.decorator.ts): req.user is unset because the middleware did not run, so it splits the Authorization header itself and jwt.verify()s the token, returning decoded.id; with no header it returns undefined and findProfile() skips the following flag. jwt.verify throwing → 500 applies here too.",
+  "checks": [
+    {
+      "id": "names-decorator-file",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "user\\.decorator\\.ts|@User"
+    },
+    {
+      "id": "names-jwt-verify-in-decorator",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "jwt\\.verify"
+    },
+    {
+      "id": "names-undefined-when-no-token",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "undefined|no (token|header)"
+    },
+    {
+      "id": "no-passport-guess",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "passport strategy|PassportStrategy|AuthGuard\\("
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

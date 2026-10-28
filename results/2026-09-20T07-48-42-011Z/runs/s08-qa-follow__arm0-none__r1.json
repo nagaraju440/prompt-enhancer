@@ -1,0 +1,80 @@
+{
+  "trapId": "s08-qa-follow",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 86849,
+  "apiMs": 80767,
+  "costUsd": 0.411046,
+  "inputTokens": 2618,
+  "cacheReadTokens": 153332,
+  "cacheCreationTokens": 15789,
+  "outputTokens": 6536,
+  "numTurns": 16,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Read the implementation, the module wiring, and the project's recorded bug history. Here's the plan.\n\n## Scope\n\n| Route | Handler | Service |\n|---|---|---|\n| `POST /profiles/:username/follow` | `profile.controller.ts:24` | `ProfileService.follow(followerEmail, username)` — `profile.service.ts:50` |\n| `DELETE /profiles/:username/follow` | `profile.controller.ts:29` | `ProfileService.unFollow(followerId, username)` — `profile.service.ts:81` |\n| `GET /profiles/:username` (read side) | `profile.controller.ts:19` | `ProfileService.findProfile(id, username)` — `profile.service.ts:30` |\n\nBoth mutating routes are guarded by `AuthMiddleware` for **all** methods (`profile.module.ts:22`). Note the asymmetry: `follow` identifies the caller by **email**, `unFollow` by **id** — fixtures must supply both.\n\n## Harness\n\nDon't copy `tag.controller.spec.ts` — it calls `TypeOrmModule.forRoot()` and needs a live MySQL. Use provider overrides instead, so the unit layer runs with no DB:\n\n```ts\nTest.createTestingModule({\n  providers: [\n    ProfileService,\n    { provide: getRepositoryToken(UserEntity), useValue: mockUserRepo },\n    { provide: getRepositoryToken(FollowsEntity), useValue: mockFollowsRepo },\n  ],\n}).compile();\n```\n\nMocks need `findOne`, `find`, `save`, `delete`. `jest.json` `testRegex` is `/src/.*\\.(test|spec).(ts|tsx|js)$`, so specs live at `src/profile/profile.service.spec.ts` / `profile.controller.spec.ts`. The e2e layer (below) needs a `jest-e2e.json` with a widened regex — `supertest@3` is already in devDependencies but nothing is wired up.\n\n## Unit cases — `follow()`\n\n| # | Case | Expected | Against current code |\n|---|---|---|---|\n| 1 | Fresh follow | saves `FollowsEntity{followerId, followingId}`, returns `{profile: {username, bio, image, following: true}}` | passes |\n| 2 | Already following | `save` **not** called (dedupe guard at `:62`), still returns `following: true` | passes |\n| 3 | Missing `username` param | 400 | passes |\n| 4 | Missing follower email | 400 | passes |\n| 5 | Self-follow | 400 `FollowerEmail and FollowingId cannot be equal.` | passes |\n| 6 | **Unknown `:username`** | 404 | **fails — 500.** `findOne` returns `undefined`, `:58` reads `.email` off it → TypeError |\n| 7 | Response envelope only (no `id`/`password`/`email` leak) | `ProfileRO` shape exactly | passes — assert it anyway, LESSONS #57 |\n\n## Unit cases — `unFollow()`\n\n| # | Case | Expected | Against current code |\n|---|---|---|---|\n| 8 | Following → unfollow | `delete({followerId, followingId})` called with both keys, returns `following: false` | passes |\n| 9 | Not currently following | idempotent 200, `following: false`, no throw | passes — lock it in |\n| 10 | Missing `username` / falsy `followerId` | 400 | passes |\n| 11 | Self-unfollow | 400 | passes |\n| 12 | **Unknown `:username`** | 404 | **fails — 500**, same shape as #6 at `:88` |\n| 13 | Duplicate rows exist for the pair | all removed (no unique index on `(followerId, followingId)` per `knowledge/schema.md`) | passes — `delete` is criteria-based |\n\n## Unit cases — `findProfile()` (the `following` flag)\n\n| # | Case | Expected | Against current code |\n|---|---|---|---|\n| 14 | Authed caller who follows target | `following: true` | passes |\n| 15 | Authed caller who doesn't | `following: false` | passes |\n| 16 | **Anonymous caller** (`id` undefined — route is public) | `following: false` per RealWorld spec | **fails — key omitted entirely.** `:43` guards with `if (id)`. Also `:41` still queries with `followerId: undefined`, which TypeORM 0.2 drops from the criteria, so it matches *any* follower of that user — harmless only because of the `if (id)` guard. Test both the output and that the flag isn't derived from a stranger's row |\n| 17 | Unknown `:username` | 404 | **fails** — `:33` returns `undefined` → 200 with empty body |\n\n## Controller layer\n\nThin — assert delegation and argument plumbing, mirroring the `tag.controller.spec.ts` spy style:\n\n- `follow()` passes `@User('email')`, **not** id → `profileService.follow` called with `(email, username)`.\n- `unFollow()` passes `@User('id')`, **not** email.\n\nThis is cheap and catches the exact swap the two different decorators invite.\n\n## Integration / e2e (supertest, real DB)\n\n| # | Case | Expected | Note |\n|---|---|---|---|\n| 18 | `POST`/`DELETE` with no `Authorization` header | 401 | passes |\n| 19 | **Expired / malformed token** | 401 | **fails — 500.** Known, LESSONS #79 + `knowledge/auth.md`; `jwt.verify` throws uncaught in `AuthMiddleware` |\n| 20 | `Bearer <jwt>` and `Token <jwt>` both accepted | 200 | middleware ignores the scheme word |\n| 21 | Follow → `GET /articles/feed` includes that author's articles | 200, articles present | exercises `findFeed` at `article.service.ts:66`. Watch `.where('article.authorId IN (:ids)')` — TypeORM 0.2 needs `:...ids` to expand an array; with `:ids` this is likely broken for >1 followed author. Seed **two** followed authors so the test actually hits it |\n| 22 | Unfollow → feed drops those articles; last unfollow → `{articles: [], articlesCount: 0}` | 200 | |\n| 23 | Double `POST` follow | exactly one `follows` row | |\n\n## Known bugs this plan will expose\n\nCases **6, 12, 17** (missing user → 500/empty 200 instead of 404) and **16** (`following` absent for anonymous) and **19** (500 instead of 401) fail against `master` today. Write them asserting the *correct* behaviour and let them fail rather than encoding the current behaviour — #16 and #17 are spec-conformance items in the same family as the `favorited` / `favoritesCount` work in `CURRENT_FOCUS.md`, and #19 is already a recorded lesson. Case **21** may fail for an unrelated query-builder reason; if so it's a separate finding, not a follow/unfollow defect.\n\nTwo things deliberately out of scope: a unique index on `(followerId, followingId)` (schema change, not a test), and `ProfileService.findOne()` at `:23`, which is dead code from the controller's perspective and crashes on a missing user anyway (`delete user.id` before the null check).\n\nWant me to write `profile.service.spec.ts` + `profile.controller.spec.ts` for the unit cases now, or the e2e harness first?",
+  "score": {
+    "checks": [
+      {
+        "id": "self-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "double-follow",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "unknown-username",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-token",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "following-flag",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 5,
+    "outcomeTotal": 5,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 6134
+  }
+}

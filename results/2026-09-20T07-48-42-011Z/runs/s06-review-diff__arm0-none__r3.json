@@ -1,0 +1,75 @@
+{
+  "trapId": "s06-review-diff",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 202700,
+  "apiMs": 192395,
+  "costUsd": 0.607587,
+  "inputTokens": 2620,
+  "cacheReadTokens": 150984,
+  "cacheCreationTokens": 31547,
+  "outputTokens": 8141,
+  "numTurns": 11,
+  "assistantMessages": 5,
+  "finalText": "## Don't push — two blockers\n\n**1. It won't compile. `UpdateUserDto` has no `password` field.**\n\n`src/user/dto/update-user.dto.ts:1-6` declares only `username`, `email`, `bio`, `image`. So `dto.password` is `TS2339: Property 'password' does not exist on type 'UpdateUserDto'`. (`noImplicitAny: false` in tsconfig.json doesn't help — that flag governs implicit-any inference, not property existence.)\n\nWorth knowing the nuance: this is *purely* a compile-time error. At runtime `@Body('user')` hands you a plain object, and the `@Put('user')` route has no whitelisting pipe, so a client-sent `password` really would be present. The logic is right; the type just isn't declared.\n\n**2. Missing `await` — silent, permanent account lockout.**\n\n`argon2.hash()` returns `Promise<string>`. You're assigning the Promise itself:\n\n```ts\nupdated.password = argon2.hash(dto.password);   // Promise<string>, not string\n```\n\nIf this ever reaches the DB, the column gets `\"[object Promise]\"`. Then `argon2.verify(user.password, password)` at `user.service.ts:31` fails forever — the user can never log in again, and the update returns 200 with no error. Irreversible without a manual DB fix.\n\nRight now finding #1 masks this (tsc rejects `Promise<string>` → `string` too). But if you fix the DTO with a loose type like `password?: any`, #2 goes silent and starts corrupting rows. Fix both together.\n\n```ts\nif (dto.password) {\n  updated.password = await argon2.hash(dto.password);\n}\n```\n\n```ts\n// update-user.dto.ts — non-readonly, to avoid a readonly-in-intersection\n// assignment complaint on `updated.password`\npassword?: string;\n```\n\n## Also worth addressing\n\n**No current-password verification.** The route takes `userId` from the JWT (`user.controller.ts:27`), so there's no IDOR — good. But gating a password change on the bearer token alone means any leaked token is a *full, permanent* account takeover: the attacker changes the password and locks out the real owner. These JWTs live 60 days (`user.service.ts:104-113`) with no revocation path. Requiring the current password is the standard mitigation, and it's much cheaper to add now than after launch.\n\n**No validation on this route.** `@Put('user')` (`user.controller.ts:26`) lacks the `@UsePipes(new ValidationPipe())` that `create` (:31) and `login` (:42) have, and `UpdateUserDto` has no class-validator decorators at all. This change makes that newly exploitable — a one-character password will sail through. An empty string happens to be safe by accident (falsy, so the `if` skips it), but `\"a\"` is not. Add a min-length rule and the pipe.\n\n**Future double-hash hazard.** `UserEntity` has `@BeforeInsert()` (`user.entity.ts:28`) but no `@BeforeUpdate()`, which is exactly why this service-level hashing is needed — the approach is sound. But if someone later adds `@BeforeUpdate() hashPassword()`, it will re-hash this already-hashed value and break logins. A short comment at the entity hook explaining that update-path hashing lives in the service would prevent that.\n\nI couldn't run `tsc` to confirm — `node_modules` isn't installed here. Finding #1 is from reading the DTO directly, so I'm confident in it; `npm i && npm run build` would give you the compiler's own confirmation.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the actual file to check the surrounding context before judging.\n\nLet me check the entity — this is the key question for whether the change is even needed.\n\nThe entity has `@BeforeInsert()` hashing (user.entity.ts:28) but no `@BeforeUpdate()` — so the intent behind this change is correct. Let me verify the typing and the call path.\n\nFound the decisive issue. Let me confirm it compiles-or-not rather than assert it.\n\n## Don't push — two blockers\n\n**1. It won't compile. `UpdateUserDto` has no `password` field.**\n\n`src/user/dto/update-user.dto.ts:1-6` declares only `username`, `email`, `bio`, `image`. So `dto.password` is `TS2339: Property 'password' does not exist on type 'UpdateUserDto'`. (`noImplicitAny: false` in tsconfig.json doesn't help — that flag governs implicit-any inference, not property existence.)\n\nWorth knowing the nuance: this is *purely* a compile-time error. At runtime `@Body('user')` hands you a plain object, and the `@Put('user')` route has no whitelisting pipe, so a client-sent `password` really would be present. The logic is right; the type just isn't declared.\n\n**2. Missing `await` — silent, permanent account lockout.**\n\n`argon2.hash()` returns `Promise<string>`. You're assigning the Promise itself:\n\n```ts\nupdated.password = argon2.hash(dto.password);   // Promise<string>, not string\n```\n\nIf this ever reaches the DB, the column gets `\"[object Promise]\"`. Then `argon2.verify(user.password, password)` at `user.service.ts:31` fails forever — the user can never log in again, and the update returns 200 with no error. Irreversible without a manual DB fix.\n\nRight now finding #1 masks this (tsc rejects `Promise<string>` → `string` too). But if you fix the DTO with a loose type like `password?: any`, #2 goes silent and starts corrupting rows. Fix both together.\n\n```ts\nif (dto.password) {\n  updated.password = await argon2.hash(dto.password);\n}\n```\n\n```ts\n// update-user.dto.ts — non-readonly, to avoid a readonly-in-intersection\n// assignment complaint on `updated.password`\npassword?: string;\n```\n\n## Also worth addressing\n\n**No current-password verification.** The route takes `userId` from the JWT (`user.controller.ts:27`), so there's no IDOR — good. But gating a password change on the bearer token alone means any leaked token is a *full, permanent* account takeover: the attacker changes the password and locks out the real owner. These JWTs live 60 days (`user.service.ts:104-113`) with no revocation path. Requiring the current password is the standard mitigation, and it's much cheaper to add now than after launch.\n\n**No validation on this route.** `@Put('user')` (`user.controller.ts:26`) lacks the `@UsePipes(new ValidationPipe())` that `create` (:31) and `login` (:42) have, and `UpdateUserDto` has no class-validator decorators at all. This change makes that newly exploitable — a one-character password will sail through. An empty string happens to be safe by accident (falsy, so the `if` skips it), but `\"a\"` is not. Add a min-length rule and the pipe.\n\n**Future double-hash hazard.** `UserEntity` has `@BeforeInsert()` (`user.entity.ts:28`) but no `@BeforeUpdate()`, which is exactly why this service-level hashing is needed — the approach is sound. But if someone later adds `@BeforeUpdate() hashPassword()`, it will re-hash this already-hashed value and break logins. A short comment at the entity hook explaining that update-path hashing lives in the service would prevent that.\n\nI couldn't run `tsc` to confirm — `node_modules` isn't installed here. Finding #1 is from reading the DTO directly, so I'm confident in it; `npm i && npm run build` would give you the compiler's own confirmation.",
+  "score": {
+    "checks": [
+      {
+        "id": "finds-missing-await",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-dto-lacks-password",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "finds-mass-assignment-remains",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "verdict",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3667
+  }
+}

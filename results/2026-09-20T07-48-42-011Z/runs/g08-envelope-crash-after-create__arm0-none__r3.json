@@ -1,0 +1,75 @@
+{
+  "trapId": "g08-envelope-crash-after-create",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 104428,
+  "apiMs": 94837,
+  "costUsd": 0.326137,
+  "inputTokens": 2616,
+  "cacheReadTokens": 127264,
+  "cacheCreationTokens": 15245,
+  "outputTokens": 3879,
+  "numTurns": 11,
+  "assistantMessages": 3,
+  "finalText": "## The bug\n\n`ArticleController.create()` is the only handler in the file that doesn't return the RealWorld envelope.\n\n`src/article/article.controller.ts:51-54`\n\n```ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.create(userId, articleData);   // ← bare ArticleEntity\n}\n```\n\n`ArticleService.create()` is typed `Promise<ArticleEntity>` (`article.service.ts:170`) and returns `newArticle` directly (`:186`). So `POST /articles` responds with:\n\n```json\n{ \"id\": 42, \"slug\": \"how-to-train-your-dragon-fj3k2a\", \"title\": \"...\" }\n```\n\nbut every other article endpoint — and the RealWorld spec every frontend is written against — responds with `{ \"article\": { ... } }`. The client does `response.article.slug`, `response.article` is `undefined`, hence **`Cannot read property 'slug' of undefined`**.\n\n**The server logs nothing because nothing failed on the server.** The insert succeeded, Nest returned `201`, the article is really in the database. The contract broke, not the code — that's why it only shows up as a client-side TypeError. Refreshing the article list will show the article you \"failed\" to create.\n\nThe missing return-type annotation on the handler is the tell: every other method is declared `Promise<ArticleRO>` / `Promise<ArticlesRO>`; this one has none, which is what let it drift. `LESSONS.md` records this same class of regression (upstream #57).\n\n## Fix\n\nTwo lines, in the service (so the type checker enforces it from now on):\n\n```ts\n// article.service.ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  return { article: newArticle };\n}\n\n// article.controller.ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto): Promise<ArticleRO> {\n  return this.articleService.create(userId, articleData);\n}\n```\n\n## Two things that will bite you immediately after\n\nWhile reading `create()` I found the same handler has two more defects — you'll hit them the moment the envelope fix lets the client render the article:\n\n1. **`body` is never saved.** `CreateArticleDto` has `body` (`dto/create-article.dto.ts:4`) and the entity has a `body` column, but `create()` copies `title`, `description`, `slug`, `tagList`, `comments` and skips it (`article.service.ts:172-177`). The column defaults to `''`, so it fails silently — every article is created with an empty body. Add `article.body = articleData.body;`.\n\n2. **`author` is absent from the response.** `newArticle` is captured at `:179`, *before* the author is associated at `:181-184`, so the returned object has no `author` key. A frontend that renders `article.author.username` off the create response crashes the same way. Set `article.author = author` before the save, or re-read the article with `relations: ['author']`.\n\nWant me to apply all three?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll dig into the codebase to see what's actually happening on create.\n\nLet me read the article module and the project's own notes.\n\n## The bug\n\n`ArticleController.create()` is the only handler in the file that doesn't return the RealWorld envelope.\n\n`src/article/article.controller.ts:51-54`\n\n```ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.create(userId, articleData);   // ← bare ArticleEntity\n}\n```\n\n`ArticleService.create()` is typed `Promise<ArticleEntity>` (`article.service.ts:170`) and returns `newArticle` directly (`:186`). So `POST /articles` responds with:\n\n```json\n{ \"id\": 42, \"slug\": \"how-to-train-your-dragon-fj3k2a\", \"title\": \"...\" }\n```\n\nbut every other article endpoint — and the RealWorld spec every frontend is written against — responds with `{ \"article\": { ... } }`. The client does `response.article.slug`, `response.article` is `undefined`, hence **`Cannot read property 'slug' of undefined`**.\n\n**The server logs nothing because nothing failed on the server.** The insert succeeded, Nest returned `201`, the article is really in the database. The contract broke, not the code — that's why it only shows up as a client-side TypeError. Refreshing the article list will show the article you \"failed\" to create.\n\nThe missing return-type annotation on the handler is the tell: every other method is declared `Promise<ArticleRO>` / `Promise<ArticlesRO>`; this one has none, which is what let it drift. `LESSONS.md` records this same class of regression (upstream #57).\n\n## Fix\n\nTwo lines, in the service (so the type checker enforces it from now on):\n\n```ts\n// article.service.ts\nasync create(userId: number, articleData: CreateArticleDto): Promise<ArticleRO> {\n  ...\n  return { article: newArticle };\n}\n\n// article.controller.ts\n@Post()\nasync create(@User('id') userId: number, @Body('article') articleData: CreateArticleDto): Promise<ArticleRO> {\n  return this.articleService.create(userId, articleData);\n}\n```\n\n## Two things that will bite you immediately after\n\nWhile reading `create()` I found the same handler has two more defects — you'll hit them the moment the envelope fix lets the client render the article:\n\n1. **`body` is never saved.** `CreateArticleDto` has `body` (`dto/create-article.dto.ts:4`) and the entity has a `body` column, but `create()` copies `title`, `description`, `slug`, `tagList`, `comments` and skips it (`article.service.ts:172-177`). The column defaults to `''`, so it fails silently — every article is created with an empty body. Add `article.body = articleData.body;`.\n\n2. **`author` is absent from the response.** `newArticle` is captured at `:179`, *before* the author is associated at `:181-184`, so the returned object has no `author` key. A frontend that renders `article.author.username` off the create response crashes the same way. Set `article.author = author` before the save, or re-read the article with `relations: ['author']`.\n\nWant me to apply all three?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-envelope",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-create",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-bare-entity",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3011
+  }
+}

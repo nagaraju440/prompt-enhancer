@@ -1,0 +1,73 @@
+{
+  "trapId": "g02-edit-someone-elses-article",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 69631,
+  "apiMs": 62962,
+  "costUsd": 0.386168,
+  "inputTokens": 2618,
+  "cacheReadTokens": 160276,
+  "cacheCreationTokens": 16644,
+  "outputTokens": 5060,
+  "numTurns": 14,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "Yes. It's not only possible — it's expected behavior of the current code. Nothing was compromised; the check simply isn't there.\n\n## The hole\n\n`PUT /articles/:slug` is authenticated but not authorized. `ArticleModule` applies `AuthMiddleware` to the route (`article.module.ts:27`), so the caller needs *a* valid token — but nothing ever compares that caller to the article's author.\n\nLook at the handler signature (`article.controller.ts:59-63`):\n\n```ts\n@Put(':slug')\nasync update(@Param() params, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.update(params.slug, articleData);\n}\n```\n\nThere's no `@User('id')` parameter at all — contrast with `create` (line 52) and `favorite` (line 94), which both take it. The caller's identity never even reaches the update path. The service (`article.service.ts:190-195`) then does a bare slug lookup and merges:\n\n```ts\nlet toUpdate = await this.articleRepository.findOne({ slug: slug});\nlet updated = Object.assign(toUpdate, articleData);\n```\n\nSo **any registered user with any valid token can edit any article.** Tokens are signed with a 60-day expiry, so an old one still works.\n\n`DELETE /articles/:slug` (line 68) has exactly the same shape — any logged-in user can delete anyone's article.\n\n## Two things that make it worse\n\n**Mass assignment.** `update()` types the body as `any`, and the article controller has no `@UsePipes(new ValidationPipe())` — that pipe is only on `user.controller.ts:31,42`. So `Object.assign` copies *every* field in the request body onto the entity, not just the four in `CreateArticleDto`. A crafted body can reach `slug`, `favoriteCount`, `created`, and `author`. Whether TypeORM actually rewrites the `authorId` FK from a supplied `author` is worth testing before you rely on it either way, but the assignment itself definitely happens.\n\nSide note: even where that pipe *is* applied it wouldn't help — it validates `plainToClass(...)` but then `return value` (the raw object, `validation.pipe.ts:18-23`), so it never strips unknown fields.\n\n**No audit trail.** `ArticleEntity` has a `@BeforeUpdate` hook that bumps `updated` (line 29-32), but there's no \"updated by\" column anywhere. So the API cannot tell you *who* edited your article — only that it happened. If you need attribution, that's a schema change plus backfill, and the data for past edits is simply gone.\n\n## This is a known gap, not a surprise\n\n`CURRENT_FOCUS.md:10-12` already lists it as open work:\n\n> **Ownership checks** on `PUT/DELETE /articles/:slug` and `DELETE /articles/:slug/comments/:id` — return 403 when the caller is not the author.\n\nThe `@ApiResponse({ status: 403 })` decorators all over `article.controller.ts` describe intent — nothing in the codebase ever returns a 403.\n\n## Unrelated but you should know now\n\n`DELETE /users/:slug` isn't in any `configure()` middleware list, so it's fully public — no token required — and it deletes the user whose *email* matches the param. That's a worse hole than the one you asked about, and it's reachable by anyone who knows an email address. I'd treat that as the priority.\n\n---\n\nWant me to add the ownership checks? The article `PUT`/`DELETE` case is straightforward — thread `@User('id')` into the handler, load the article with `relations: ['author']`, throw 403 on mismatch, and lock the body down to the DTO fields so the merge can't touch `author`. Two decisions for you: **403 vs. 404** on someone else's article (404 leaks less, 403 matches your Swagger docs and the RealWorld spec), and whether to include the unguarded `DELETE /users/:slug` fix in the same pass. The comment case I'd leave out — as your notes say, it needs a `comment.author` relation that doesn't exist yet.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-yes-possible",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-missing-ownership",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "points-at-update",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-safety",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3716
+  }
+}

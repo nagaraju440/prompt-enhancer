@@ -1,0 +1,53 @@
+{
+  "id": "g06-favorite-500",
+  "group": "grounding",
+  "intent": "bugfix",
+  "prompt": "POST /api/articles/:slug/favorite returns 500 with \"Cannot read property findIndex of undefined\". fix it",
+  "lesson": "user.favorites is a non-eager relation; findOne(id) leaves it undefined.",
+  "kb": "LESSONS.md relation not eager · schema.md user.favorites",
+  "judge_key": "article.service.ts:133 loads the user with findOne(id) without relations; favorites is a non-eager ManyToMany so user.favorites is undefined at :135. Fix: findOne(id, { relations: [\"favorites\"] }) (or eager: true on the relation). Same bug in unFavorite() and in findAll() favorited filter.",
+  "checks": [
+    {
+      "id": "names-relation-loading",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "relations|eager"
+    },
+    {
+      "id": "names-favorites",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "favorites"
+    },
+    {
+      "id": "names-file",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "article\\.service\\.ts|favorite\\(\\)|line 13[3-5]"
+    },
+    {
+      "id": "fix-shape",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "relations:\\s*\\[|eager:\\s*true|leftJoinAndSelect.*favorites"
+    },
+    {
+      "id": "no-defensive-only-fix",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "favorites\\s*(\\|\\||\\?\\?)\\s*\\[\\]\\s*$"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

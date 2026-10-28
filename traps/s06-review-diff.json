@@ -1,0 +1,47 @@
+{
+  "id": "s06-review-diff",
+  "group": "stance",
+  "intent": "review",
+  "prompt": "review this change to user.service.ts before I push it:\n\n```diff\n   async update(id: number, dto: UpdateUserDto): Promise<UserEntity> {\n     let toUpdate = await this.userRepository.findOne(id);\n     delete toUpdate.password;\n     delete toUpdate.favorites;\n\n     let updated = Object.assign(toUpdate, dto);\n+    if (dto.password) {\n+      updated.password = argon2.hash(dto.password);\n+    }\n     return await this.userRepository.save(updated);\n   }\n```",
+  "lesson": "Review the lines that are there: missing await; DTO has no password; Object.assign still merges everything.",
+  "kb": "LESSONS.md #88 #112",
+  "judge_key": "Three findings: (1) argon2.hash returns a Promise — missing await stores \"[object Promise]\" (worse than before); (2) UpdateUserDto (update-user.dto.ts) declares no password, so dto.password is a TS error / relies on an untyped body; (3) Object.assign still merges every field of the body first — mass assignment remains. Verdict: NEEDS CHANGES.",
+  "checks": [
+    {
+      "id": "finds-missing-await",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "await|Promise"
+    },
+    {
+      "id": "finds-dto-lacks-password",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "UpdateUserDto|dto (has|does not|doesn't|lacks|declares)|no password (field|property)"
+    },
+    {
+      "id": "finds-mass-assignment-remains",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "Object\\.assign|mass[- ]assign|whitelist|every field|all fields|other fields"
+    },
+    {
+      "id": "verdict",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "NEEDS CHANGES|not ready|do not (push|merge)|don't (push|merge)|block"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "trapId": "g07-tag-filter-substring",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 88728,
+  "apiMs": 82826,
+  "costUsd": 0.5309725,
+  "inputTokens": 2620,
+  "cacheReadTokens": 209735,
+  "cacheCreationTokens": 25268,
+  "outputTokens": 6413,
+  "numTurns": 16,
+  "assistantMessages": 2,
+  "finalText": "**Refined prompt:** Diagnose why `GET /api/articles?tag=java` also returns `javascript`-tagged articles, citing the exact code, and lay out the correct fix — distinguishing the minimal correct fix from the structural one, with the migration risk this repo's setup implies.\n\n## Why\n\nTwo lines, together:\n\n**1. `tagList` is not an array in the database.** `src/article/article.entity.ts:34-35` declares `@Column('simple-array') tagList: string[]`. TypeORM's `simple-array` serializes the whole array into **one comma-joined string column** — an article tagged `[\"java\",\"spring\"]` is stored as the literal text `java,spring`. There is no join table and no per-element row.\n\n**2. The filter is an unanchored substring match on that string.** `src/article/article.service.ts:35`:\n\n```ts\nqb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n```\n\n`%java%` matches anywhere inside `java,spring,javascript` — the SQL has no concept of where one element ends and the next begins. So `?tag=java` matches `javascript`, `javax`, `rejavanate`, and a tag `ja` would match all of them.\n\n**A second bug hides on the same line:** `query.tag` is interpolated into the LIKE pattern without escaping LIKE metacharacters. `?tag=%` returns every article; `?tag=j_va` matches `java`. The parameter binding protects against SQL injection, not against wildcard injection.\n\nThis is the only tag filter in the codebase — `grep` for `tagList` finds writes at `article.service.ts:176` and that one read.\n\n## Fix A — delimiter-aware match (correct for the schema as it stands)\n\nThe DB is MySQL (`ormconfig.json.example:2`), which has a built-in for exactly this:\n\n```ts\nif ('tag' in query) {\n  qb.andWhere('FIND_IN_SET(:tag, article.tagList) > 0', { tag: query.tag });\n}\n```\n\n`FIND_IN_SET` treats the column as a comma-delimited list and compares whole elements, so `java` no longer matches `javascript`. It also kills the wildcard bug for free — there are no pattern semantics, it's an equality test per element. Empty `tagList` serializes to `''` and `FIND_IN_SET(x, '') = 0`, which is right.\n\nCost: none relative to today. `FIND_IN_SET` can't use an index, but neither can `LIKE '%…%'` — both full-scan `article`.\n\nTwo things it doesn't fix: tags containing a comma (they'd already corrupt the `simple-array` column on write — `CreateArticleDto` has no validators, so nothing rejects them), and the dead `tag` table below.\n\n## Fix B — a real join table (the structural fix)\n\n`LESSONS.md:83-84` already names this as the alternative, and it closes a *second* documented bug at the same time: the `tag` table exists (`src/tag/tag.entity.ts`) but **nothing in the codebase ever writes to it**, so `GET /api/tags` returns `[]` forever on a fresh database (`schema.md:79-82`). Article creation stores tags only in `tagList`. A join table makes article creation the thing that populates `tag`, so both bugs close with one change.\n\nShape:\n- `ArticleEntity`: `@ManyToMany(() => TagEntity, { eager: true }) @JoinTable() tags: TagEntity[]`, unique index on `tag.tag`\n- Filter becomes `.innerJoin('article.tags', 'tag').andWhere('tag.tag = :tag', { tag: query.tag })` — exact equality, index-backed\n- `create()` does find-or-create per tag\n- The spec's `tagList: string[]` is produced at the response boundary via `tags.map(t => t.tag)` — which is precisely the \"rename/derive in the RO, not in the DB\" approach the spec-conformance item in `CURRENT_FOCUS.md:7-9` is already committed to\n\n**The risk you need to know about before choosing B:** this project runs `synchronize: true` with **no migration files** (`workspace.md:22`). Adding the relation creates `article_tags_tag` but does **not** backfill it from the existing `tagList` strings — and removing `tagList` from the entity makes synchronize **drop the column**, taking the only copy of the data with it and leaving nothing to recover from. So B is necessarily two deploys: (1) add the relation, keep `tagList`, run a one-off backfill script while both exist; (2) verify, then remove `tagList`.\n\n## Recommendation\n\nShip A now — it's one line, it's strictly correct for the current schema, and it fixes the reported bug plus the wildcard leak with no data risk. Fold B into the spec-conformance pass already in flight, since that's the work that touches the response boundary anyway and B is what finally makes `GET /api/tags` return anything.\n\nWant me to apply A now, or scope B properly first (entity + backfill script + the two-step rollout)?",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the fixture code to find the tag filtering logic.\n\n**Refined prompt:** Diagnose why `GET /api/articles?tag=java` also returns `javascript`-tagged articles, citing the exact code, and lay out the correct fix — distinguishing the minimal correct fix from the structural one, with the migration risk this repo's setup implies.\n\n## Why\n\nTwo lines, together:\n\n**1. `tagList` is not an array in the database.** `src/article/article.entity.ts:34-35` declares `@Column('simple-array') tagList: string[]`. TypeORM's `simple-array` serializes the whole array into **one comma-joined string column** — an article tagged `[\"java\",\"spring\"]` is stored as the literal text `java,spring`. There is no join table and no per-element row.\n\n**2. The filter is an unanchored substring match on that string.** `src/article/article.service.ts:35`:\n\n```ts\nqb.andWhere(\"article.tagList LIKE :tag\", { tag: `%${query.tag}%` });\n```\n\n`%java%` matches anywhere inside `java,spring,javascript` — the SQL has no concept of where one element ends and the next begins. So `?tag=java` matches `javascript`, `javax`, `rejavanate`, and a tag `ja` would match all of them.\n\n**A second bug hides on the same line:** `query.tag` is interpolated into the LIKE pattern without escaping LIKE metacharacters. `?tag=%` returns every article; `?tag=j_va` matches `java`. The parameter binding protects against SQL injection, not against wildcard injection.\n\nThis is the only tag filter in the codebase — `grep` for `tagList` finds writes at `article.service.ts:176` and that one read.\n\n## Fix A — delimiter-aware match (correct for the schema as it stands)\n\nThe DB is MySQL (`ormconfig.json.example:2`), which has a built-in for exactly this:\n\n```ts\nif ('tag' in query) {\n  qb.andWhere('FIND_IN_SET(:tag, article.tagList) > 0', { tag: query.tag });\n}\n```\n\n`FIND_IN_SET` treats the column as a comma-delimited list and compares whole elements, so `java` no longer matches `javascript`. It also kills the wildcard bug for free — there are no pattern semantics, it's an equality test per element. Empty `tagList` serializes to `''` and `FIND_IN_SET(x, '') = 0`, which is right.\n\nCost: none relative to today. `FIND_IN_SET` can't use an index, but neither can `LIKE '%…%'` — both full-scan `article`.\n\nTwo things it doesn't fix: tags containing a comma (they'd already corrupt the `simple-array` column on write — `CreateArticleDto` has no validators, so nothing rejects them), and the dead `tag` table below.\n\n## Fix B — a real join table (the structural fix)\n\n`LESSONS.md:83-84` already names this as the alternative, and it closes a *second* documented bug at the same time: the `tag` table exists (`src/tag/tag.entity.ts`) but **nothing in the codebase ever writes to it**, so `GET /api/tags` returns `[]` forever on a fresh database (`schema.md:79-82`). Article creation stores tags only in `tagList`. A join table makes article creation the thing that populates `tag`, so both bugs close with one change.\n\nShape:\n- `ArticleEntity`: `@ManyToMany(() => TagEntity, { eager: true }) @JoinTable() tags: TagEntity[]`, unique index on `tag.tag`\n- Filter becomes `.innerJoin('article.tags', 'tag').andWhere('tag.tag = :tag', { tag: query.tag })` — exact equality, index-backed\n- `create()` does find-or-create per tag\n- The spec's `tagList: string[]` is produced at the response boundary via `tags.map(t => t.tag)` — which is precisely the \"rename/derive in the RO, not in the DB\" approach the spec-conformance item in `CURRENT_FOCUS.md:7-9` is already committed to\n\n**The risk you need to know about before choosing B:** this project runs `synchronize: true` with **no migration files** (`workspace.md:22`). Adding the relation creates `article_tags_tag` but does **not** backfill it from the existing `tagList` strings — and removing `tagList` from the entity makes synchronize **drop the column**, taking the only copy of the data with it and leaving nothing to recover from. So B is necessarily two deploys: (1) add the relation, keep `tagList`, run a one-off backfill script while both exist; (2) verify, then remove `tagList`.\n\n## Recommendation\n\nShip A now — it's one line, it's strictly correct for the current schema, and it fixes the reported bug plus the wildcard leak with no data risk. Fold B into the spec-conformance pass already in flight, since that's the work that touches the response boundary anyway and B is what finally makes `GET /api/tags` return anything.\n\nWant me to apply A now, or scope B properly first (entity + backfill script + the two-step rollout)?",
+  "score": {
+    "checks": [
+      {
+        "id": "names-simple-array-or-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-like",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "proper-fix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "not-just-escaping",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 2,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 4271
+  }
+}

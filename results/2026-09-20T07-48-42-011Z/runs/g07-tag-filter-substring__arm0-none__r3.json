@@ -1,0 +1,73 @@
+{
+  "trapId": "g07-tag-filter-substring",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 107780,
+  "apiMs": 102545,
+  "costUsd": 0.8250949999999999,
+  "inputTokens": 2624,
+  "cacheReadTokens": 256630,
+  "cacheCreationTokens": 48116,
+  "outputTokens": 8100,
+  "numTurns": 17,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "**Refined prompt:** Diagnose why `GET /api/articles?tag=java` also returns `javascript`-tagged articles, and recommend the correct fix — answering as a maintainer of this TypeORM/MySQL codebase, citing the actual lines, distinguishing the safe one-line fix from the structural one, and flagging what the structural fix costs given `synchronize: true` and no migrations.\n\n## Why\n\n`tagList` is not a collection in the database. It's a `simple-array` column — TypeORM stores the whole array as **one comma-joined varchar**:\n\n- `src/article/article.entity.ts:34-35` — `@Column('simple-array') tagList: string[]`\n- An article tagged `[\"java\", \"spring\"]` is literally the string `java,spring`\n\nThe filter then does a substring match on that string:\n\n- `src/article/article.service.ts:35` — `qb.andWhere(\"article.tagList LIKE :tag\", { tag: \\`%${query.tag}%\\` })`\n\nSo `?tag=java` compiles to `article.tagList LIKE '%java%'`, which matches `javascript`, `java,spring`, and `rxjava` alike. There is no delimiter awareness anywhere in the predicate. (`.claude/knowledge/schema.md:45-48` documents this storage/filter pairing, and `LESSONS.md:78-84` already records it as a past incident.)\n\n**The same line has a second bug you'll want to fix at the same time:** `query.tag` is interpolated straight into a LIKE pattern without escaping. `?tag=%` matches every article, and `?tag=_ava` matches `java`. It's not SQL injection — the value is still a bound parameter — but it is LIKE-wildcard injection, and it makes the filter silently unreliable.\n\n## Fix now (one line, MySQL)\n\n`ormconfig.json.example:2` is `\"type\": \"mysql\"`, so `FIND_IN_SET` is available and is exactly the right primitive — it compares whole comma-delimited elements, which is precisely how `simple-array` encodes:\n\n```ts\n// src/article/article.service.ts:34-36\nif ('tag' in query) {\n  // tagList is `simple-array` — one comma-joined column (article.entity.ts:34), so\n  // LIKE '%java%' substring-matches and also hits `javascript`. FIND_IN_SET compares\n  // whole delimited elements, and takes the tag as a value rather than a LIKE pattern.\n  qb.andWhere('FIND_IN_SET(:tag, article.tagList) > 0', { tag: query.tag });\n}\n```\n\nThis kills both bugs: `javascript` no longer matches `java`, and `?tag=%` matches nothing because there's no pattern parsing. Performance is unchanged — `LIKE '%…%'` couldn't use an index either, so both are full scans.\n\nTwo caveats worth knowing rather than coding around:\n- A tag containing a comma (`?tag=a,b`) makes `FIND_IN_SET` return 0. That's the correct answer — such a tag can't exist as a single element in this encoding.\n- Matching stays case-insensitive, same as today, because that's the MySQL collation, not the operator.\n\nIf you'd rather stay engine-portable, the equivalent is `CONCAT(',', article.tagList, ',') LIKE :tag` with `,java,` — but then you must escape `%` and `_` in the input yourself, which is the thing that just bit you. On MySQL I'd take `FIND_IN_SET`.\n\n## The proper fix\n\nThe one-liner makes the query correct; it doesn't make the model right. `simple-array` can't express uniqueness, can't be indexed per-tag, and can't be joined. The structural fix is a real many-to-many — and it pays for itself, because `tag` is already a table that **nothing ever writes to**: `TagService.findAll()` reads it (`src/tag/tag.service.ts:13-15`) but article creation only sets `article.tagList` (`src/article/article.service.ts:176`), so `GET /api/tags` returns `[]` forever on a fresh DB (`.claude/knowledge/schema.md:79-81`). One change fixes the tag filter *and* the dead tags endpoint.\n\nShape of it:\n1. `@ManyToMany(() => TagEntity) @JoinTable()` on `ArticleEntity`; `create()`/`update()` upsert tag rows and link them.\n2. Filter becomes `.innerJoin('article.tags', 't').andWhere('t.tag = :tag', { tag: query.tag })` — indexed, exact, no string surgery.\n3. Keep `tagList: string[]` in the JSON by mapping the relation to names **at the response boundary** — the RealWorld clients read `article.tagList`, and this is the same response-boundary approach already planned for `favoritesCount`/`createdAt` in `CURRENT_FOCUS.md:7-9`.\n\nTwo things that will bite if you do this:\n- `synchronize: true` with no migration files (`.claude/knowledge/schema.md:6-9`) means the schema change happens at boot. Add the relation and **backfill from the existing `tagList` column before dropping it** — otherwise every existing article's tags vanish silently.\n- Once there's a join in `findAll()`, `qb.limit()/offset()` at `src/article/article.service.ts:53-59` are raw SQL `LIMIT` and can truncate joined rows. Switch to `take()/skip()`, which paginate entities.\n\n## Recommendation\n\nShip the `FIND_IN_SET` one-liner now — it's correct, reversible, and touches one line. Queue the join table as its own piece of work alongside the tags endpoint, since it's a schema change on a `synchronize: true` database and deserves a backfill plan rather than being smuggled in as a bugfix. It isn't on `CURRENT_FOCUS.md` today, so it's an add, not a resume.\n\nI don't have an edit tool loaded in this session, so I haven't applied the patch — say the word and I'll write it via the shell, or paste it in yourself.\n\n**Not read:** `src/article/article.module.ts`, `comment.entity.ts`, the `prisma/` branch (explicitly out of scope per `CURRENT_FOCUS.md:20-22`), and your real `ormconfig.json` — I inferred MySQL from `ormconfig.json.example:2`, so confirm that's what you actually run before relying on `FIND_IN_SET`. I also didn't touch the other known defects in this same `findAll()` (the `?favorited=` column mismatch and the undefined `favorites` relation, `src/article/article.service.ts:43-47`) — they're already recorded in `LESSONS.md:68-93` and are separate from your question.",
+  "score": {
+    "checks": [
+      {
+        "id": "names-simple-array-or-string",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-like",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "proper-fix",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "not-just-escaping",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 2,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 5391
+  }
+}

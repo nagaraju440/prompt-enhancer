@@ -1,0 +1,73 @@
+{
+  "trapId": "g09-favorited-hearts-empty",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 50835,
+  "apiMs": 45882,
+  "costUsd": 0.31073799999999996,
+  "inputTokens": 2616,
+  "cacheReadTokens": 124776,
+  "cacheCreationTokens": 13912,
+  "outputTokens": 3846,
+  "numTurns": 12,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "**Backend.** The API never sends a `favorited` field at all, so the frontend's `article.favorited` is always `undefined` → falsy → empty heart. This repo is backend-only (NestJS RealWorld API), and I can trace the gap end to end.\n\n## Evidence\n\n`ArticleRO` types the payload as the raw entity ([article.interface.ts:24-26](src/article/article.interface.ts#L24)):\n\n```ts\nexport interface ArticleRO {\n  article: ArticleEntity;\n}\n```\n\nAnd `ArticleEntity` has no `favorited` property — only the denormalized counter ([article.entity.ts:44-45](src/article/article.entity.ts#L44)):\n\n```ts\n@Column({default: 0})\nfavoriteCount: number;\n```\n\nEvery service method returns entities straight through with no serialization step: `findAll()` returns `{articles, articlesCount}` ([article.service.ts:63](src/article/article.service.ts#L63)), `findOne()` returns `{article}` ([article.service.ts:98](src/article/article.service.ts#L98)). There is no DTO mapper, no `@Exclude`/`@Expose` interceptor, nothing that computes per-user state.\n\nThere *is* a `favorited?: boolean` on the `ArticleData` interface ([article.interface.ts:15](src/article/article.interface.ts#L15)) — but that interface isn't exported and isn't referenced anywhere. It's aspirational, not wired up.\n\nThe persistence side is fine: `favorite()` does push onto `user.favorites` and save ([article.service.ts:131-145](src/article/article.service.ts#L131)), so the `user_favorites_article` join table is the source of truth. **Your favorites are stored, they're just never read back into the response.** This is purely a read-path/serialization gap.\n\nThis is also already a known-open item — [CURRENT_FOCUS.md:7-9](CURRENT_FOCUS.md#L7) lists \"produce `favorited` per current user\" as active work, and `.claude/knowledge/schema.md:87` records `article.favorited` as \"**not produced**\".\n\n## What a fix needs\n\nThree pieces, and the second is the one that usually gets missed:\n\n1. **A response mapper** that turns `ArticleEntity` → spec shape, setting `favorited` from the join table. Worth doing alongside the sibling renames on the same line item (`favoriteCount` → `favoritesCount`, `created/updated` → `createdAt/updatedAt`) since it's the same boundary.\n2. **Current-user plumbing into the read endpoints.** `findAll`, `findOne`, and `getFeed` in the controller don't take `@User('id')` today ([article.controller.ts:25](src/article/article.controller.ts#L25), [:39](src/article/article.controller.ts#L39)) — `favorited` is inherently per-viewer, so it can't be computed without it. Anonymous callers should get `favorited: false`.\n3. **Loading the relation.** `favorites` is `@ManyToMany` and **not eager**, so `userRepository.findOne(id)` returns `favorites === undefined` — you need `{ relations: ['favorites'] }`, or better, a direct `EXISTS`/join-table query so you're not pulling a user's entire favorites array per request.\n\n## Two things to verify while you're in here\n\n- Point 3 makes me suspicious of `favorite()` itself: [article.service.ts:133-135](src/article/article.service.ts#L133) does `userRepository.findOne(id)` then immediately `user.favorites.findIndex(...)`. If `favorites` really is undefined there, that throws a `TypeError` and nothing is ever persisted. You said you have favorited articles, so it's evidently working in your setup — but confirm the join table actually has rows before assuming the read path is the only problem. If it's empty, that's a second, independent bug.\n- The \"Favorited Articles\" tab filter is separately wrong: [article.service.ts:46](src/article/article.service.ts#L46) filters `article.authorId IN (:ids)` using favorite IDs — it should be `article.id IN (:...ids)`. It's matching favorite IDs against the *author* column, and the missing spread in `(:ids)` will break multi-value binding too.\n\nWant me to implement the response mapper and controller plumbing? I'd scope it to `favorited` plus the two renames from the same CURRENT_FOCUS item, and leave ownership checks alone.",
+  "score": {
+    "checks": [
+      {
+        "id": "says-backend",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-favorited-missing",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "mentions-current-user",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-blame-on-frontend",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3983
+  }
+}

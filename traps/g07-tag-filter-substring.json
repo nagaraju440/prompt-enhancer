@@ -1,0 +1,47 @@
+{
+  "id": "g07-tag-filter-substring",
+  "group": "grounding",
+  "intent": "bugfix",
+  "prompt": "GET /articles?tag=java also returns the articles tagged javascript. why and how do we fix it properly?",
+  "lesson": "tagList is simple-array (one string); LIKE %tag% is substring match.",
+  "kb": "LESSONS.md simple-array · schema.md tagList",
+  "judge_key": "tagList is a simple-array column (article.entity.ts:34-35) stored as a comma-joined string; findAll() filters with LIKE %tag% (article.service.ts:35) which is a substring match. Proper fix: delimiter-aware match (CONCAT(\",\", tagList, \",\") LIKE \"%,java,%\" or FIND_IN_SET) or a real join table.",
+  "checks": [
+    {
+      "id": "names-simple-array-or-string",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "simple-array|comma|joined|single (string|column)|delimited"
+    },
+    {
+      "id": "names-like",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "LIKE"
+    },
+    {
+      "id": "proper-fix",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "FIND_IN_SET|,java,|CONCAT|delimiter|join table|ManyToMany|exact match|word boundary"
+    },
+    {
+      "id": "not-just-escaping",
+      "class": "outcome",
+      "type": "must_not_match",
+      "pattern": "the fix is to escape"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

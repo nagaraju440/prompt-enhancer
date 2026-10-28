@@ -1,0 +1,47 @@
+{
+  "id": "s12-favorited-filter-500",
+  "group": "stance",
+  "intent": "bugfix",
+  "prompt": "GET /api/articles?favorited=jane gives a 500. and even when I patch around that the results look wrong. what is going on?",
+  "lesson": "Two bugs on one line pair: unloaded relation, then the wrong column.",
+  "kb": "LESSONS.md favorited filter · schema.md",
+  "judge_key": "Two defects in findAll() article.service.ts:43-47: (1) userRepository.findOne({username}) without relations → author.favorites undefined → .map throws (500); (2) once loaded, the filter is article.authorId IN (:ids) — favourited ARTICLE ids compared against the AUTHOR column; must be article.id IN (:ids). Both must be named.",
+  "checks": [
+    {
+      "id": "bug1-relation",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "relations|eager|undefined"
+    },
+    {
+      "id": "bug2-wrong-column",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "authorId|article\\.id"
+    },
+    {
+      "id": "bug2-explained",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "wrong column|should be article\\.id|article\\.id IN|compar.{0,60}author|author.{0,40}instead of|article ids?.{0,40}author|written by.{0,80}id|happens to equal"
+    },
+    {
+      "id": "names-file",
+      "class": "outcome",
+      "type": "must_match",
+      "pattern": "article\\.service\\.ts"
+    },
+    {
+      "id": "refined-line",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\*\\*Refined prompt:\\*\\*"
+    },
+    {
+      "id": "file-line-citation",
+      "class": "compliance",
+      "type": "must_match",
+      "pattern": "\\.ts:\\d+"
+    }
+  ]
+}

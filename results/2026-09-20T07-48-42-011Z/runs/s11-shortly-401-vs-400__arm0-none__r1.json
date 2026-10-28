@@ -1,0 +1,66 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 30720,
+  "apiMs": 25362,
+  "costUsd": 0.14386100000000002,
+  "inputTokens": 2483,
+  "cacheReadTokens": 62762,
+  "cacheCreationTokens": 7534,
+  "outputTokens": 989,
+  "numTurns": 5,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "Permission deny rule \"MultiEdit\" matches no known tool — check for typos.\n",
+  "text": "Two different code paths with two different notions of \"wrong\":\n\n**Login** (`src/user/user.controller.ts:45-48`) — `findOne()` returns `null` for *both* unknown email and wrong password (`user.service.ts:25-36`). The controller can't tell them apart, so it throws one generic `401 {User: ' not found'}`. That's the correct auth answer: \"these credentials don't authenticate you\", deliberately not saying which half failed.\n\n**Register** (`user.service.ts:49-51`) — the uniqueness check is grouped with input validation. A duplicate username/email is treated as bad input, so it throws `400 {message: 'Input data validation failed', errors}` — the same shape the `class-validator` failure below it throws (`:62-65`). It's a \"your payload is unacceptable\" error, not an \"who are you\" error.\n\nSo: 401 = authentication verdict, 400 = payload rejection. Both defensible in isolation; nobody unified them.\n\nOne wrinkle worth knowing: the login 401 is careful not to leak whether an email exists, but registration's 400 leaks it outright — POST a candidate email to `/users` and the duplicate error confirms the account. The enumeration protection on login is undone by the register endpoint.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1185
+  }
+}

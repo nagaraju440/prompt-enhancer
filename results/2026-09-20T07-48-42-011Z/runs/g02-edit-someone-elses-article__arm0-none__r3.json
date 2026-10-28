@@ -1,0 +1,73 @@
+{
+  "trapId": "g02-edit-someone-elses-article",
+  "group": "grounding",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 54457,
+  "apiMs": 47822,
+  "costUsd": 0.5007385,
+  "inputTokens": 2618,
+  "cacheReadTokens": 134597,
+  "cacheCreationTokens": 33450,
+  "outputTokens": 3434,
+  "numTurns": 12,
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "Yes. Confirmed — and it's not an edge case, it's the default behavior of your `PUT /articles/:slug` endpoint.\n\n## The hole\n\nThe route is **authenticated but never authorized**. `AuthMiddleware` is correctly applied to `PUT articles/:slug` (`article.module.ts:27`), so the caller must present a valid JWT. But that's the only check. Look at the handler:\n\n```ts\n// article.controller.ts:59-63\n@Put(':slug')\nasync update(@Param() params, @Body('article') articleData: CreateArticleDto) {\n  return this.articleService.update(params.slug, articleData);\n}\n```\n\nThe user ID is never read. Compare to `create` on line 52, which does take `@User('id') userId`. The `update` handler has no `@User()` param at all, so it has no idea who's calling — and it passes nothing down:\n\n```ts\n// article.service.ts:190-195\nasync update(slug: string, articleData: any): Promise<ArticleRO> {\n  let toUpdate = await this.articleRepository.findOne({ slug: slug});\n  let updated = Object.assign(toUpdate, articleData);\n  const article = await this.articleRepository.save(updated);\n  return {article};\n}\n```\n\nIt looks the article up by slug alone and saves. `article.author` (`article.entity.ts:37-38`) is never compared against the caller. So **any user with any valid token can edit any article in the system** by knowing its slug — and slugs are public, returned by `GET /articles`.\n\n## It's worse than just editing\n\n`articleData` is typed `any` and fed straight into `Object.assign`. There's no global `ValidationPipe` registered in `main.ts`, and your custom pipe returns the raw `value` rather than the transformed object (`validation.pipe.ts:23`), so it doesn't whitelist extra properties even where it is applied. That means the request body can set fields outside `CreateArticleDto` — including `author`, `id`, `slug`, and `favoriteCount`. An attacker can reassign authorship of your article to themselves in the same request that edits it.\n\nTwo neighboring routes have the identical missing check:\n- `DELETE /articles/:slug` → `delete(params.slug)` (`article.controller.ts:69`) — anyone can delete any article.\n- `DELETE /articles/:slug/comments/:id` (`article.controller.ts:85`) — anyone can delete any comment.\n\n## On your specific article\n\nThere's no audit log here, so you can't recover who did it from the app. Two things you can still check: `article.updated` is maintained by the `@BeforeUpdate` hook (`article.entity.ts:29-32`), so you have a timestamp to correlate against your reverse-proxy or DB logs. And check whether `authorId` on the row still points to you — if it doesn't, the mass-assignment path above was used, not just a plain edit.\n\nOne caveat worth ruling out separately: `SECRET` comes from `src/config.ts`, which isn't in the repo (only `config.ts.example` is). If that secret is weak or shared, token forgery is a second, independent way this could have happened. Worth confirming, since the fix below assumes tokens are trustworthy.\n\n## The fix\n\nThread the user ID through and verify ownership before saving — scoping the lookup by author, then 404/403 if it doesn't match. Same treatment for `delete` and `deleteComment`, plus tightening `articleData` off `any` so the mass-assignment vector closes too.\n\nWant me to make those changes?",
+  "score": {
+    "checks": [
+      {
+        "id": "says-yes-possible",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "names-missing-ownership",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "points-at-update",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "no-false-safety",
+        "class": "outcome",
+        "type": "must_not_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 4,
+    "outcomeTotal": 4,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 3247
+  }
+}

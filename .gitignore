@@ -1,0 +1,11 @@
+node_modules/
+
+# Hook diagnostics: local, per-machine, may contain your own prompts.
+.claude/enhancer-log.md*
+fixture/.claude/enhancer-log.md*
+
+# Benchmark console logs: machine paths, no information not already in
+# results/<runId>/summary.md and the per-run JSON files.
+results/*.log
+results/*.err
+results/*/settings-*.json.bak-*
