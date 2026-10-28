@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 15023,
+  "apiMs": 10466,
+  "costUsd": 0.12864299999999998,
+  "inputTokens": 2391,
+  "cacheReadTokens": 89186,
+  "cacheCreationTokens": 4787,
+  "outputTokens": 969,
+  "numTurns": 5,
+  "assistantMessages": 2,
+  "finalText": "They fail for different reasons.\n\n- **Login, 401** (`user.controller.ts:48`): the credentials can't authenticate the caller. `findOne` in `user.service.ts:25-36` returns `null` for an unknown email and for a wrong password. Both cases give the same 401 with `User not found`. That way the response doesn't reveal whether an email is registered.\n- **Register, 400** (`user.service.ts:49-51`): the request is well-formed, but the data breaks a uniqueness rule. The username or email is already taken, so it's a validation failure, not an authentication one.\n\nThe code doesn't record why these codes were chosen, so this is my reading of the intent. One side effect: the register 400 does reveal that an email or username exists, so the login path hides this and the register path doesn't. Registration has to say so, because the user needs to know to pick another name.\n\nThere's also a small bug nearby. The second 400 at `user.service.ts:65` puts the errors under the key `_errors` instead of `errors`, so the response shape differs from the duplicate case.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look for the login and register handlers.\n\nThey fail for different reasons.\n\n- **Login, 401** (`user.controller.ts:48`): the credentials can't authenticate the caller. `findOne` in `user.service.ts:25-36` returns `null` for an unknown email and for a wrong password. Both cases give the same 401 with `User not found`. That way the response doesn't reveal whether an email is registered.\n- **Register, 400** (`user.service.ts:49-51`): the request is well-formed, but the data breaks a uniqueness rule. The username or email is already taken, so it's a validation failure, not an authentication one.\n\nThe code doesn't record why these codes were chosen, so this is my reading of the intent. One side effect: the register 400 does reveal that an email or username exists, so the login path hides this and the register path doesn't. Registration has to say so, because the user needs to know to pick another name.\n\nThere's also a small bug nearby. The second 400 at `user.service.ts:65` puts the errors under the key `_errors` instead of `errors`, so the response shape differs from the duplicate case.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1104
+  }
+}

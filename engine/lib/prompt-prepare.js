@@ -253,9 +253,22 @@ function prepare(prompt, opts) {
   const complex = complexity >= (cfg.PREP_COMPLEXITY_HIGH || 3);
   const vague = isVague(p, entities, cfg);
 
+  // Did the user ask for a SHORT answer? Then the bar is the enemy. Measured
+  // 2026-10-28: on "shortly, why does login return 401 but signup 400?" the
+  // full block made Claude write 2.4-2.6k characters against a 1.4k ceiling,
+  // 3 times out of 3, on two different models — while the same prompt with no
+  // hook at all came in at 862-1036. Trimming the bar was not enough, because
+  // every section still says "also cover this". So an explicit brevity request
+  // replaces the bar with one line and drops the shape sections entirely.
+  // Safety (confirm_before_acting) and the referent list still apply: being
+  // brief is not a licence to send something or to answer half the question.
+  const brevity = (cfg.PREP_BREVITY_RE || /$^/).test(p);
+
   // Simple prompt -> shorter bar. Over-prompting a simple task hurts.
   let directives = base.directives;
-  if (!complex && Object.keys(entities).length <= 1) {
+  if (brevity) {
+    directives = [cfg.PREP_BREVITY_DIRECTIVE || 'Be brief. Answer what was asked and stop.'];
+  } else if (!complex && Object.keys(entities).length <= 1) {
     directives = directives.slice(0, cfg.PREP_LOW_COMPLEXITY_MAX_BAR || 3);
   }
 
@@ -273,7 +286,9 @@ function prepare(prompt, opts) {
   const briefs = cfg.PREP_ROLE_BRIEF || {};
   const brief = briefs[base.roleKey] || briefs['intent:' + base.primary] || briefs['domain:' + base.domain];
   let roleBody = 'You are a ' + base.role + '.';
-  if (brief) {
+  // The brief is 3-4 more things the answer "should" carry — on a brevity
+  // request that is exactly the wrong pressure, so only the one-line role ships.
+  if (brief && !brevity) {
     for (const line of brief.lines || []) roleBody += '\n- ' + line;
     if (brief.agent) {
       roleBody += '\n- The canonical persona is .claude/agents/' + brief.agent + '.md — invoke the `' +
@@ -313,14 +328,19 @@ function prepare(prompt, opts) {
 
   if (directives.length) sections.push(tag('quality_bar', numbered(directives)));
 
-  const contract = (cfg.PREP_OUTPUT_CONTRACTS || {})[base.primary];
-  if (contract) sections.push(tag('output_contract', contract));
+  // On a brevity request every one of these reads as "also include this", which
+  // is how a 1.4k ceiling became a 2.6k answer. The one-line bar above carries
+  // the whole instruction instead.
+  if (!brevity) {
+    const contract = (cfg.PREP_OUTPUT_CONTRACTS || {})[base.primary];
+    if (contract) sections.push(tag('output_contract', contract));
 
-  const done = (cfg.PREP_DONE_CRITERIA || {})[base.primary];
-  if (done) sections.push(tag('done_when', 'This turn is done when ' + done));
+    const done = (cfg.PREP_DONE_CRITERIA || {})[base.primary];
+    if (done) sections.push(tag('done_when', 'This turn is done when ' + done));
 
-  if ((cfg.PREP_SCOPE_INTENTS || []).includes(base.primary)) {
-    sections.push(tag('scope_discipline', cfg.PREP_SCOPE_DISCIPLINE));
+    if ((cfg.PREP_SCOPE_INTENTS || []).includes(base.primary)) {
+      sections.push(tag('scope_discipline', cfg.PREP_SCOPE_DISCIPLINE));
+    }
   }
 
   const risks = risksFor(p, cfg);
@@ -349,7 +369,12 @@ function prepare(prompt, opts) {
   // follow-ups) stay optional, and even they flip to required once the prompt
   // carries complexity signals, two or more concrete referents, or multiple parts.
   const light = (cfg.PREP_LIGHT_INTENTS || []).includes(base.primary);
-  const mustRefine = !light || complexity >= 1 || Object.keys(entities).length >= 2 || !!multi;
+  // A brevity request makes the restatement optional rather than required: the
+  // opener is one more line of ceremony on an answer that was asked to be two
+  // sentences, and "skip it when trivial" is already the rule. It stays
+  // available — Claude still uses it when the ask is genuinely ambiguous.
+  const mustRefine = !brevity &&
+    (!light || complexity >= 1 || Object.keys(entities).length >= 2 || !!multi);
   const respondBy =
     '<respond_by>\n' +
     (mustRefine

@@ -71,6 +71,7 @@ I benchmarked it instead of guessing. 24 real developer questions, 3 setups, 216
 | Answers judged better **with** the hook | **62%** overall · **70%** on vague or multi-part prompts |
 | Did it make answers more *correct*? | **No.** 96–99% right either way on a small codebase |
 | Did it beat a plain rules file? | **No.** Dead even |
+| Does it help a *cheaper* model? | **No** — and it was briefly worse, until the benchmark found the bug and we fixed it |
 
 So: it makes Claude *behave* better, not *know* more. [`RESULTS.md`](RESULTS.md) has the full
 numbers, including every case where it did worse. The experiment is in this repo — run it yourself.

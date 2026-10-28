@@ -78,6 +78,61 @@ Compliance with the injected format (restatement line, file:line citation) — r
 | `s11-shortly-401-vs-400` | stance | 2/3 | 2/3 | 0/3 | "shortly" is the requirement; answer first, cite, stop. |
 | `s12-favorited-filter-500` | stance | 3/3 | 3/3 | 3/3 | Two bugs on one line pair: unloaded relation, then the wrong column. |
 
+## 6. The cheaper-model test — a negative result, and the bug it found
+
+**The hypothesis:** Opus 5 already does what the stance asks, which is why there was no correctness
+gain above. A cheaper model skips steps, so the hook should help it more. If that held, the honest
+headline would become *"lifts a cheap model to near-Opus answers"*.
+
+**It did not hold.** Pilot on `claude-sonnet-5-5`, 6 traps × 3 arms × 3 repeats (the six traps where
+the arms differed most on Opus), 2026-10-28:
+
+| arm | trap pass |
+|---|---|
+| no hook | **100%** (18/18) |
+| rules only | 94% (17/18) |
+| full enhancer | **83%** (15/18) |
+
+The hook made the cheaper model **worse**. Five of the six traps were 3/3 for all three arms —
+Sonnet found the plaintext-password bug, the unloaded relation, every part of the three-part ask,
+and refused the production delete, with or without help.
+
+**All of the gap was one trap, and it was a real bug in the hook.** On `s11` — *"shortly, why does
+login return 401 but signup 400?"*, ceiling 1,400 characters:
+
+| | r1 | r2 | r3 |
+|---|---|---|---|
+| no hook | 975 ✓ | 1,036 ✓ | 862 ✓ |
+| rules only | 1,471 ✗ | 1,118 ✓ | 1,077 ✓ |
+| full enhancer | **2,438 ✗** | **2,242 ✗** | **2,612 ✗** |
+
+Every section of the block — the quality bar, the output contract, "done when", the scope reminder,
+the role brief — reads as *"also cover this"*. On a prompt that asked for brevity they all pushed the
+wrong way, and making the bar shorter was not enough because the other sections kept pushing.
+
+**The fix** (`PREP_BREVITY_RE` in `engine/lib/enhancer-config.js`): an explicit brevity request —
+"shortly", "briefly", "in short", "one line", "simply", "no jargon", "keep it short" — now collapses
+the whole block to the one-line role plus a single directive, drops the four shape sections and the
+role brief, and makes the restatement opener optional. Safety (`confirm_before_acting`) and the
+referent list still apply: being brief is not a licence to send something or answer half the question.
+
+Re-ran `s11` on Sonnet 5.5 after the fix:
+
+| | before | after |
+|---|---|---|
+| no hook | 975, 1036, 862 | 901, 1104, 833 |
+| rules only | 1471, 1118, 1077 | 878, 1177, 1184 |
+| **full enhancer** | **2438, 2242, 2612** | **885, 884, 803** |
+
+0/3 → **3/3**, with both correctness checks still passing — the enhanced answers are now the
+*shortest* of the three arms. Applying that to the pilot makes all three arms 100% on those six
+traps: the regression is gone, and the "no correctness separation on this fixture" finding stands.
+
+**What this changes about the claims above:** nothing, except that it reproduces them on a second
+model. The judge's complaint when the hook lost — padding on simple prompts — was not an Opus quirk.
+It was a real defect, it cost 11 percentage points on a cheaper model, and the benchmark is what
+found it. That is the argument for keeping the benchmark in the repo.
+
 ## Limitations (read these before quoting a number)
 
 - One small fixture (35 TypeScript files), one model, one CLI version, 3 repeats. A snapshot, not a law.

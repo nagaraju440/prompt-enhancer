@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 14536,
+  "apiMs": 9881,
+  "costUsd": 0.12044949999999999,
+  "inputTokens": 2391,
+  "cacheReadTokens": 88989,
+  "cacheCreationTokens": 4220,
+  "outputTokens": 872,
+  "numTurns": 4,
+  "assistantMessages": 2,
+  "finalText": "The two cases fail for different reasons.\n\n- **Login (401):** `UserService.findOne` returns `null` for both an unknown email and a wrong password, and `user.controller.ts:48` turns that into a 401. The credentials weren't accepted, so the status is \"not authorized\". Using one response for both cases also stops callers from learning which emails are registered.\n- **Register duplicate (400):** `user.service.ts:51` finds an existing user with that username or email and throws `BAD_REQUEST` with \"Input data validation failed\". The request is rejected as bad input, not as an authentication failure.\n\nOne side effect is that a duplicate registration reveals an email is taken, even though login hides it. 409 would arguably fit a duplicate better than 400, but the code uses 400.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll check how the fixture handles these two cases.\n\nThe two cases fail for different reasons.\n\n- **Login (401):** `UserService.findOne` returns `null` for both an unknown email and a wrong password, and `user.controller.ts:48` turns that into a 401. The credentials weren't accepted, so the status is \"not authorized\". Using one response for both cases also stops callers from learning which emails are registered.\n- **Register duplicate (400):** `user.service.ts:51` finds an existing user with that username or email and throws `BAD_REQUEST` with \"Input data validation failed\". The request is rejected as bad input, not as an authentication failure.\n\nOne side effect is that a duplicate registration reveals an email is taken, even though login hides it. 409 would arguably fit a duplicate better than 400, but the code uses 400.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 833
+  }
+}

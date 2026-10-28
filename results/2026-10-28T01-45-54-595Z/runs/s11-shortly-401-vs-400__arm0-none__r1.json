@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 12235,
+  "apiMs": 8245,
+  "costUsd": 0.1223375,
+  "inputTokens": 2391,
+  "cacheReadTokens": 88055,
+  "cacheCreationTokens": 4653,
+  "outputTokens": 793,
+  "numTurns": 4,
+  "assistantMessages": 2,
+  "finalText": "They're two different kinds of failure, and the code uses a different status for each.\n\n- **Login returns 401 (`user.controller.ts:48`).** `findOne` returns `null` for an unknown email or a wrong password (`user.service.ts:27-35`). The controller treats that as failed authentication (\"we can't verify who you are\") and throws 401. Both cases return the same `{User: ' not found'}` error, so a caller can't tell whether the email exists.\n- **Duplicate register returns 400 (`user.service.ts:49-51`).** Here the request is understood, but the submitted data breaks a uniqueness rule. That is bad input, not failed authentication, so it throws `HttpStatus.BAD_REQUEST` with \"Input data validation failed\".\n\nIt's a convention, not something enforced. 409 Conflict would be the more precise code for a duplicate. Also, the 400 message says \"Username and email must be unique\", so it reveals that the email or username is already taken.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look at the auth code to answer this.\n\nThey're two different kinds of failure, and the code uses a different status for each.\n\n- **Login returns 401 (`user.controller.ts:48`).** `findOne` returns `null` for an unknown email or a wrong password (`user.service.ts:27-35`). The controller treats that as failed authentication (\"we can't verify who you are\") and throws 401. Both cases return the same `{User: ' not found'}` error, so a caller can't tell whether the email exists.\n- **Duplicate register returns 400 (`user.service.ts:49-51`).** Here the request is understood, but the submitted data breaks a uniqueness rule. That is bad input, not failed authentication, so it throws `HttpStatus.BAD_REQUEST` with \"Input data validation failed\".\n\nIt's a convention, not something enforced. 409 Conflict would be the more precise code for a duplicate. Also, the 400 message says \"Username and email must be unique\", so it reveals that the email or username is already taken.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 975
+  }
+}

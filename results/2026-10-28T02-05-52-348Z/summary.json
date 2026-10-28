@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "runId": "2026-10-28T02-05-52-348Z",
+    "startedAt": "2026-10-28T02:05:52.359Z",
+    "cli": "C:\\Users\\Nagaraju P\\.local\\bin\\claude.exe",
+    "cliVersion": "2.1.172 (Claude Code)",
+    "model": "claude-sonnet-5-5",
+    "arms": [
+      "arm0-none",
+      "arm1-rules",
+      "arm2-full"
+    ],
+    "repeats": 3,
+    "trapCount": 1,
+    "totalRuns": 9,
+    "seed": 20260920,
+    "fixtureCommit": "lujakob/nestjs-realworld-example-app@c1c2cc4",
+    "finishedAt": "2026-10-28T02:06:46.035Z"
+  },
+  "summary": {
+    "rows": [
+      {
+        "arm": "arm0-none",
+        "runs": 3,
+        "failedRuns": 0,
+        "trapPassRate": 1,
+        "groundingPassRate": null,
+        "stancePassRate": 1,
+        "checkPassRate": 1,
+        "complianceRate": 0.5,
+        "meanWallMs": 16116,
+        "meanTurns": 4.666666666666667,
+        "meanInputTokens": 2391,
+        "meanCacheReadTokens": 89130.66666666667,
+        "meanCacheCreationTokens": 4937.666666666667,
+        "meanOutputTokens": 939,
+        "meanAnswerChars": 946,
+        "meanInjectedChars": 0,
+        "meanCostUsd": 0.12937199999999996,
+        "totalCostUsd": 0.3881159999999999
+      },
+      {
+        "arm": "arm1-rules",
+        "runs": 3,
+        "failedRuns": 0,
+        "trapPassRate": 1,
+        "groundingPassRate": null,
+        "stancePassRate": 1,
+        "checkPassRate": 1,
+        "complianceRate": 1,
+        "meanWallMs": 19326.333333333332,
+        "meanTurns": 5,
+        "meanInputTokens": 3067.3333333333335,
+        "meanCacheReadTokens": 107578,
+        "meanCacheCreationTokens": 10610.333333333334,
+        "meanOutputTokens": 1225,
+        "meanAnswerChars": 1079.6666666666667,
+        "meanInjectedChars": 1976,
+        "meanCostUsd": 0.20585399999999998,
+        "totalCostUsd": 0.6175619999999999
+      },
+      {
+        "arm": "arm2-full",
+        "runs": 3,
+        "failedRuns": 0,
+        "trapPassRate": 1,
+        "groundingPassRate": null,
+        "stancePassRate": 1,
+        "checkPassRate": 1,
+        "complianceRate": 1,
+        "meanWallMs": 16716,
+        "meanTurns": 4,
+        "meanInputTokens": 3262.6666666666665,
+        "meanCacheReadTokens": 87846,
+        "meanCacheCreationTokens": 8017,
+        "meanOutputTokens": 913.6666666666666,
+        "meanAnswerChars": 857.3333333333334,
+        "meanInjectedChars": 14034,
+        "meanCostUsd": 0.16324799999999998,
+        "totalCostUsd": 0.4897439999999999
+      }
+    ],
+    "perTrap": [
+      {
+        "id": "s11-shortly-401-vs-400",
+        "group": "stance",
+        "lesson": "\"shortly\" is the requirement; answer first, cite, stop.",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      }
+    ],
+    "perCheck": [
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "login-401-source",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "register-400-source",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "is-short",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      }
+    ]
+  }
+}

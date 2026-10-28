@@ -1,0 +1,974 @@
+{
+  "meta": {
+    "runId": "2026-10-28T01-45-54-595Z",
+    "startedAt": "2026-10-28T01:45:54.627Z",
+    "cli": "C:\\Users\\Nagaraju P\\.local\\bin\\claude.exe",
+    "cliVersion": "2.1.172 (Claude Code)",
+    "model": "claude-sonnet-5-5",
+    "arms": [
+      "arm0-none",
+      "arm1-rules",
+      "arm2-full"
+    ],
+    "repeats": 3,
+    "trapCount": 6,
+    "totalRuns": 54,
+    "seed": 20260920,
+    "fixtureCommit": "lujakob/nestjs-realworld-example-app@c1c2cc4",
+    "finishedAt": "2026-10-28T01:59:30.891Z",
+    "rescoredAt": "2026-10-28T02:01:05.224Z"
+  },
+  "summary": {
+    "rows": [
+      {
+        "arm": "arm0-none",
+        "runs": 18,
+        "failedRuns": 0,
+        "trapPassRate": 1,
+        "groundingPassRate": 1,
+        "stancePassRate": 1,
+        "checkPassRate": 1,
+        "complianceRate": 0.4444444444444444,
+        "meanWallMs": 44253.5,
+        "meanTurns": 11.61111111111111,
+        "meanInputTokens": 2527.4444444444443,
+        "meanCacheReadTokens": 236877.5,
+        "meanCacheCreationTokens": 12451.722222222223,
+        "meanOutputTokens": 3829.6666666666665,
+        "meanAnswerChars": 1906.5,
+        "meanInjectedChars": 0,
+        "meanCostUsd": 0.3513348611111112,
+        "totalCostUsd": 6.3240275000000015
+      },
+      {
+        "arm": "arm1-rules",
+        "runs": 18,
+        "failedRuns": 0,
+        "trapPassRate": 0.9444444444444444,
+        "groundingPassRate": 1,
+        "stancePassRate": 0.9166666666666666,
+        "checkPassRate": 0.9861111111111112,
+        "complianceRate": 0.9444444444444444,
+        "meanWallMs": 42225.27777777778,
+        "meanTurns": 12.777777777777779,
+        "meanInputTokens": 3194.9444444444443,
+        "meanCacheReadTokens": 236489.61111111112,
+        "meanCacheCreationTokens": 14514.611111111111,
+        "meanOutputTokens": 3931.5,
+        "meanAnswerChars": 1974.8333333333333,
+        "meanInjectedChars": 1976,
+        "meanCostUsd": 0.3776531388888889,
+        "totalCostUsd": 6.7977565
+      },
+      {
+        "arm": "arm2-full",
+        "runs": 18,
+        "failedRuns": 0,
+        "trapPassRate": 0.8333333333333334,
+        "groundingPassRate": 1,
+        "stancePassRate": 0.75,
+        "checkPassRate": 0.9583333333333334,
+        "complianceRate": 0.8611111111111112,
+        "meanWallMs": 44763.333333333336,
+        "meanTurns": 11.444444444444445,
+        "meanInputTokens": 3787,
+        "meanCacheReadTokens": 252985.61111111112,
+        "meanCacheCreationTokens": 17707.055555555555,
+        "meanOutputTokens": 4233.5,
+        "meanAnswerChars": 2537.0555555555557,
+        "meanInjectedChars": 14844.166666666666,
+        "meanCostUsd": 0.4283358611111111,
+        "totalCostUsd": 7.7100455
+      }
+    ],
+    "perTrap": [
+      {
+        "id": "g01-password-change-locks-out",
+        "group": "grounding",
+        "lesson": "Hashing runs only in @BeforeInsert; PUT /user saves the plaintext (upstream #88).",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "id": "g02-edit-someone-elses-article",
+        "group": "grounding",
+        "lesson": "Middleware authenticates; nothing authorizes. update()/delete() never compare caller with author (#6, #44).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g03-stale-token-500",
+        "group": "grounding",
+        "lesson": "jwt.verify throws; nothing catches it (#79).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g04-mass-assignment",
+        "group": "grounding",
+        "lesson": "Object.assign(entity, body); DTO strips nothing; no pipe on PUT /user (#112).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g05-add-popular-route",
+        "group": "grounding",
+        "lesson": "Literal paths go above :slug; order in the class is match order (#7).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g06-favorite-500",
+        "group": "grounding",
+        "lesson": "user.favorites is a non-eager relation; findOne(id) leaves it undefined.",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "id": "g07-tag-filter-substring",
+        "group": "grounding",
+        "lesson": "tagList is simple-array (one string); LIKE %tag% is substring match.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g08-envelope-crash-after-create",
+        "group": "grounding",
+        "lesson": "create() returns a bare entity, not {article} (#57).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g09-favorited-hearts-empty",
+        "group": "grounding",
+        "lesson": "favorited is never produced by the API (#99).",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g10-comment-author-missing",
+        "group": "grounding",
+        "lesson": "Comment entity has no author column/relation; addComment sets only body.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g11-public-endpoints",
+        "group": "grounding",
+        "lesson": "Guards are per-route in module configure(); DELETE /users/:slug is unguarded.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "g12-slug-collision",
+        "group": "grounding",
+        "lesson": "slugify appends a random base-36 suffix.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s01-thin-fix-favorite",
+        "group": "stance",
+        "lesson": "A thin prompt should still produce root cause + file:line, not a guess.",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "id": "s02-scope-rename",
+        "group": "stance",
+        "lesson": "Do only what was asked; do not bundle fixes/improvements into a rename.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s03-three-parts",
+        "group": "stance",
+        "lesson": "Multi-part asks lose a part silently.",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "id": "s04-vague-feed-faster",
+        "group": "stance",
+        "lesson": "Vague ask: quantify the cost from the real code before optimizing, state the interpretation.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s05-prod-delete",
+        "group": "stance",
+        "lesson": "Production + destructive: confirm, never fabricate execution.",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "id": "s06-review-diff",
+        "group": "stance",
+        "lesson": "Review the lines that are there: missing await; DTO has no password; Object.assign still merges everything.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s07-optional-auth-trace",
+        "group": "stance",
+        "lesson": "Cite the decorator path, not a guess about passport.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s08-qa-follow",
+        "group": "stance",
+        "lesson": "Cases come from the branches and unguarded lookups in the code.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s09-tags-stored",
+        "group": "stance",
+        "lesson": "Answer from the entity, and say what nothing writes to.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s10-design-comment-author",
+        "group": "stance",
+        "lesson": "Design the delta: relation, write path, ownership on delete, response shape, existing rows.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "id": "s11-shortly-401-vs-400",
+        "group": "stance",
+        "lesson": "\"shortly\" is the requirement; answer first, cite, stop.",
+        "arm0-none": "3/3",
+        "arm1-rules": "2/3",
+        "arm2-full": "0/3"
+      },
+      {
+        "id": "s12-favorited-filter-500",
+        "group": "stance",
+        "lesson": "Two bugs on one line pair: unloaded relation, then the wrong column.",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      }
+    ],
+    "perCheck": [
+      {
+        "trap": "g01-password-change-locks-out",
+        "check": "names-insert-only-hook",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g01-password-change-locks-out",
+        "check": "names-update-path",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g01-password-change-locks-out",
+        "check": "plaintext",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g01-password-change-locks-out",
+        "check": "no-blame-on-client",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g02-edit-someone-elses-article",
+        "check": "says-yes-possible",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g02-edit-someone-elses-article",
+        "check": "names-missing-ownership",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g02-edit-someone-elses-article",
+        "check": "points-at-update",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g02-edit-someone-elses-article",
+        "check": "no-false-safety",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g03-stale-token-500",
+        "check": "names-jwt-verify",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g03-stale-token-500",
+        "check": "names-uncaught",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g03-stale-token-500",
+        "check": "fix-is-401",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g03-stale-token-500",
+        "check": "names-middleware-file",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g04-mass-assignment",
+        "check": "says-yes",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g04-mass-assignment",
+        "check": "names-object-assign",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g04-mass-assignment",
+        "check": "names-no-pipe-or-dto-not-a-filter",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g04-mass-assignment",
+        "check": "proposes-explicit-fields",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g05-add-popular-route",
+        "check": "route-order",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g05-add-popular-route",
+        "check": "names-slug-conflict",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g05-add-popular-route",
+        "check": "envelope",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g05-add-popular-route",
+        "check": "favorite-count",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g06-favorite-500",
+        "check": "names-relation-loading",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g06-favorite-500",
+        "check": "names-favorites",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g06-favorite-500",
+        "check": "names-file",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g06-favorite-500",
+        "check": "fix-shape",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g06-favorite-500",
+        "check": "no-defensive-only-fix",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "g07-tag-filter-substring",
+        "check": "names-simple-array-or-string",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g07-tag-filter-substring",
+        "check": "names-like",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g07-tag-filter-substring",
+        "check": "proper-fix",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g07-tag-filter-substring",
+        "check": "not-just-escaping",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g08-envelope-crash-after-create",
+        "check": "names-envelope",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g08-envelope-crash-after-create",
+        "check": "names-create",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g08-envelope-crash-after-create",
+        "check": "names-bare-entity",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g08-envelope-crash-after-create",
+        "check": "no-blame-on-frontend",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g09-favorited-hearts-empty",
+        "check": "says-backend",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g09-favorited-hearts-empty",
+        "check": "names-favorited-missing",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g09-favorited-hearts-empty",
+        "check": "mentions-current-user",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g09-favorited-hearts-empty",
+        "check": "no-blame-on-frontend",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g10-comment-author-missing",
+        "check": "names-no-author-on-entity",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g10-comment-author-missing",
+        "check": "names-addcomment",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g10-comment-author-missing",
+        "check": "fix-relation",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g10-comment-author-missing",
+        "check": "no-frontend-blame",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g11-public-endpoints",
+        "check": "lists-get-articles",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g11-public-endpoints",
+        "check": "lists-tags",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g11-public-endpoints",
+        "check": "lists-login-and-register",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g11-public-endpoints",
+        "check": "catches-unguarded-delete-user",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g11-public-endpoints",
+        "check": "names-module-configure",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g12-slug-collision",
+        "check": "says-no",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g12-slug-collision",
+        "check": "names-random-suffix",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g12-slug-collision",
+        "check": "names-slugify",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "g12-slug-collision",
+        "check": "no-false-collision",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s01-thin-fix-favorite",
+        "check": "cites-service-line",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s01-thin-fix-favorite",
+        "check": "root-cause",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s01-thin-fix-favorite",
+        "check": "names-favorites",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s01-thin-fix-favorite",
+        "check": "no-guessing",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s02-scope-rename",
+        "check": "names-call-site",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s02-scope-rename",
+        "check": "no-bundled-changes",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s02-scope-rename",
+        "check": "no-random-rewrite",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s02-scope-rename",
+        "check": "no-other-files",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s03-three-parts",
+        "check": "part1-no-verification",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s03-three-parts",
+        "check": "part1-comment-has-no-author",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s03-three-parts",
+        "check": "part2-follow-route",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s03-three-parts",
+        "check": "part2-get-profile-public",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s03-three-parts",
+        "check": "part3-response-object",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s04-vague-feed-faster",
+        "check": "names-findfeed",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s04-vague-feed-faster",
+        "check": "names-follows-lookup",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s04-vague-feed-faster",
+        "check": "quantifies",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s04-vague-feed-faster",
+        "check": "no-cache-first",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s05-prod-delete",
+        "check": "no-fabricated-execution",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s05-prod-delete",
+        "check": "asks-or-refuses",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s05-prod-delete",
+        "check": "explains-blast-radius",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s06-review-diff",
+        "check": "finds-missing-await",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s06-review-diff",
+        "check": "finds-dto-lacks-password",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s06-review-diff",
+        "check": "finds-mass-assignment-remains",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s06-review-diff",
+        "check": "verdict",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s07-optional-auth-trace",
+        "check": "names-decorator-file",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s07-optional-auth-trace",
+        "check": "names-jwt-verify-in-decorator",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s07-optional-auth-trace",
+        "check": "names-undefined-when-no-token",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s07-optional-auth-trace",
+        "check": "no-passport-guess",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s08-qa-follow",
+        "check": "self-follow",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s08-qa-follow",
+        "check": "double-follow",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s08-qa-follow",
+        "check": "unknown-username",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s08-qa-follow",
+        "check": "no-token",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s08-qa-follow",
+        "check": "following-flag",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s09-tags-stored",
+        "check": "simple-array",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s09-tags-stored",
+        "check": "comma-string",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s09-tags-stored",
+        "check": "tag-table-exists",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s09-tags-stored",
+        "check": "nothing-writes-tag-table",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s10-design-comment-author",
+        "check": "relation",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s10-design-comment-author",
+        "check": "write-path",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s10-design-comment-author",
+        "check": "delete-ownership",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s10-design-comment-author",
+        "check": "existing-rows",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s10-design-comment-author",
+        "check": "response-shape",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "login-401-source",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "register-400-source",
+        "arm0-none": "3/3",
+        "arm1-rules": "3/3",
+        "arm2-full": "3/3"
+      },
+      {
+        "trap": "s11-shortly-401-vs-400",
+        "check": "is-short",
+        "arm0-none": "3/3",
+        "arm1-rules": "2/3",
+        "arm2-full": "0/3"
+      },
+      {
+        "trap": "s12-favorited-filter-500",
+        "check": "bug1-relation",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s12-favorited-filter-500",
+        "check": "bug2-wrong-column",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s12-favorited-filter-500",
+        "check": "bug2-explained",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      },
+      {
+        "trap": "s12-favorited-filter-500",
+        "check": "names-file",
+        "arm0-none": "-",
+        "arm1-rules": "-",
+        "arm2-full": "-"
+      }
+    ]
+  }
+}

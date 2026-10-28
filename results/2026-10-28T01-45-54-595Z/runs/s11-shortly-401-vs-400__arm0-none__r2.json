@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 2,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 20066,
+  "apiMs": 14227,
+  "costUsd": 0.13083899999999998,
+  "inputTokens": 2391,
+  "cacheReadTokens": 88058,
+  "cacheCreationTokens": 5078,
+  "outputTokens": 963,
+  "numTurns": 5,
+  "assistantMessages": 2,
+  "finalText": "Each endpoint uses a different status code for a different kind of failure.\n\n- **Login returns 401.** `UserService.findOne` (`src/user/user.service.ts:25-36`) returns `null` for an unknown email or a wrong password. The controller then throws a 401 (`src/user/user.controller.ts:48`). The message is the same either way, `{User: ' not found'}`. That way the response doesn't reveal whether an email is registered. The failure is \"your credentials weren't accepted.\"\n- **Duplicate registration returns 400.** `UserService.create` (`src/user/user.service.ts:49-51`) finds an existing user with that username or email and throws `HttpStatus.BAD_REQUEST`. The failure is \"your input is invalid,\" not \"you failed to authenticate.\" It's a validation error, so it carries `message: 'Input data validation failed'`.\n\nThe code sets these codes by hand in each place, not through a shared error scheme. `findById` (`src/user/user.service.ts:92`) also uses 401 for a missing user, which is arguably a 404.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll check the auth code in the fixture.\n\nEach endpoint uses a different status code for a different kind of failure.\n\n- **Login returns 401.** `UserService.findOne` (`src/user/user.service.ts:25-36`) returns `null` for an unknown email or a wrong password. The controller then throws a 401 (`src/user/user.controller.ts:48`). The message is the same either way, `{User: ' not found'}`. That way the response doesn't reveal whether an email is registered. The failure is \"your credentials weren't accepted.\"\n- **Duplicate registration returns 400.** `UserService.create` (`src/user/user.service.ts:49-51`) finds an existing user with that username or email and throws `HttpStatus.BAD_REQUEST`. The failure is \"your input is invalid,\" not \"you failed to authenticate.\" It's a validation error, so it carries `message: 'Input data validation failed'`.\n\nThe code sets these codes by hand in each place, not through a shared error scheme. `findById` (`src/user/user.service.ts:92`) also uses 401 for a missing user, which is arguably a 404.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 1036
+  }
+}

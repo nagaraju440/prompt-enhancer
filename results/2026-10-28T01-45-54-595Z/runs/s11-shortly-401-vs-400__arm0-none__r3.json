@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 3,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 12811,
+  "apiMs": 8839,
+  "costUsd": 0.133427,
+  "inputTokens": 2391,
+  "cacheReadTokens": 90264,
+  "cacheCreationTokens": 5924,
+  "outputTokens": 684,
+  "numTurns": 3,
+  "assistantMessages": 2,
+  "finalText": "They answer different questions, so they get different codes.\n\n- **Login, 401** (`src/user/user.controller.ts:48`): the credentials are rejected. `findOne` returns `null` for both an unknown email and a wrong password, and the controller turns that into 401 \"unauthorized\". Treating both cases the same also stops callers from using login to find out which emails are registered.\n- **Register duplicate, 400** (`src/user/user.service.ts:51`): the request is understood, but the data breaks a rule (username and email must be unique). The code throws `HttpStatus.BAD_REQUEST` with \"Input data validation failed\".\n\nThis isn't a firm convention. `findById` (`user.service.ts:92`) also uses 401 for \"user not found\", and the duplicate-registration case could arguably be 409 Conflict. The codes look like individual choices.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll check the auth code in the fixture.\n\nThey answer different questions, so they get different codes.\n\n- **Login, 401** (`src/user/user.controller.ts:48`): the credentials are rejected. `findOne` returns `null` for both an unknown email and a wrong password, and the controller turns that into 401 \"unauthorized\". Treating both cases the same also stops callers from using login to find out which emails are registered.\n- **Register duplicate, 400** (`src/user/user.service.ts:51`): the request is understood, but the data breaks a rule (username and email must be unique). The code throws `HttpStatus.BAD_REQUEST` with \"Input data validation failed\".\n\nThis isn't a firm convention. `findById` (`user.service.ts:92`) also uses 401 for \"user not found\", and the duplicate-registration case could arguably be 409 Conflict. The codes look like individual choices.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 862
+  }
+}

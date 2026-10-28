@@ -1,0 +1,68 @@
+{
+  "trapId": "s11-shortly-401-vs-400",
+  "group": "stance",
+  "arm": "arm0-none",
+  "repeat": 1,
+  "ok": true,
+  "exitCode": 0,
+  "error": null,
+  "wallMs": 18789,
+  "apiMs": 13875,
+  "costUsd": 0.1390235,
+  "inputTokens": 2391,
+  "cacheReadTokens": 89217,
+  "cacheCreationTokens": 5806,
+  "outputTokens": 976,
+  "numTurns": 5,
+  "assistantMessages": 2,
+  "finalText": "The two endpoints answer different questions, so they use different codes.\n\n- **Login, 401** (`user.controller.ts:48`): `findOne` (`user.service.ts:25`) returns `null` for both an unknown email and a wrong password. The controller turns either into the same `{User: ' not found'}` 401. Giving both cases one response means an attacker can't use login to check which emails are registered.\n- **Register, 400** (`user.service.ts:49-51`): the request is rejected as invalid input because the username or email already exists. It is thrown as `BAD_REQUEST` with \"Input data validation failed\", the same code the DTO validation failures use. A 409 Conflict would be more precise, but this code groups it with validation errors.\n\nThe register check does reveal that an email is taken. The enumeration protection on login is therefore only partial across the API as a whole.",
+  "injectedChars": 0,
+  "injected": "",
+  "stderr": "",
+  "text": "I'll look for the auth handlers.\n\nThe two endpoints answer different questions, so they use different codes.\n\n- **Login, 401** (`user.controller.ts:48`): `findOne` (`user.service.ts:25`) returns `null` for both an unknown email and a wrong password. The controller turns either into the same `{User: ' not found'}` 401. Giving both cases one response means an attacker can't use login to check which emails are registered.\n- **Register, 400** (`user.service.ts:49-51`): the request is rejected as invalid input because the username or email already exists. It is thrown as `BAD_REQUEST` with \"Input data validation failed\", the same code the DTO validation failures use. A 409 Conflict would be more precise, but this code groups it with validation errors.\n\nThe register check does reveal that an email is taken. The enumeration protection on login is therefore only partial across the API as a whole.",
+  "score": {
+    "checks": [
+      {
+        "id": "login-401-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "register-400-source",
+        "class": "outcome",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "is-short",
+        "class": "outcome",
+        "type": "max_chars",
+        "pass": true,
+        "error": null
+      },
+      {
+        "id": "refined-line",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": false,
+        "error": null
+      },
+      {
+        "id": "file-line-citation",
+        "class": "compliance",
+        "type": "must_match",
+        "pass": true,
+        "error": null
+      }
+    ],
+    "outcomePassed": 3,
+    "outcomeTotal": 3,
+    "compliancePassed": 1,
+    "complianceTotal": 2,
+    "passed": true,
+    "chars": 901
+  }
+}

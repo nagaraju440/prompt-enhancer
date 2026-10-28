@@ -346,6 +346,21 @@ module.exports = {
 
   PREP_MAX_CHARS: 4800,
   PREP_LOW_COMPLEXITY_MAX_BAR: 3,
+
+  // ---- brevity override (added 2026-10-28 after the Sonnet pilot) ----
+  // When the prompt itself asks for a short answer, the quality bar, the output
+  // contract, "done when", the scope reminder and the role brief all push the
+  // other way — each one is another thing the answer "should" include. Measured
+  // on `s11` ("shortly, why does login return 401 but signup 400?"): with the
+  // full block, 2438/2242/2612 chars against a 1400 ceiling on Sonnet 5.5 and
+  // the same failure on Opus 5; with no hook at all, 862-1036. So a brevity
+  // request collapses the block to the one line below, and the shape sections
+  // are skipped. Safety and the referent list still apply.
+  PREP_BREVITY_RE: /\b(short(ly)?|briefl?y?|in short|in a (line|sentence)|one[- ](line|liner|sentence|para(graph)?)|concise(ly)?|tl;?dr|just (the )?(answer|yes or no)|yes or no|simpl[ey]|plain(ly)? (words|english)|no (jargon|preamble|fluff)|don'?t (ramble|pad)|keep it (short|brief|simple))\b/i,
+  PREP_BREVITY_DIRECTIVE:
+    'I asked for this SHORT — that is the requirement, not a preference. Lead with the answer in one or two ' +
+    'sentences and stop there. No preamble, no recap, no structure I did not ask for, no "additionally". If ' +
+    'something important does not fit, say so in one clause and let me ask.',
   PREP_LIGHT_INTENTS: ['explain'],
   PREP_COMPLEXITY_HIGH: 3,
   PREP_MAX_ENTITIES_PER_KIND: 6,

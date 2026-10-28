@@ -16,7 +16,7 @@
     "seed": 20260920,
     "fixtureCommit": "lujakob/nestjs-realworld-example-app@c1c2cc4",
     "finishedAt": "2026-09-21T17:38:22.656Z",
-    "rescoredAt": "2026-09-21T18:48:30.010Z"
+    "rescoredAt": "2026-10-28T02:01:05.781Z"
   },
   "summary": {
     "rows": [
@@ -35,7 +35,7 @@
         "meanCacheReadTokens": 282992.09722222225,
         "meanCacheCreationTokens": 25777.847222222223,
         "meanOutputTokens": 7224.222222222223,
-        "meanAnswerChars": 3591.8611111111113,
+        "meanAnswerChars": 3591.5,
         "meanInjectedChars": 0,
         "meanCostUsd": 0.5932001458333332,
         "totalCostUsd": 42.710410499999995
@@ -55,7 +55,7 @@
         "meanCacheReadTokens": 309628.6666666667,
         "meanCacheCreationTokens": 26129.916666666668,
         "meanOutputTokens": 7829.777777777777,
-        "meanAnswerChars": 4099.25,
+        "meanAnswerChars": 4097.944444444444,
         "meanInjectedChars": 1976,
         "meanCostUsd": 0.628961013888889,
         "totalCostUsd": 45.285193000000014
@@ -75,7 +75,7 @@
         "meanCacheReadTokens": 291131.84722222225,
         "meanCacheCreationTokens": 27032.847222222223,
         "meanOutputTokens": 9075.833333333334,
-        "meanAnswerChars": 6202.097222222223,
+        "meanAnswerChars": 6201.444444444444,
         "meanInjectedChars": 13701.5,
         "meanCostUsd": 0.6632172430555555,
         "totalCostUsd": 47.7516415
