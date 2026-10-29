@@ -113,7 +113,21 @@ function enrich(prompt, opts) {
   const p = String(prompt || '');
   if (!p.trim()) return null;
 
-  const ranked = scoreIntents(p, cfg);
+  let ranked = scoreIntents(p, cfg);
+
+  // No keyword matched — but if the message points at something concrete (a
+  // ticket id, a URL, a file path), the user is plainly asking us to go and
+  // look at that thing, whatever verb they happened to use. Treat it as
+  // `investigate` rather than injecting nothing.
+  //
+  // Why this exists: matching on verbs alone means the tool works for people
+  // whose phrasing we guessed and is silently absent for everyone else. Adding
+  // more verbs only moves the boundary; this removes a whole class. Deliberately
+  // narrow — it needs a real referent, so "thanks", "ok", "continue" still get
+  // nothing, which is correct.
+  if (!ranked.length && (cfg.ENRICH_ANCHOR_RE || /$^/).test(p)) {
+    ranked = [{ intent: cfg.ENRICH_ANCHOR_FALLBACK || 'investigate', hits: 0, anchored: true }];
+  }
   if (!ranked.length) return null;
 
   const domain = resolveDomain(p, cfg);

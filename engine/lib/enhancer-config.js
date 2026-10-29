@@ -157,6 +157,16 @@ module.exports = {
    * Pure regex over the prompt. Never adds scope.
    * ===================================================================== */
 
+  // ---- anchored fallback (added 2026-10-29) ----
+  // A message with no matching verb but a concrete referent — a ticket key, a
+  // URL, or a file path — is still a request to go and look at that thing.
+  // Without this, "PF-21341 bro check this issue once" injected nothing while
+  // "why is PF-21341 failing" got the full block, purely on phrasing habit.
+  // Kept narrow on purpose: a bare "ok" or "continue" has no referent and must
+  // still be skipped, which is why this is not simply "always enrich".
+  ENRICH_ANCHOR_RE: /\b[A-Z][A-Z0-9]+-\d+\b|https?:\/\/\S+|[\w./\\-]+\.(?:ts|tsx|js|jsx|mjs|py|rb|go|java|cs|php|sql|md|json|ya?ml|env)\b|#\d{1,6}\b/,
+  ENRICH_ANCHOR_FALLBACK: 'investigate',
+
   ENRICH_MIN_PROMPT_LEN: 8,
   ENRICH_MAX_PROMPT_LEN: 6000,
   ENRICH_MAX_DIRECTIVES: 6,
@@ -234,7 +244,14 @@ module.exports = {
     {
       type: 'investigate',
       role: 'senior engineer doing code archaeology ' + ON,
-      patterns: [/\bwhy\b/i, /root cause/i, /\bwhere is\b/i, /\bwhere does\b/i, /how does\b/i, /\btrace\b/i, /\bexplain\b/i, /\bfind out\b/i, /which file/i, /what happens (when|if)/i, /\binvestigate\b/i, /\bunderstand\b/i, /what'?s going on/i, /\bis (it|that) possible\b/i],
+      // The "go and look at this" verbs were missing until 2026-10-29. A user
+      // whose habit is "PF-21341 bro check this issue once" got NOTHING — no
+      // stance, no refined prompt — while a colleague writing "why is X
+      // failing" got the full block. Same tool, same project, opposite
+      // experience, and no signal either way. Phrasing is a habit, so the fix
+      // is both these verbs and the fallback in prompt-enrich.js.
+      patterns: [/\bwhy\b/i, /root cause/i, /\bwhere is\b/i, /\bwhere does\b/i, /how does\b/i, /\btrace\b/i, /\bexplain\b/i, /\bfind out\b/i, /which file/i, /what happens (when|if)/i, /\binvestigate\b/i, /\bunderstand\b/i, /what'?s going on/i, /\bis (it|that) possible\b/i,
+        /\bcheck\b/i, /\blook (at|into)\b/i, /\bhave a look\b/i, /\btake a look\b/i, /\bgo through\b/i, /\bdig into\b/i, /\bglance\b/i, /\bsee (this|that|what|why|if)\b/i, /\bany (idea|thoughts)\b/i, /\bwhat (do you think|is this)\b/i],
       directives: [
         'Cite file:line with the verbatim snippet for every claim — paraphrase is not evidence.',
         'Follow the real call path end to end before concluding; do not stop at the first plausible match.',

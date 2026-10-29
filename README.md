@@ -104,11 +104,30 @@ node ~/prompt-enhancer/engine/install.js --uninstall
 one file (`.claude/settings.json`), keeps everything already in it, backs it up, and does nothing if
 you run it twice.
 
-See what it sends, without starting a session:
+## Is it working?
+
+The hook is invisible by design, so there is a command that shows you exactly what it would add
+to any prompt — no session, no model call, nothing spent:
 
 ```bash
-echo '{"prompt":"fix the login bug"}' | node ~/prompt-enhancer/engine/prompt-enhancer.js
+node ~/prompt-enhancer/engine/check.js "why is the login endpoint failing"
 ```
+
+```
+> why is the login endpoint failing
+  ✓ ADDED 2270 characters   13ms
+    job type   : investigate   ·   domain: backend
+    role       : senior engineer doing code archaeology on <your project>
+    sections   : detected_work, role, quality_bar, output_contract, done_when
+    asks for a "Refined prompt:" line: YES (required)
+```
+
+If it says **NOTHING ADDED**, that is the honest answer — your wording matched no job type, so
+Claude got your prompt exactly as typed. Add `--full` to print the whole block, or
+`--project <path>` to check against a different project.
+
+To see it over time, `ENHANCER_LOG=debug` records every prompt including the ones that matched
+nothing, so `grep -c "^MISS" .claude/enhancer-log.md` tells you how often it stayed quiet.
 
 ## Make it smarter about your project (optional)
 

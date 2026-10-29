@@ -118,6 +118,11 @@ function logTurn(prompt, retrieved, enrichment) {
     let entry =
       '===== ' + ts + ' =====\n' +
       'CLASS: ' + cls + '  |  KB: ' + kb + '\n';
+    if (!enrichment) {
+      // The line that makes the miss rate countable:
+      //   grep -c '^MISS' .claude/enhancer-log.md
+      entry += 'MISS: no intent matched — no stance injected for this prompt\n';
+    }
     if (enrichment) {
       entry +=
         'INTENT: ' + enrichment.intent +
@@ -243,7 +248,14 @@ function enrichSkipReason(prompt) {
     }
 
     // Stance first, then facts: the stance frames how the facts get used.
-    if (enrichment || kbBlock) logTurn(prompt, kbBlock ? retrieved : null, enrichment);
+    // Log the MISSES too. Until 2026-10-29 this line read
+    //   if (enrichment || kbBlock) logTurn(...)
+    // so the log only ever held turns where something was injected — which made
+    // the log useless for the one question that matters, "how often does this
+    // do nothing?". A real user ("PF-21341 bro check this issue once") got no
+    // stance at all and we had no way to see it until she said so. A miss is
+    // now one line in the same file, marked MISS.
+    logTurn(prompt, kbBlock ? retrieved : null, enrichment);
     emit(enrichment ? enrichment.text : '', kbBlock);
   } catch {
     emit(); // absolute last-resort fallback
